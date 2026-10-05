@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SURA · Spectrum Usage & Revenue Assessment</title>
+  <title>UPSARAS</title>
   <style>
     /* ---------- design tokens ---------- */
     :root {
@@ -471,10 +471,10 @@
 <body>
 
   <!-- ========== LOADING SCREEN ========== -->
-  <div id="loadingScreen" role="status" aria-label="Loading SURA">
+  <div id="loadingScreen" role="status" aria-label="Loading UPSARAS">
     <div class="logo-wrap">
-      <!-- YOUR LOGO — save the provided image as assets/sura-logo.png -->
-      <img id="loadingLogo" src="assets/sura-logo.png" alt="SURA — Spectrum Usage & Revenue Assessment logo" loading="eager">
+      <!-- YOUR LOGO — save the provided image as assets/UPSARAS-logo.png -->
+      <img id="loadingLogo" src="assets/UPSARAS-logo.png" alt="UPSARAS — Spectrum Usage & Revenue Assessment logo" loading="eager">
     </div>
     <div class="loading-bar"><span></span></div>
     <div class="loading-label">Loading assessment modules…</div>
@@ -488,7 +488,7 @@
       <header class="masthead">
         <div class="brand">
           <div class="eyebrow">Spectrum Usage &amp; Revenue Assessment</div>
-          <h1>SURA</h1>
+          <h1>UPSARAS</h1>
           <p>Spectrum Usage &amp; Revenue Assessment — unified calculation suite</p>
         </div>
         <div class="logo-badge">
@@ -510,7 +510,7 @@
             </svg>
           </button>
 
-          <img src="assets/sura-logo.png" alt="SURA logo">
+          <img src="assets/UPSARAS-logo.png" alt="UPSARAS logo">
           <div class="asof">
             Assessment suite<br><b>v1.0</b>
           </div>
@@ -581,7 +581,7 @@
       </div>
 
       <footer>
-        SURA — Spectrum Usage &amp; Revenue Assessment · All calculations use full precision internally.
+        UPSARAS — Spectrum Usage &amp; Revenue Assessment · All calculations use full precision internally.
       </footer>
 
     </div>
@@ -605,7 +605,7 @@
         // Off-white is the DEFAULT. We only honor a saved choice, and we do
         // NOT fall back to the OS preference for this landing page.
         var saved = null;
-        try { saved = localStorage.getItem('sura_theme'); } catch (e) {}
+        try { saved = localStorage.getItem('UPSARAS_theme'); } catch (e) {}
         apply(saved === 'dark' ? 'dark' : 'light');
 
         if (toggle) {
@@ -613,7 +613,7 @@
             var current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
             var next = current === 'dark' ? 'light' : 'dark';
             apply(next);
-            try { localStorage.setItem('sura_theme', next); } catch (e) {}
+            try { localStorage.setItem('UPSARAS_theme', next); } catch (e) {}
           });
         }
       })();
