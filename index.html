@@ -449,6 +449,393 @@
     /* Auto-dark is intentionally disabled — the landing page is off-white by
        default unless the user explicitly picks dark with the toggle. */
 
+    /* ============================================================
+       SIDEBAR MENU  (new)
+       Desktop: expanded (260px) ⇄ collapsed icon rail (72px) with tooltips.
+       Narrow screens (≤760px): becomes a top bar; menu slides down.
+       ============================================================ */
+    :root {
+      --sb-w: 260px;
+      --sb-w-collapsed: 72px;
+      --sb-topbar-h: 56px;
+      --sb-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #app {
+      margin-left: var(--sb-w);
+      transition: opacity 0.6s ease 0.15s, margin-left 0.28s var(--sb-ease);
+    }
+
+    body.sb-collapsed #app { margin-left: var(--sb-w-collapsed); }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sb-w);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      background: var(--paper-raised);
+      border-right: 1px solid var(--line);
+      transition: width 0.28s var(--sb-ease), background 0.2s ease, border-color 0.2s ease;
+    }
+
+    body.sb-collapsed .sidebar { width: var(--sb-w-collapsed); }
+
+    .sb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      height: 64px;
+      padding: 0 14px 0 18px;
+      border-bottom: 1px solid var(--line-soft);
+      flex-shrink: 0;
+    }
+
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .sb-brand img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .sb-brand span {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .sb-toggle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .sb-toggle:hover { border-color: var(--brass); color: var(--brass); }
+
+    .sb-toggle svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.28s var(--sb-ease);
+    }
+
+    body.sb-collapsed .sb-toggle .chev { transform: rotate(180deg); }
+    .sb-toggle .ham { display: none; }
+
+    .sb-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px 12px;
+      list-style: none;
+    }
+
+    .sb-nav li { position: relative; list-style: none; }
+
+    .nav-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+
+    .nav-item:hover { background: var(--brass-soft); color: var(--ink); }
+
+    .nav-item.active {
+      background: var(--brass-soft);
+      color: var(--brass);
+      font-weight: 600;
+    }
+
+    .nav-item svg.ico {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item .label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+
+    .nav-item .caret {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.25s var(--sb-ease);
+    }
+
+    .nav-group.open > .nav-item .caret { transform: rotate(90deg); }
+
+    .nav-item:focus-visible,
+    .sb-toggle:focus-visible,
+    .sb-brand:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 2px;
+    }
+
+    /* ---- submenu (inline when expanded) ---- */
+    .submenu {
+      list-style: none;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.28s var(--sb-ease);
+    }
+
+    .nav-group.open > .submenu { max-height: 160px; }
+
+    .submenu .nav-item {
+      height: 38px;
+      margin-top: 2px;
+      padding-left: 44px;
+      font-size: 13.5px;
+    }
+
+    .submenu .nav-item svg.ico { width: 16px; height: 16px; margin-left: -22px; }
+    .flyout-title { display: none; }
+
+    .sb-footer {
+      padding: 14px 18px;
+      border-top: 1px solid var(--line-soft);
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* ---- tooltip (collapsed only) ---- */
+    .tip::after,
+    .tip::before {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      z-index: 200;
+    }
+
+    .tip::after {
+      content: attr(data-tooltip);
+      left: calc(100% + 14px);
+      top: 50%;
+      transform: translate(-6px, -50%);
+      padding: 6px 11px;
+      border-radius: 6px;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 12.5px;
+      font-weight: 500;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+
+    .tip::before {
+      content: "";
+      left: calc(100% + 8px);
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      background: var(--ink);
+      transform: translate(-6px, -50%) rotate(45deg);
+    }
+
+    /* ---- desktop collapsed rail ---- */
+    @media (min-width: 761px) {
+      /* Tooltips fire on hover / keyboard focus; the expanded toggle gets one too */
+      body.sb-collapsed .tip:hover::after,
+      body.sb-collapsed .tip:focus-visible::after,
+      body:not(.sb-collapsed) .sb-toggle.tip:hover::after,
+      body:not(.sb-collapsed) .sb-toggle.tip:focus-visible::after {
+        opacity: 1;
+        transform: translate(0, -50%);
+      }
+      body.sb-collapsed .tip:hover::before,
+      body.sb-collapsed .tip:focus-visible::before,
+      body:not(.sb-collapsed) .sb-toggle.tip:hover::before,
+      body:not(.sb-collapsed) .sb-toggle.tip:focus-visible::before {
+        opacity: 1;
+        transform: translate(0, -50%) rotate(45deg);
+      }
+
+      /* the expanded-state toggle is near the edge; show its tip to the right of the sidebar */
+      body:not(.sb-collapsed) .sb-toggle.tip::after { left: calc(100% + 12px); }
+      body:not(.sb-collapsed) .sb-toggle.tip::before { left: calc(100% + 6px); }
+
+      /* Expanded: no tooltips on nav items (labels are visible) */
+      body:not(.sb-collapsed) .nav-item.tip::after,
+      body:not(.sb-collapsed) .nav-item.tip::before { display: none; }
+
+      body.sb-collapsed .sb-header {
+        flex-direction: column;
+        justify-content: center;
+        height: 64px;
+        padding: 0;
+      }
+      body.sb-collapsed .sb-brand { display: none; }
+      body.sb-collapsed .sb-header { align-items: center; }
+      body.sb-collapsed .sb-nav { align-items: center; padding: 14px 0; }
+      body.sb-collapsed .sb-nav li { width: 48px; }
+      body.sb-collapsed .nav-item { justify-content: center; padding: 0; width: 48px; }
+      body.sb-collapsed .nav-item .label,
+      body.sb-collapsed .nav-item .caret { display: none; }
+      body.sb-collapsed .sb-footer { display: none; }
+
+      /* Tools tooltip is replaced by the flyout when collapsed */
+      body.sb-collapsed .nav-group > .nav-item.tip::after,
+      body.sb-collapsed .nav-group > .nav-item.tip::before { display: none; }
+
+      /* submenu becomes a flyout */
+      body.sb-collapsed .submenu {
+        position: absolute;
+        left: calc(100% + 14px);
+        top: 0;
+        min-width: 190px;
+        max-height: none;
+        overflow: visible;
+        padding: 6px;
+        background: var(--paper-raised);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-6px);
+        transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+        z-index: 200;
+      }
+      /* hover bridge so the pointer can travel from icon to flyout */
+      body.sb-collapsed .submenu::before {
+        content: "";
+        position: absolute;
+        left: -18px;
+        top: 0;
+        width: 18px;
+        height: 100%;
+      }
+      body.sb-collapsed .nav-group:hover > .submenu,
+      body.sb-collapsed .nav-group:focus-within > .submenu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+      }
+      body.sb-collapsed .flyout-title {
+        display: block;
+        padding: 4px 10px 6px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+      body.sb-collapsed .submenu .nav-item {
+        width: 100%;
+        justify-content: flex-start;
+        height: 38px;
+        margin-top: 0;
+        padding: 0 10px;
+        gap: 10px;
+      }
+      body.sb-collapsed .submenu .nav-item svg.ico { margin-left: 0; }
+      body.sb-collapsed .submenu .nav-item .label { display: block; }
+      body.sb-collapsed .nav-group.open > .nav-item { color: var(--ink); }
+    }
+
+    /* ---- narrow screens: top bar + slide-down menu ---- */
+    @media (max-width: 760px) {
+      #app,
+      body.sb-collapsed #app {
+        margin-left: 0;
+        padding-top: calc(var(--sb-topbar-h) + env(safe-area-inset-top, 0px));
+      }
+
+      .sidebar,
+      body.sb-collapsed .sidebar {
+        top: 0;
+        bottom: auto;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        padding-top: env(safe-area-inset-top, 0px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      }
+
+      .sb-header { height: var(--sb-topbar-h); padding: 0 14px; border-bottom: 0; }
+      .sb-toggle .chev { display: none; }
+      .sb-toggle .ham { display: block; }
+
+      .sb-nav {
+        flex: none;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 12px;
+        transition: max-height 0.32s var(--sb-ease), padding 0.32s var(--sb-ease);
+      }
+
+      .sb-footer { display: none; }
+
+      body.menu-open .sb-nav {
+        max-height: calc(100vh - var(--sb-topbar-h) - 24px);
+        overflow-y: auto;
+        padding: 6px 12px 16px;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .tip::after, .tip::before { display: none; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       #loadingScreen,
       #loadingScreen .logo-wrap,
@@ -456,7 +843,12 @@
       #loadingScreen .logo-wrap img,
       #app,
       .card,
-      .theme-toggle {
+      .theme-toggle,
+      .sidebar,
+      .sb-nav,
+      .submenu,
+      .tip::after,
+      .tip::before {
         animation: none !important;
         transition: none !important;
       }
@@ -482,6 +874,67 @@
 
   <!-- ========== MAIN APP ========== -->
   <div id="app">
+
+    <!-- ========== SIDEBAR MENU ========== -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sb-header">
+        <a class="sb-brand" href="#" aria-label="UPSARAS home">
+          <img src="assets/UPSARAS-logo.png" alt="">
+          <span>UPSARAS</span>
+        </a>
+        <button type="button" class="sb-toggle tip" id="sbToggle" data-tooltip="Collapse sidebar" aria-label="Collapse sidebar" aria-controls="sbNav" aria-expanded="true">
+          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <svg class="ham" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg>
+        </button>
+      </div>
+
+      <ul class="sb-nav" id="sbNav">
+        <li>
+          <button type="button" class="nav-item tip active" data-tooltip="Dashboard" aria-current="page">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+            <span class="label">Dashboard</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="nav-item tip" data-tooltip="SUC Assessment">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg>
+            <span class="label">SUC Assessment</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="nav-item tip" data-tooltip="Deduction Verification">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+            <span class="label">Deduction Verification</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="nav-item tip" data-tooltip="Settings">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span class="label">Settings</span>
+          </button>
+        </li>
+
+        <!-- Tools > DVR Tools -->
+        <li class="nav-group" id="toolsGroup">
+          <button type="button" class="nav-item tip" id="toolsBtn" data-tooltip="Tools" aria-expanded="false" aria-controls="toolsSub">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg>
+            <span class="label">Tools</span>
+            <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          </button>
+          <ul class="submenu" id="toolsSub">
+            <li class="flyout-title" aria-hidden="true">Tools</li>
+            <li>
+              <a class="nav-item" href="https://github.com/Gautamgs21/UPSARAS/tree/main/pagesdvrcleaner.html" target="_blank" rel="noopener noreferrer">
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><line x1="10" y1="11" x2="10" y2="16"></line><line x1="14" y1="11" x2="14" y2="16"></line></svg>
+                <span class="label">DVR Tools</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="sb-footer">UPSARAS v1.0</div>
+    </aside>
 
     <div class="wrap">
 
@@ -616,6 +1069,91 @@
             try { localStorage.setItem('UPSARAS_theme', next); } catch (e) {}
           });
         }
+      })();
+
+      /* ============================================================
+         SIDEBAR MENU
+         Desktop: collapse / expand (remembered). Narrow: slide-down menu.
+         ============================================================ */
+      (function sidebarInit() {
+        var body      = document.body;
+        var sidebar   = document.getElementById('sidebar');
+        var toggle    = document.getElementById('sbToggle');
+        var toolsGrp  = document.getElementById('toolsGroup');
+        var toolsBtn  = document.getElementById('toolsBtn');
+        var mq        = window.matchMedia('(max-width: 760px)');
+
+        if (!sidebar || !toggle) return;
+
+        // restore saved desktop state
+        try {
+          if (localStorage.getItem('UPSARAS_sidebar') === 'collapsed') {
+            body.classList.add('sb-collapsed');
+          }
+        } catch (e) {}
+
+        function isNarrow() { return mq.matches; }
+
+        function syncToggle() {
+          var label, expanded;
+          if (isNarrow()) {
+            expanded = body.classList.contains('menu-open');
+            label = expanded ? 'Close menu' : 'Open menu';
+          } else {
+            expanded = !body.classList.contains('sb-collapsed');
+            label = expanded ? 'Collapse sidebar' : 'Expand sidebar';
+          }
+          toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          toggle.setAttribute('aria-label', label);
+          toggle.setAttribute('data-tooltip', label);
+        }
+
+        toggle.addEventListener('click', function() {
+          if (isNarrow()) {
+            body.classList.toggle('menu-open');
+          } else {
+            var collapsed = body.classList.toggle('sb-collapsed');
+            // close the inline submenu when collapsing so the rail stays tidy
+            if (collapsed && toolsGrp) {
+              toolsGrp.classList.remove('open');
+              if (toolsBtn) toolsBtn.setAttribute('aria-expanded', 'false');
+            }
+            try { localStorage.setItem('UPSARAS_sidebar', collapsed ? 'collapsed' : 'expanded'); } catch (e) {}
+          }
+          syncToggle();
+        });
+
+        // Tools submenu (inline when expanded / on narrow screens; flyout on hover when collapsed)
+        if (toolsBtn && toolsGrp) {
+          toolsBtn.addEventListener('click', function() {
+            var open = toolsGrp.classList.toggle('open');
+            toolsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          });
+        }
+
+        // Narrow screens: close the slide-down menu on outside click or Escape
+        document.addEventListener('click', function(e) {
+          if (isNarrow() && body.classList.contains('menu-open') && !sidebar.contains(e.target)) {
+            body.classList.remove('menu-open');
+            syncToggle();
+          }
+        });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && body.classList.contains('menu-open')) {
+            body.classList.remove('menu-open');
+            syncToggle();
+            toggle.focus();
+          }
+        });
+
+        function onViewportChange() {
+          body.classList.remove('menu-open');
+          syncToggle();
+        }
+        if (mq.addEventListener) mq.addEventListener('change', onViewportChange);
+        else if (mq.addListener) mq.addListener(onViewportChange);
+
+        syncToggle();
       })();
 
       /* ============================================================
