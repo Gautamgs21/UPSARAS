@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -81,7 +81,7 @@
     header.masthead {
       border-bottom: 2px solid var(--ink);
       padding-bottom: 18px;
-      margin-bottom: 22px;
+      margin-bottom: 24px;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -139,8 +139,8 @@
     .grid > * { min-width: 0; align-self: start; }
     #output { min-width: 0; width: 100%; }
 
-    #sidebar { min-width: 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
-    #inputCol { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+    #sidebar { min-width: 0; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
+    #inputCol { min-width: 0; display: flex; flex-direction: column; gap: 24px; }
 
     .sidebar-toggle {
       width: 100%; display: flex; align-items: center; justify-content: center;
@@ -345,6 +345,9 @@
       transition: var(--transition);
     }
     @media (max-width: 760px) { .doc { padding: 14px 12px 18px; } }
+    /* Equal spacing between every container inside the document */
+    .doc { display: flex; flex-direction: column; gap: 24px; }
+    .doc > * { margin: 0 !important; min-width: 0; }
 
     .doc-title {
       text-align: center;
@@ -367,7 +370,7 @@
       letter-spacing: 0.06em;
       font-size: 12.5px;
       padding: 14px 12px;
-      margin: 40px 0 26px;
+      margin: 0;
       color: var(--ink);
       transition: var(--transition);
       border-radius: var(--radius);
@@ -781,7 +784,7 @@
     }
 
     details.notes {
-      margin-top: 30px;
+      margin-top: 24px;
       background: var(--paper-raised);
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -971,7 +974,7 @@
     <header class="masthead">
       <div class="title-block">
         <div class="eyebrow">SUC ASSESSMENT</div>
-        <h1>SPECTRUM DETAILS &amp; SUC RATE CALCULATION</h1>
+        <h1>Part II: SPECTRUM DETAILS &amp; SUC RATE CALCULATION </h1>
       </div>
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
         <button class="ghost no-print" id="freshStartBtn" title="Delete browser cache and start with a blank form" style="padding:8px 14px; font-size:12.5px;">RESET ALL</button>
@@ -1006,12 +1009,7 @@
               <input type="text" id="fyLabel" placeholder="YYYY-YY" autocomplete="off">
               <div class="field-msg" id="fyMsg" role="alert"></div>
             </div>
-            <div class="input-hint">
-              The Financial Year drives the default quarter dates in all quarterly tables
-              (01-04-XXXX → 31-03-XXYY). Changing it re-fits every single-period quarter
-              in Tables B and Backbone A.
-            </div>
-          </div>
+</div>
 
           <div class="panel">
             <h2>Spectrum Types</h2>
@@ -1024,22 +1022,12 @@
               <label class="spec-flag-label"><input type="checkbox" data-spec-flag="E-Band"> E-Band</label>
               <label class="spec-flag-label"><input type="checkbox" data-spec-flag="Other"> Other</label>
             </div>
-            <div class="input-hint">
-              Tick the spectrum types available. Ticking <b>GSM MWA / MWB / E-Band / Other</b>
-              adds a dedicated row-block for each in the <b>Backbone Spectrum</b> table.
-            </div>
-          </div>
+</div>
 
           <div class="panel" id="accessRatesPanel">
             <h2>Access Spectrum Rates</h2>
             <div id="accessRatesBody"></div>
-            <div class="input-hint">
-              Year / Technology / Frequency are taken from the <b>Spectrum Holdings</b> rows flagged as GSM Access.
-              The <b>Rate</b> you type here is filled into Q1–Q4 of the matching row in Table A. When
-              <b>Spectrum Sharing Rate Added to Shared Band</b> is ticked, shared rows show their rate with the
-              +0.50 % sharing charge already included.
-            </div>
-          </div>
+</div>
 
           <div class="panel">
             <h2>Computation</h2>
@@ -1047,11 +1035,7 @@
               <label for="asOnDate">Rate schedule as on</label>
               <input type="date" id="asOnDate">
             </div>
-            <div class="input-hint">
-              Used in the print header and for flagging spectrum holdings that are nearing expiry
-              (today's date is used for the flag while this is blank). Does not affect any calculation.
-            </div>
-          </div>
+</div>
 
           <div class="panel">
             <h2>Actions</h2>
@@ -1084,7 +1068,7 @@
         <li><b>A. SUC Rate for GSM Access Spectrum.</b> A checkbox under this table toggles <b>Spectrum Sharing Rate Added to Shared Band</b>:
           <ul style="margin-top:4px;">
             <li><b>Checked</b> — 0.50 % is added to each shared row's rate (visible in the sidebar) and is therefore already inside Q1–Q4.</li>
-            <li><b>Unchecked</b> — the rows keep their base rates, and 0.50 % is added to the final SUC Rate of Table B.</li>
+            <li><b>Unchecked</b> — the rows keep their base rates; the individual SUC Rates are weighted-averaged for the quarter and 0.50 % is then added to that quarterly Weighted Average in Table B.</li>
             <li>Either way, the 0.50 % only applies when a GSM Access row flagged <i>Shared</i> is actually active in the period being calculated. Your typed base rates are never overwritten — ticking and unticking is fully reversible.</li>
           </ul>
         </li>
@@ -1143,7 +1127,7 @@
       try { saved = localStorage.getItem('sie_theme'); } catch (e) {}
       var startTheme;
       if (saved === 'dark' || saved === 'light') startTheme = saved;
-      else startTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      else startTheme = 'light';
       applyTheme(startTheme);
       toggle.addEventListener('click', function (e) {
         var btn = e.target.closest('button[data-theme-value]');
@@ -1151,14 +1135,6 @@
         applyTheme(btn.getAttribute('data-theme-value'));
         try { localStorage.setItem('sie_theme', btn.getAttribute('data-theme-value')); } catch (err) {}
       });
-      var mq = window.matchMedia('(prefers-color-scheme: dark)');
-      var mqListener = function (e) {
-        var hasSaved = null;
-        try { hasSaved = localStorage.getItem('sie_theme'); } catch (err) {}
-        if (!hasSaved) applyTheme(e.matches ? 'dark' : 'light');
-      };
-      if (mq.addEventListener) mq.addEventListener('change', mqListener);
-      else if (mq.addListener) mq.addListener(mqListener);
     })();
 
     /* ============================================================
@@ -1414,12 +1390,6 @@
       if (res.den > 0) {
         res.base = roundUp4(res.num / res.den);
         res.final = res.base;
-        /* Checkbox OFF → add the sharing charge once to the aggregate, but only
-           when a shared band is actually active in this period. */
-        if (!state.sharedRateAdded && res.sharedIncluded) {
-          res.final = roundUp4(res.base + SHARING_RATE);
-          res.aggregateAdded = true;
-        }
       }
       return res;
     }
@@ -1431,13 +1401,29 @@
       return c.final === '' ? '' : String(c.final);
     }
 
+    /* Checkbox OFF → the 0.50 % sharing charge is added once to the quarter's
+       Weighted Average (after the individual SUC Rates are found and averaged),
+       only when a shared GSM Access band is active in the quarter. */
+    function quarterSharingApplies(row) {
+      if (state.sharedRateAdded) return false;
+      var qi = state.mainQuarterly.indexOf(row);
+      if (qi < 0 || qi > 3) return false;
+      var parts = row.parts || [];
+      for (var i = 0; i < parts.length; i++) {
+        if (!parts[i].from || !parts[i].to) continue;
+        if (accessQuarterCalc(qi, parts[i].from, parts[i].to).sharedIncluded) return true;
+      }
+      return false;
+    }
     function getQuarterWeighted(row) {
       if (!row || !row.parts || !row.parts.length) return '';
       var w = computeWeightedAvg(row.parts);
       if (w === '') return '';
       var n = parseFloat(w);
       if (isNaN(n)) return w;
-      return String(Math.ceil(Math.round(n * 100 * 1e6) / 1e6) / 100);
+      var wa = Math.ceil(Math.round(n * 100 * 1e6) / 1e6) / 100;
+      if (quarterSharingApplies(row)) wa = Math.round((wa + SHARING_RATE) * 100) / 100;
+      return String(wa);
     }
 
     /* ============================================================
@@ -1653,11 +1639,7 @@
             h += '<tr' + (L.included ? '' : ' style="opacity:.55"') + '><td class="ctr">' + (k + 1) + '</td><td class="ctr">' + esc(r.year) + '</td><td class="ctr">' + esc(r.tech) + '</td><td class="ctr">' + esc(r.freqBand) + '</td><td class="ctr">' + esc(r.effective) + '</td><td class="ctr">' + esc(r.expiry) + '</td><td class="ctr">' + (isNaN(L.q2016) ? '—' : L.q2016) + '</td><td class="ctr">' + (isNaN(L.rate) ? '—' : L.rate) + '</td><td>' + esc(L.status) + '</td><td class="ctr">' + (L.included ? L.prod.toFixed(4) : '') + '</td></tr>';
           });
           h += '<tr><th colspan="6">Totals</th><th class="ctr">' + c.den + '</th><th></th><th></th><th class="ctr">' + c.num.toFixed(4) + '</th></tr>';
-          if (c.final !== '' && c.aggregateAdded) {
-            h += '<tr><th colspan="9">SUC Rate = ROUNDUP(Σ products / Σ Quantum 2016, 4) + 0.50 % (shared band active in this period)</th><th class="ctr">' + c.final + '</th></tr>';
-          } else {
-            h += '<tr><th colspan="9">SUC Rate = ROUNDUP(Σ products / Σ Quantum 2016, 4)</th><th class="ctr">' + (c.final === '' ? '—' : c.final) + '</th></tr>';
-          }
+          h += '<tr><th colspan="9">SUC Rate = ROUNDUP(Σ products / Σ Quantum 2016, 4)</th><th class="ctr">' + (c.final === '' ? '—' : c.final) + '</th></tr>';
           h += '</tbody></table></div>';
         });
       });
@@ -1791,12 +1773,16 @@
       };
     }
 
+    function todayInputVal() {
+      var d = new Date();
+      return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    }
     function blankState() {
       return {
         ver: 2,
         licensee: '',
         fyLabel: '',
-        asOn: '',
+        asOn: todayInputVal(),
         sharedRateAdded: false,
         spectrumFlags: blankSpectrumFlags(),
         spectrum: [ blankSpectrumRow(), blankSpectrumRow(), blankSpectrumRow() ],
@@ -1905,7 +1891,7 @@
       if (!s) return out;
       out.licensee = s.licensee || '';
       out.fyLabel = s.fyLabel || '';
-      out.asOn = s.asOn || '';
+      out.asOn = s.asOn || todayInputVal();
       out.sharedRateAdded = !!s.sharedRateAdded;
 
       if (s.spectrumFlags && typeof s.spectrumFlags === 'object') {
@@ -2227,7 +2213,6 @@
       h += '<div class="toolbar-row no-print">' +
            '<button type="button" class="row-add-btn" data-add-quarter="' + (state.mainQuarterly.length - 1) + '">+ Add quarter at end</button>' +
            '</div>';
-      h += '<div class="input-hint no-print"><b>SUC Rate</b> is auto-computed as <code>ROUNDUP(Σ(Quantum2016 × Qn) / Σ(Quantum2016), 4)</code> — only counting active rows. <b>Weighted Average</b> = <code>ROUNDUP(Σ(SUC Rate × days) / Σ(days), 2)</code>. Every <b>From</b> / <b>To</b> is checked against the quarter\'s FY range; inconsistent dates are shown <b>bold red</b>. <b>⊞</b> splits the quarter; <b>−</b> removes the split; <b>×</b> removes the quarter.</div>';
       h += '<div id="sucBreakdownHost">' + buildBreakdownHTML() + '</div>';
       return h;
     }
@@ -2356,14 +2341,6 @@
       });
 
       h += '</tbody></table></div>';
-      h += '<div class="input-hint no-print">' +
-           'For each period enter the total active <b>Quantum of Spectrum (MHz)</b> for the type and pick the <b>Order Applicable</b> — the <b>SUC Rate</b> is then computed automatically. ' +
-           '<b>2002 order:</b> base slab + 0.05 % per 28 MHz or part above the base (GSM MWA base = 112 MHz @ 0.25 %; GSM MWB base = 56 MHz @ 0.10 %). ' +
-           '<b>2006 order:</b> cumulative table per 56 MHz carrier (a carrier = 56 MHz), up to 6 carriers (1.45 %). ' +
-           'Every <b>From</b> / <b>To</b> is checked against the quarter\'s FY range; inconsistent dates are shown <b>bold red</b>. ' +
-           '<b>E-Band</b> and <b>Other</b> remain manual. ' +
-           '<b>Weighted Average</b> = <code>ROUNDUP(Σ(SUC Rate × days) / Σ(days), 2)</code>.' +
-           '</div>';
       return h;
     }
 
@@ -2412,8 +2389,6 @@
        ============================================================ */
     function docHTML() {
       var h = '<div class="doc">';
-
-      h += '<h2 class="doc-title">Spectrum Details &amp; SUC Rate Calculation</h2>';
 
       h += spectrumTableHTML();
 
@@ -3574,7 +3549,7 @@
         localStorage.removeItem(SIDEBAR_KEY);
       } catch (e) {}
       state = blankState();
-      document.getElementById('asOnDate').value = '';
+      document.getElementById('asOnDate').value = state.asOn;
       document.getElementById('licenseeName').value = '';
       document.getElementById('fyLabel').value = '';
       document.querySelectorAll('#inputCol .panel').forEach(function (p) {
