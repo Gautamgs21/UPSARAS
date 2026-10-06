@@ -858,37 +858,48 @@
       (function themeInit() {
         var root = document.documentElement;
         var toggle = document.getElementById('themeToggle');
+      
         function applyTheme(theme) {
-          if (theme === 'dark') root.setAttribute('data-theme', 'dark');
-          else root.setAttribute('data-theme', 'light');
+          if (theme === 'dark') {
+            root.setAttribute('data-theme', 'dark');
+          } else {
+            root.setAttribute('data-theme', 'light');
+          }
+      
           var btns = toggle.querySelectorAll('button[data-theme-value]');
+      
           for (var i = 0; i < btns.length; i++) {
-            btns[i].classList.toggle('active', btns[i].getAttribute('data-theme-value') === theme);
+            btns[i].classList.toggle(
+              'active',
+              btns[i].getAttribute('data-theme-value') === theme
+            );
           }
         }
+      
         var saved = null;
-        try { saved = localStorage.getItem('iop_theme'); } catch (e) {}
-        var startTheme;
-        if (saved === 'dark' || saved === 'light') startTheme = saved;
-        else startTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      
+        try {
+          saved = localStorage.getItem('iop_theme');
+        } catch (e) {}
+      
+        var startTheme = 'light';
+      
         applyTheme(startTheme);
+      
         toggle.addEventListener('click', function(e) {
           var btn = e.target.closest('button[data-theme-value]');
+      
           if (!btn) return;
+      
           var theme = btn.getAttribute('data-theme-value');
+      
           applyTheme(theme);
-          try { localStorage.setItem('iop_theme', theme); } catch (err) {}
+      
+          try {
+            localStorage.setItem('iop_theme', theme);
+          } catch (err) {}
         });
-        var mq = window.matchMedia('(prefers-color-scheme: dark)');
-        var mqListener = function(e) {
-          var hasSaved = null;
-          try { hasSaved = localStorage.getItem('iop_theme'); } catch (err) {}
-          if (!hasSaved) applyTheme(e.matches ? 'dark' : 'light');
-        };
-        if (mq.addEventListener) mq.addEventListener('change', mqListener);
-        else if (mq.addListener) mq.addListener(mqListener);
       })();
-
       /* ---------------- date helpers ---------------- */
       function parseDateInput(val) {
         if (!val) return null;
@@ -1498,12 +1509,6 @@
         rows.forEach(r => { html += rowHTML(r); });
         result.outstandingRows.forEach(r => { html += outstandingRowHTML(r); });
         html += `</tbody></table></div>`;
-
-        html += `<div class="grand-total-row" style="margin-top:16px;">
-          <div class="gt-label">Penalty + Interest on Penalty</div>
-          <div class="gt-value">${fmtINR(result.grandTotal)}</div>
-        </div>`;
-
         out.innerHTML = html;
         window.__lastLedgerRows = rows;
         window.__lastOutstandingRows = result.outstandingRows;
