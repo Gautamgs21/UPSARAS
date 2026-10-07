@@ -174,8 +174,26 @@
   .analytics-card-inline.check .check-status{color:var(--red)}
 
   .check8-input{height:28px !important;font-size:12px !important;padding:4px 8px !important;margin:3px 0 2px;text-align:center}
-  .check8-input.invalid{border-color:var(--red) !important;background:var(--red-soft) !important;color:var(--red) !important;
-    outline-color:var(--red) !important}
+  .calc-pop{position:fixed;left:0;top:0;width:270px;height:380px;min-width:220px;min-height:290px;max-width:96vw;max-height:96vh;
+    z-index:1500;display:flex;flex-direction:column;background:var(--paper-raised);color:var(--ink);border:1px solid var(--line);
+    border-radius:8px;box-shadow:0 16px 40px rgba(0,0,0,.3);resize:both;overflow:hidden}
+  .calc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 12px;cursor:move;
+    background:var(--brass-soft);border-bottom:1px solid var(--line);font-size:12px;font-weight:700;user-select:none;touch-action:none;flex-shrink:0}
+  .calc-head .calc-x{height:22px;width:24px;padding:0;border:none;font-size:13px;line-height:1;background:transparent;color:var(--ink-soft)}
+  .calc-head .calc-x:hover{color:var(--red);background:var(--red-soft)}
+  .calc-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;padding:8px}
+  .calc-display{height:auto !important;flex-shrink:0;text-align:right;font-size:calc(var(--calc-fs,16px) * 1.5) !important;font-weight:700;
+    padding:6px 8px !important;font-family:var(--font-mono)}
+  .calc-result{flex-shrink:0;min-height:1.2em;text-align:right;font-size:calc(var(--calc-fs,16px) * .85);color:var(--ink-soft);
+    padding-right:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .calc-keys{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:5px}
+  .calc-keys button{height:auto;padding:0;min-height:0;font-size:var(--calc-fs,16px);font-weight:600;background:var(--paper);
+    color:var(--ink);border:1px solid var(--line)}
+  .calc-keys button:hover{background:var(--brass-soft);border-color:var(--brass)}
+  .calc-keys button.op{background:var(--brass-soft);color:var(--ink)}
+  .calc-keys button.fn{color:var(--red)}
+  .calc-keys button.eq{background:var(--ink);color:var(--paper-raised);border:none}
+  .calc-keys button.eq:hover{background:var(--brass);color:#1a1200}
   .book-tabs,.sheet-tabs{display:flex;gap:6px;overflow:auto;padding-bottom:8px;margin-bottom:8px}
   .book-tabs{border-bottom:1px solid var(--line)} .sheet-tabs{border-bottom:1px solid var(--line-soft)}
   .book-tab,.tab{height:auto;border:1px solid var(--line);background:var(--paper);padding:6px 10px;border-radius:var(--radius);
@@ -545,6 +563,7 @@
             <button id="downloadBookBtn" class="small" title="Download current workbook">⤓ Download</button>
             <button id="savePdfBtn" class="small" title="Save deductions report as PDF">⎙ Save PDF</button>
             <button id="saveXlsxBtn" class="small" title="Save deductions report as Excel">⤓ Save Excel</button>
+            <button id="calcBtn" class="small" type="button" title="Open / close the calculator">🖩 Calculator</button>
             <div class="zoom-group" title="Zoom (use − / + keys in fullscreen)">
               <button id="zoomOutBtn" type="button" title="Zoom out">−</button>
               <span id="zoomLevel" class="zoom-level">100%</span>
@@ -605,9 +624,9 @@
             </div>
             <div class="analytics-card-inline" data-check="8">
               <div class="check-title">Check 8 · Bank Stmt S.No. Sum</div>
-              <input type="text" id="check8Input" class="check8-input" inputmode="decimal"
-                     placeholder="Enter S.No. (number)" autocomplete="off"
-                     title="Sum of Net Amount Paid where S.No. of Bank Statement equals this number">
+              <input type="text" id="check8Input" class="check8-input" spellcheck="false"
+                     placeholder="S.No. (auto-filled)" autocomplete="off"
+                     title="Auto-filled from S.No. of Bank Statement of the current row; editable. Shows the sum of Net Amount Paid for that S.No.">
               <div class="check-status" id="check8Status">—</div>
               <div class="check-value" id="check8Value">—</div>
             </div>
@@ -659,6 +678,20 @@
           <button data-action="approved">Mark as approved</button>
           <div class="divider"></div>
           <button data-action="clear">Clear status</button>
+        </div>
+
+        <!-- Pop-up calculator: draggable + resizable; lives inside the preview panel so it also works in fullscreen -->
+        <div id="calcPop" class="calc-pop" style="display:none" role="dialog" aria-label="Calculator">
+          <div class="calc-head" id="calcHead">
+            <span>🖩 Calculator</span>
+            <button type="button" class="calc-x" id="calcClose" title="Close (Esc)">✕</button>
+          </div>
+          <div class="calc-body">
+            <input id="calcDisplay" class="calc-display" type="text" inputmode="none" autocomplete="off"
+                   spellcheck="false" placeholder="0">
+            <div id="calcResult" class="calc-result">&nbsp;</div>
+            <div id="calcKeys" class="calc-keys"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1464,15 +1497,27 @@
     for (let i = 1; i <= 7; i++) setAnalyticsCard(i, '—', '', '—');
     updateCheck8();
   }
-  /* Check 8: sum of "Net Amount Paid" for rows whose "S.No. of Bank Statement" equals the typed number */
+  /* Check 8: sum of "Net Amount Paid" for rows whose "S.No. of Bank Statement" matches the field.
+     The field is auto-filled from the current row and stays editable (no format restrictions). */
+  let check8Key = null;
+  function autofillCheck8() {
+    const input = document.getElementById('check8Input');
+    if (!input) return;
+    const tr = state.activeRowEl, ws = state.activeWs, headers = state.activeHeaders;
+    if (!tr || !ws || !headers.length) { check8Key = null; return; }
+    const rowIdx = Number(tr.dataset.rowIndex);
+    if (!isFinite(rowIdx)) return;
+    const key = state.activePreview + '|' + state.activeSheet + '|' + rowIdx;
+    if (key === check8Key) return;            // same row: keep whatever the user typed
+    check8Key = key;
+    const col = findColumnIndex(headers, ANALYTICS_COLUMNS.bankSno);
+    input.value = col >= 0 ? cellDisplayValue(ws[XLSX.utils.encode_cell({ r: rowIdx, c: col })]).trim() : '';
+  }
   function updateCheck8() {
     const input = document.getElementById('check8Input');
     if (!input) return;
     const raw = input.value.trim();
-    const valid = raw === '' || /^\d+(\.\d+)?$/.test(raw);
-    input.classList.toggle('invalid', !valid);
-    if (raw === '') { setAnalyticsCard(8, '—', '', 'Enter a S.No.'); return; }
-    if (!valid) { setAnalyticsCard(8, 'Invalid', 'check', 'Numbers only'); return; }
+    if (raw === '') { setAnalyticsCard(8, '—', '', 'Select a row or type a S.No.'); return; }
     const ws = state.activeWs, headers = state.activeHeaders;
     if (!ws || !headers.length) { setAnalyticsCard(8, '—', '', 'No sheet loaded'); return; }
     const snoCol = findColumnIndex(headers, ANALYTICS_COLUMNS.bankSno);
@@ -1481,12 +1526,20 @@
       setAnalyticsCard(8, 'Column missing', 'check', snoCol < 0 ? 'S.No. of Bank Statement' : 'Net Amount Paid');
       return;
     }
-    const target = Number(raw);
+    const norm = v => String(v).trim().toLowerCase();
+    const targetStr = norm(raw);
+    const cleaned = raw.replace(/,/g, '');
+    const targetNum = (cleaned !== '' && !isNaN(Number(cleaned))) ? Number(cleaned) : null;
     const { lastRow } = usedRange(ws);
     let sum = 0, n = 0;
     for (let r = 1; r < lastRow; r++) {
-      const sno = numericCellValue(ws[XLSX.utils.encode_cell({ r, c: snoCol })]);
-      if (sno === null || sno !== target) continue;
+      const snoCell = ws[XLSX.utils.encode_cell({ r, c: snoCol })];
+      let match = norm(cellDisplayValue(snoCell)) === targetStr;
+      if (!match && targetNum !== null) {
+        const sn = numericCellValue(snoCell);
+        match = sn !== null && sn === targetNum;
+      }
+      if (!match) continue;
       n++;
       const paid = numericCellValue(ws[XLSX.utils.encode_cell({ r, c: paidCol })]);
       if (paid !== null) sum += paid;
@@ -1498,7 +1551,8 @@
     const enabled = els.analyticsEnabled.checked;
     els.analyticsInline.classList.toggle('enabled', enabled);
     if (!enabled) return;
-    updateCheck8();   // independent of the selected row
+    autofillCheck8();  // follow the current row
+    updateCheck8();
 
     const ws = state.activeWs;
     const headers = state.activeHeaders;
@@ -2392,6 +2446,7 @@
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      if (e.target && e.target.closest && e.target.closest('#calcPop')) return;   // calculator handles its own Esc
       if (els.sectionModal.style.display !== 'none') { closeSectionModal(); e.preventDefault(); return; }
       if (els.contextMenu.style.display !== 'none') { hideContextMenu(); e.preventDefault(); return; }
       if (!document.fullscreenElement && !document.webkitFullscreenElement) stopVoice();
@@ -2424,6 +2479,126 @@
     speechSynthesis.addEventListener('voiceschanged', populateVoiceList);
   }
   populateVoiceList();
+
+  /* =================== Pop-up calculator =================== */
+  (function calcInit() {
+    const pop = $('calcPop'), head = $('calcHead'), disp = $('calcDisplay'),
+          resEl = $('calcResult'), keysEl = $('calcKeys'), btn = $('calcBtn');
+    let placed = false;
+
+    const KEYS = [
+      ['C','fn','clear'], ['⌫','fn','back'], ['%','op','%'], ['÷','op','/'],
+      ['7','','7'], ['8','','8'], ['9','','9'], ['×','op','*'],
+      ['4','','4'], ['5','','5'], ['6','','6'], ['−','op','-'],
+      ['1','','1'], ['2','','2'], ['3','','3'], ['+','op','+'],
+      ['(','op','('], ['0','','0'], ['.','','.'], [')','op',')'],
+      ['=','eq','eq']
+    ];
+    KEYS.forEach(([label, cls, k]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = label; b.dataset.k = k;
+      if (cls) b.className = cls;
+      if (k === 'eq') b.style.gridColumn = 'span 4';
+      keysEl.appendChild(b);
+    });
+
+    function evaluate(expr) {
+      let e = String(expr).replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/,/g, '').trim();
+      if (!e) return null;
+      e = e.replace(/(\d+(?:\.\d+)?|\.\d+)\s*%/g, '($1/100)');
+      if (!/^[0-9+\-*/().\s]+$/.test(e)) return NaN;
+      try {
+        const v = Function('"use strict";return (' + e + ')')();
+        return (typeof v === 'number' && isFinite(v)) ? v : NaN;
+      } catch (_) { return NaN; }
+    }
+    function fmt(v) { return String(parseFloat(v.toPrecision(12))); }
+    function preview() {
+      const v = evaluate(disp.value);
+      resEl.textContent = (v === null || Number.isNaN(v)) ? '\u00A0' : '= ' + fmt(v);
+    }
+    function insert(text) {
+      const a = disp.selectionStart ?? disp.value.length, b = disp.selectionEnd ?? a;
+      disp.setRangeText(text, a, b, 'end');
+      preview();
+    }
+    function equals() {
+      const v = evaluate(disp.value);
+      if (v === null) return;
+      if (Number.isNaN(v)) { resEl.textContent = 'Invalid expression'; return; }
+      disp.value = fmt(v);
+      resEl.textContent = '\u00A0';
+    }
+    function press(k) {
+      if (k === 'clear') { disp.value = ''; resEl.textContent = '\u00A0'; }
+      else if (k === 'back') {
+        const a = disp.selectionStart ?? disp.value.length, b = disp.selectionEnd ?? a;
+        if (a !== b) disp.setRangeText('', a, b, 'end');
+        else if (a > 0) disp.setRangeText('', a - 1, a, 'end');
+        preview();
+      }
+      else if (k === 'eq') equals();
+      else insert(k === '*' ? '×' : k === '/' ? '÷' : k === '-' ? '−' : k);
+      disp.focus({ preventScroll: true });
+    }
+    keysEl.addEventListener('click', e => {
+      const b = e.target.closest('button[data-k]');
+      if (b) press(b.dataset.k);
+    });
+    disp.addEventListener('input', preview);
+    disp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); equals(); }
+      else if (e.key === 'Escape') { e.preventDefault(); close(); }
+    });
+
+    function sizeFonts() {
+      const r = pop.getBoundingClientRect();
+      const fs = Math.max(12, Math.min(30, Math.min(r.width / 11, r.height / 17)));
+      pop.style.setProperty('--calc-fs', fs.toFixed(1) + 'px');
+    }
+    if ('ResizeObserver' in window) new ResizeObserver(sizeFonts).observe(pop);
+
+    function place() {
+      if (placed) return;
+      const w = pop.offsetWidth || 270;
+      pop.style.left = Math.max(10, window.innerWidth - w - 40) + 'px';
+      pop.style.top = '130px';
+      placed = true;
+    }
+    function open() {
+      pop.style.display = 'flex';
+      place(); sizeFonts();
+      btn.classList.add('toggled');
+      disp.focus({ preventScroll: true });
+    }
+    function close() {
+      pop.style.display = 'none';
+      btn.classList.remove('toggled');
+    }
+    btn.addEventListener('click', () => (pop.style.display === 'none' ? open() : close()));
+    $('calcClose').addEventListener('click', close);
+
+    /* drag by the title bar */
+    let drag = null;
+    head.addEventListener('pointerdown', e => {
+      if (e.target.closest('button')) return;
+      const r = pop.getBoundingClientRect();
+      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      head.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    head.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const w = pop.offsetWidth, h = pop.offsetHeight;
+      const left = Math.min(Math.max(0, e.clientX - drag.dx), Math.max(0, window.innerWidth - Math.min(w, 80)));
+      const top = Math.min(Math.max(0, e.clientY - drag.dy), Math.max(0, window.innerHeight - 36));
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+    });
+    const endDrag = e => { if (drag) { drag = null; try { head.releasePointerCapture(e.pointerId); } catch (_) {} } };
+    head.addEventListener('pointerup', endDrag);
+    head.addEventListener('pointercancel', endDrag);
+  })();
 
   /* =================== Basic details wiring =================== */
   (function basicInit() {
