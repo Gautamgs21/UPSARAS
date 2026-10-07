@@ -63,6 +63,8 @@
   .theme-toggle button:hover:not(.active){color:var(--ink);border-color:transparent}
 
   .grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px;align-items:start}
+  .grid.sidebar-collapsed{grid-template-columns:minmax(0,1fr)}
+  .grid.sidebar-collapsed .left-col{display:none}
   .left-col,.right-col{display:flex;flex-direction:column;gap:24px;min-width:0}
   .grid>*{min-width:0}
 
@@ -90,6 +92,7 @@
   button.danger:hover{border-color:var(--red);background:var(--red-soft);color:var(--red)}
   button:disabled{opacity:.5;cursor:not-allowed}
   button.small{height:30px;font-size:12px;padding:0 10px}
+  button.toggled{border-color:var(--red);background:var(--red-soft);color:var(--red)}
   .row{display:flex;gap:8px;flex-wrap:wrap}
   .note{font-size:12px;line-height:1.5;color:var(--ink-soft);padding:11px 12px;border:1px solid var(--line);
     border-radius:var(--radius);background:var(--paper)}
@@ -136,7 +139,7 @@
   .stat .l{font-size:11px;color:var(--ink-soft);margin-top:2px}
   .stat.ok .n{color:var(--green)} .stat.warn .n{color:var(--orange)} .stat.err .n{color:var(--red)}
   .log{height:180px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:#0f1511;color:#d9e3d6;
-    font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:11px}
+    font:12px/1.55 "Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;padding:11px}
   .log .ok{color:#8ee0b2} .log .warn{color:#ffd27b} .log .err{color:#ff9c92}
   .status{font-size:12px;color:var(--ink-soft)}
 
@@ -180,8 +183,10 @@
     background:var(--paper-raised);flex:1 1 auto;min-height:0}
   table{border-collapse:collapse;min-width:100%;font-family:var(--font-sans);font-size:12.5px}
   th,td{border:1px solid var(--line);text-align:center;vertical-align:middle;padding:6px 9px;white-space:nowrap}
+  /* Headers wrap; column width follows the longest entry in the data rows */
   th{background:var(--brass-soft);color:var(--ink);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
-    position:sticky;top:0;z-index:1}
+    position:sticky;top:0;z-index:1;white-space:normal;vertical-align:middle}
+  th .th-inner{width:0;min-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
   tbody tr:nth-child(even) td{background:var(--paper)}
   tbody tr{cursor:pointer}
   th.col-hidden,td.col-hidden{display:none !important}
@@ -271,77 +276,64 @@
   .modal-actions{display:flex;gap:8px;justify-content:flex-end}
   .modal-actions button{height:36px;font-size:13px;padding:0 16px}
 
-  /* --- print sheet --- */
-  #printSheet{display:none}
-  @page { size: A4 portrait; margin: 9mm 8mm; }
-  .ps-header{display:flex;justify-content:space-between;align-items:flex-end;
-    border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px;
-    break-inside:avoid;page-break-inside:avoid}
-  .ps-header .ps-left .ps-eyebrow{font-size:8pt;font-weight:700;margin-bottom:2px;
-    letter-spacing:.03em;text-transform:uppercase}
-  .ps-header .ps-left .ps-title{font-size:13pt;font-weight:800;color:#000;margin:0;
-    line-height:1.15;text-transform:uppercase}
-  .ps-header .ps-right{font-size:8pt;text-align:right;line-height:1.3;white-space:nowrap}
-  .ps-header .ps-right b{display:block;font-size:9pt;font-weight:700}
+  /* =====================================================================
+     PRINT SHEET — "Deduction Verification Report" template
+     ===================================================================== */
+  #printSheet{display:none;font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif}
+  #printSheet *{font-family:inherit}
+  @page { size: A4 portrait; margin: 10mm 9mm; }
 
-  /* generic bordered block used for card groups + deduction tables */
-  .ps-block{border:1.5px solid #000;padding:6px 8px 8px;margin-bottom:8px}
-  .ps-keep{break-inside:avoid;page-break-inside:avoid}
+  .ps-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:15pt;font-weight:700;
+    text-transform:uppercase;margin:0 0 12px;padding-bottom:5px;border-bottom:1.2px solid #222;line-height:1.2;letter-spacing:.02em}
 
-  /* small containers (card groups) — atomic, never split */
-  .ps-cards-wrap{break-inside:avoid;page-break-inside:avoid;margin-bottom:8px}
-  .ps-cards-wrap .ps-block{margin-bottom:0}
-  .ps-block-title{font-size:9pt;font-weight:800;margin:0 0 6px;padding-bottom:3px;
-    border-bottom:1.5px solid #000;text-transform:uppercase;letter-spacing:.04em;color:#000}
+  .ps-details-row{display:flex;margin-bottom:14px;break-inside:avoid;page-break-inside:avoid}
+  .ps-details{width:40%;min-width:230px;border:.75px solid #555;border-radius:4px;padding:9px 13px 12px}
+  .ps-details-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10.5pt;font-weight:700;
+    text-transform:uppercase;padding-bottom:5px;border-bottom:.75px solid #555;margin-bottom:6px;letter-spacing:.03em}
+  .ps-detail-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10pt;padding:2.5px 0}
+  .ps-detail-line .k{font-weight:400}
+  .ps-detail-line .v{font-weight:700;text-align:right}
 
-  /* card grids */
-  .ps-cards{display:grid;gap:5px}
+  .ps-heading{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:8.5pt;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px 2px;break-after:avoid;page-break-after:avoid}
+
+  .ps-cards-wrap{break-inside:avoid;page-break-inside:avoid;margin-bottom:12px}
+  .ps-cards{display:grid;gap:7px}
   .ps-cards.five{grid-template-columns:repeat(5,1fr)}
   .ps-cards.three{grid-template-columns:repeat(3,1fr)}
-  .ps-card{border:1.2px solid #000;padding:8px 8px;display:flex;flex-direction:column;gap:4px;
-    min-width:0;background:#fff;min-height:44px;justify-content:space-between}
-  .ps-card-title{font-size:7pt;font-weight:700;text-align:center;line-height:1.2;
-    overflow-wrap:break-word;word-wrap:break-word;word-break:normal;
-    border-bottom:.7px solid #000;padding-bottom:3px}
-  .ps-card-value{font-size:10pt;font-weight:800;text-align:right;line-height:1.15;color:#000}
-  .ps-card-sub{font-size:6.5pt;font-weight:600;text-align:right;color:#333;margin-top:-2px}
+  .ps-card{border:.75px solid #555;border-radius:4px;padding:8px 9px 7px;display:flex;flex-direction:column;justify-content:space-between;
+    gap:8px;min-width:0;min-height:62px;background:#fff}
+  .ps-cards.three .ps-card{padding:9px 11px;min-height:56px}
+  .ps-card-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:6.8pt;font-weight:600;
+    text-align:left;line-height:1.2;overflow-wrap:break-word;border-bottom:.5px solid #999;padding-bottom:3px}
+  .ps-cards.three .ps-card-title{font-size:8pt;border-bottom:none;padding-bottom:0}
+  .ps-card-value{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:13pt;font-weight:700;
+    text-align:right;line-height:1.15;white-space:nowrap}
 
-  /* deduction section: banner must stay glued to the table that follows */
-  .ps-section{break-inside:auto;page-break-inside:auto;margin-bottom:8px}
-  .ps-section > .ps-banner{break-after:avoid;page-break-after:avoid}
-  .ps-section > .ps-block{break-inside:auto;page-break-inside:auto;margin-bottom:0}
+  .ps-section{margin-bottom:12px;break-inside:auto;page-break-inside:auto}
+  .ps-box{border:.75px solid #555;border-radius:4px;padding:9px 11px 11px;min-height:60px}
+  .ps-box-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:8.5pt;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;padding-bottom:4px;border-bottom:.5px solid #999;margin:0 0 8px;break-after:avoid;page-break-after:avoid}
+  .ps-empty{font-size:8pt;padding:4px 0}
 
-  .ps-banner{border:1.5px solid #000;background:#ddd;text-align:center;font-weight:800;
-    text-transform:uppercase;letter-spacing:.06em;font-size:9pt;padding:5px 8px;
-    margin:0 0 5px;color:#000}
-
-  table.ps-table{width:100%;border-collapse:collapse;font-size:7.5pt;color:#000;
-    table-layout:fixed;margin-bottom:0}
-  table.ps-table th{text-align:center;font-weight:700;border:.7px solid #000;
-    padding:3px 4px;background:#eee;line-height:1.2;
-    white-space:normal;overflow-wrap:break-word;word-wrap:break-word;word-break:normal}
-  table.ps-table td{border:.7px solid #000;padding:2.5px 4px;
-    overflow-wrap:break-word;word-wrap:break-word;word-break:normal;line-height:1.25;
+  table.ps-table{width:100%;border-collapse:collapse;font-size:7.5pt;color:#000;table-layout:fixed}
+  table.ps-table th{text-align:center;font-weight:700;border:.5px solid #888;padding:3px 4px;background:#f2f2f2;line-height:1.2;
+    white-space:normal;overflow-wrap:break-word;word-break:normal}
+  table.ps-table td{border:.5px solid #aaa;padding:2.5px 4px;overflow-wrap:break-word;word-break:normal;line-height:1.25;
     text-align:center;vertical-align:middle}
-  table.ps-table td.num{text-align:right}
-  table.ps-table td.left{text-align:left}
   table.ps-table thead{display:table-header-group}
   table.ps-table tbody tr{break-inside:avoid;page-break-inside:avoid}
-  table.ps-table tbody tr.ps-allowed td{background:#e8f5ee !important}
-  table.ps-table tbody tr.ps-review td{background:#fff5e6 !important}
-  table.ps-table tbody tr.ps-disallowed td{background:#fdecea !important}
   .ps-footer{margin-top:8px;font-size:6.5pt;color:#000;text-align:right}
 
   @media print {
-    html,body{background:#fff !important;color:#000 !important}
+    html,body{background:#fff !important;color:#000 !important;height:auto}
     .wrap, body > .modal-backdrop, #contextMenu {display:none !important}
-    #printSheet{display:block !important;color:#000 !important}
-    #printSheet *{color:#000 !important;background:transparent !important;box-shadow:none !important}
-    #printSheet table.ps-table th{background:#eee !important}
-    #printSheet table.ps-table tbody tr.ps-allowed td{background:#e8f5ee !important}
-    #printSheet table.ps-table tbody tr.ps-review td{background:#fff5e6 !important}
-    #printSheet table.ps-table tbody tr.ps-disallowed td{background:#fdecea !important}
-    #printSheet .ps-banner{background:#ddd !important}
+    #printSheet{display:block !important;color:#000 !important;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #printSheet *{color:#000 !important;box-shadow:none !important}
+    #printSheet .ps-card,#printSheet .ps-box,#printSheet .ps-details{background:#fff !important}
+    #printSheet table.ps-table th{background:#f2f2f2 !important}
   }
 
   @media(max-width:1050px){
@@ -366,9 +358,9 @@
     </div>
   </header>
 
-  <div class="grid">
+  <div class="grid" id="mainGrid">
     <!-- ============================ LEFT COLUMN ============================ -->
-    <div class="left-col">
+    <div class="left-col" id="leftCol">
       <section class="panel">
         <h2>Basic Details</h2>
         <div class="stack">
@@ -380,6 +372,16 @@
             <label for="fyLabel">Financial Year</label>
             <input type="text" id="fyLabel" placeholder="YYYY-YY" autocomplete="off">
             <div class="field-msg" id="fyMsg" role="alert"></div>
+          </div>
+          <div class="field">
+            <label for="annexureSel">Annexure</label>
+            <select id="annexureSel">
+              <option value="">Select annexure…</option>
+              <option value="Annexure AO">Annexure AO</option>
+              <option value="Annexure AG">Annexure AG</option>
+              <option value="Annexure IR">Annexure IR</option>
+              <option value="Annexure PP">Annexure PP</option>
+            </select>
           </div>
           <div class="field">
             <label for="verifDate">Date of Verification</label>
@@ -431,53 +433,54 @@
         </div>
       </section>
 
-      <div class="collapsible" id="voiceCollapsible">
+      <!-- Voice Control: collapsed by default -->
+      <div class="collapsible closed" id="voiceCollapsible">
         <div class="collapsible-header">
           <div class="collapsible-title"><span class="collapsible-chev">▾</span> 2. Voice Control</div>
           <span class="status" id="voiceInline">Rate 2.5×</span>
         </div>
         <div class="collapsible-body">
-<div class="stack">
-                  <div class="switch">
-                    <span>Speak selected row in preview</span>
-                    <input id="voiceEnabled" type="checkbox" checked>
-                  </div>
-                  <div class="switch">
-                    <span>Highlight row while reading (yellow)</span>
-                    <input id="highlightReading" type="checkbox" checked>
-                  </div>
-                  <div class="switch sub">
-                    <span>↳ Highlight reading cell (light green)</span>
-                    <input id="highlightCell" type="checkbox" checked>
-                  </div>
-                  <div class="voice-grid">
-                    <div class="field">
-                      <label>Voice</label>
-                      <select id="voiceSelect"></select>
-                    </div>
-                    <div class="field">
-                      <label>Rate</label>
-                      <select id="voiceRate">
-                        <option value="0.75">0.75×</option>
-                        <option value="1">1×</option>
-                        <option value="1.15">1.15×</option>
-                        <option value="1.3">1.3×</option>
-                        <option value="1.5">1.5×</option>
-                        <option value="2">2×</option>
-                        <option value="2.5" selected>2.5×</option>
-                        <option value="3">3×</option>
-                        <option value="3.5">3.5×</option>
-                        <option value="4">4×</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <button id="stopVoiceBtn" class="danger">Stop Voice (Esc)</button>
-                  </div>
-                  <div class="footer-note" style="margin-top:0">
-                    Changing voice or rate updates the reading immediately — the next cell picks up the new settings.
-                  </div>
-                </div>
+          <div class="stack">
+            <div class="switch">
+              <span>Speak selected row in preview</span>
+              <input id="voiceEnabled" type="checkbox" checked>
+            </div>
+            <div class="switch">
+              <span>Highlight row while reading (yellow)</span>
+              <input id="highlightReading" type="checkbox" checked>
+            </div>
+            <div class="switch sub">
+              <span>↳ Highlight reading cell (light green)</span>
+              <input id="highlightCell" type="checkbox" checked>
+            </div>
+            <div class="voice-grid">
+              <div class="field">
+                <label>Voice</label>
+                <select id="voiceSelect"></select>
+              </div>
+              <div class="field">
+                <label>Rate</label>
+                <select id="voiceRate">
+                  <option value="0.75">0.75×</option>
+                  <option value="1">1×</option>
+                  <option value="1.15">1.15×</option>
+                  <option value="1.3">1.3×</option>
+                  <option value="1.5">1.5×</option>
+                  <option value="2">2×</option>
+                  <option value="2.5" selected>2.5×</option>
+                  <option value="3">3×</option>
+                  <option value="3.5">3.5×</option>
+                  <option value="4">4×</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <button id="stopVoiceBtn" class="danger">Stop Voice (Esc)</button>
+            </div>
+            <div class="footer-note" style="margin-top:0">
+              Changing voice or rate updates the reading immediately — the next cell picks up the new settings.
+            </div>
+          </div>
         </div>
       </div>
 
@@ -527,6 +530,7 @@
       <div class="preview-panel" id="previewPanel">
         <div class="preview-toolbar">
           <div class="left">
+            <button id="sidebarBtn" class="small" type="button" title="Collapse / expand the sidebar">⇤ Hide sidebar</button>
             <strong>Interactive preview</strong>
             <span id="previewHint" class="status">Select a processed workbook.</span>
           </div>
@@ -544,6 +548,7 @@
               <button id="zoomInBtn" type="button" title="Zoom in">+</button>
             </div>
             <button id="fullscreenBtn" class="small" title="Fullscreen preview">⛶ Fullscreen</button>
+            <button id="muteBtn" class="small" type="button" title="Mute / unmute the voice (M in fullscreen)">🔊 Mute</button>
           </div>
         </div>
 
@@ -634,7 +639,7 @@
         <div class="footer-note">
           Click a row to speak it. Right-click a row to mark <b>discrepancy</b>,
           <b>later</b> or <b>approved</b>. In fullscreen use ↑ / ↓ to move,
-          <b>−</b> / <b>+</b> to zoom, and <b>0</b> to reset zoom.
+          <b>−</b> / <b>+</b> to zoom, <b>0</b> to reset zoom and <b>M</b> to mute.
         </div>
 
         <div id="contextMenu" class="context-menu" style="display:none">
@@ -731,6 +736,15 @@
     'TDS on Cost/Claim'
   ];
 
+  /* ---- PDF titles for the five "Deduction Claim Sheet Summary" cards ---- */
+  const PRINT_TOTAL_LABELS = [
+    'IUC Cost Passed by Operator',
+    'Deduction Claimed',
+    'Net Amount Payable/Receivable',
+    'Net Amount Paid',
+    'TDS on Cost/Claim'
+  ];
+
   /* ---- Analytics column map (7 checks) ---- */
   const ANALYTICS_COLUMNS = {
     iucAsPer:   'IUC cost as per Operator (payable)',
@@ -761,10 +775,13 @@
     activeHeaders: [],
     activeWs: null,
     activeDeductionCol: -1,
-    modalMode: null
+    modalMode: null,
+    muted: false
   };
 
   let speechToken = 0;
+  let cellSerial = 0;
+  let advanceCurrentCell = null;
 
   const els = {
     dropZone: $('dropZone'), fileInput: $('fileInput'), folderInput: $('folderInput'),
@@ -782,6 +799,7 @@
     previewHint: $('previewHint'), previewPanel: $('previewPanel'),
     columnsBtn: $('columnsBtn'), colPanel: $('colPanel'), colWrap: $('colWrap'),
     fullscreenBtn: $('fullscreenBtn'), contextMenu: $('contextMenu'),
+    muteBtn: $('muteBtn'), sidebarBtn: $('sidebarBtn'), mainGrid: $('mainGrid'),
     downloadBookBtn: $('downloadBookBtn'), savePdfBtn: $('savePdfBtn'), saveXlsxBtn: $('saveXlsxBtn'),
     zoomInBtn: $('zoomInBtn'), zoomOutBtn: $('zoomOutBtn'), zoomLevel: $('zoomLevel'),
     totalsSection: $('totalsSection'), totalsCards: $('totalsCards'),
@@ -885,6 +903,7 @@
     return {
       licensee: ($('licenseeName').value || '').trim(),
       fy: ($('fyLabel').value || '').trim(),
+      annexure: ($('annexureSel').value || '').trim(),
       verif: isoToDMY($('verifDate').value) || fmtDate(new Date())
     };
   }
@@ -1050,6 +1069,27 @@
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     clearAllHighlights();
   }
+  function updateMuteButton() {
+    els.muteBtn.textContent = state.muted ? '🔇 Unmute' : '🔊 Mute';
+    els.muteBtn.classList.toggle('toggled', state.muted);
+    els.muteBtn.title = state.muted ? 'Unmute the voice (M in fullscreen)' : 'Mute the voice (M in fullscreen)';
+  }
+  function toggleMute() {
+    state.muted = !state.muted;
+    updateMuteButton();
+    if (state.muted && state.isReading && 'speechSynthesis' in window) {
+      /* Silence the utterance that is playing right now, but keep the reading
+         sequence alive: highlights, pacing and auto-approve carry on silently. */
+      const tokenAtMute = speechToken, serialAtMute = cellSerial;
+      speechSynthesis.cancel();
+      // Fallback in case the browser fires no end/error event after cancel()
+      setTimeout(() => {
+        if (speechToken === tokenAtMute && cellSerial === serialAtMute && advanceCurrentCell) {
+          advanceCurrentCell();
+        }
+      }, 250);
+    }
+  }
   function getRowCellsData(tr) {
     const out = [];
     tr.querySelectorAll('td').forEach(td => {
@@ -1091,11 +1131,17 @@
       const utter = new SpeechSynthesisUtterance(item.text);
       if (voices[vIdx]) utter.voice = voices[vIdx];
       utter.rate = rate;
+      utter.volume = state.muted ? 0 : 1;   // muted = silent, but same pacing
+      const serial = ++cellSerial;
+      let fired = false;
       const done = () => {
+        if (fired) return;
+        fired = true;
         item.el.classList.remove('reading-cell');
         if (token !== speechToken) return;
         speakNext();
       };
+      advanceCurrentCell = done;
       utter.onend = done; utter.onerror = done;
       speechSynthesis.speak(utter);
     };
@@ -1182,6 +1228,13 @@
   function zoomOut() { state.zoom = Math.max(0.5, Math.round((state.zoom - 0.1) * 100) / 100); applyZoom(); }
   function resetZoom() { state.zoom = 1; applyZoom(); }
 
+  /* =================== Sidebar collapse =================== */
+  function setSidebarCollapsed(collapsed) {
+    els.mainGrid.classList.toggle('sidebar-collapsed', collapsed);
+    els.sidebarBtn.textContent = collapsed ? '⇥ Show sidebar' : '⇤ Hide sidebar';
+    try { localStorage.setItem('dvr_sidebar', collapsed ? '1' : '0'); } catch (e) {}
+  }
+
   /* =================== Numeric helpers =================== */
   function isNumericValue(v) {
     if (typeof v === 'number') return true;
@@ -1258,6 +1311,7 @@
     if (Number.isInteger(n)) return n.toLocaleString();
     return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
+  function fmtINR(n) { return '₹' + formatSum(n); }
   function findColumnIndex(headers, searchTerm) {
     if (!headers || !headers.length) return -1;
     const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -1481,75 +1535,67 @@
     });
   }
 
-  /* ---- PDF: Container 1 — Column Totals (5 small cards) ---- */
+  /* ---- PDF: "Deduction Claim Sheet Summary" — 5 thick-bordered cards ---- */
   function buildPrintColumnTotals(ws, headers) {
-    const { lastRow } = usedRange(ws);
-    const numericCols = detectNumericColumns(ws, lastRow, usedRange(ws).lastCol);
-    if (!numericCols.length) return '';
+    const { lastRow, lastCol } = usedRange(ws);
+    const numericCols = detectNumericColumns(ws, lastRow, lastCol);
     const cards = [];
     for (let i = 0; i < 5; i++) {
+      const preferredCol = findColumnIndex(headers, DEFAULT_TOTAL_HEADERS[i]);
       let col = state.totalSelections[i];
       if (col == null || numericCols.indexOf(col) === -1) {
-        const preferredHeader = DEFAULT_TOTAL_HEADERS[i];
-        const preferredCol = findColumnIndex(headers, preferredHeader);
         if (preferredCol >= 0 && numericCols.indexOf(preferredCol) !== -1) col = preferredCol;
-        else col = numericCols[i % numericCols.length];
+        else col = numericCols.length ? numericCols[i % numericCols.length] : -1;
       }
-      const header = getHeaderText(ws, col) || ('Column ' + (col + 1));
-      const sum = computeColumnSum(ws, col, lastRow);
-      cards.push({ header, sum });
+      if (col < 0) { cards.push({ title: PRINT_TOTAL_LABELS[i], sum: 0 }); continue; }
+      // Use the template title when the card still shows its default column
+      const title = (col === preferredCol)
+        ? PRINT_TOTAL_LABELS[i]
+        : (getHeaderText(ws, col) || ('Column ' + (col + 1)));
+      cards.push({ title, sum: computeColumnSum(ws, col, lastRow) });
     }
-    let html = '<div class="ps-cards-wrap"><div class="ps-block">';
-    html += '<div class="ps-block-title">Column Totals</div>';
+    let html = '<div class="ps-cards-wrap">';
+    html += '<div class="ps-heading">Deduction Claim Sheet Summary</div>';
     html += '<div class="ps-cards five">';
     cards.forEach(c => {
       html += '<div class="ps-card">' +
-        '<div class="ps-card-title">' + esc(c.header) + '</div>' +
-        '<div class="ps-card-value">' + esc(formatSum(c.sum)) + '</div>' +
+        '<div class="ps-card-title">' + esc(c.title) + '</div>' +
+        '<div class="ps-card-value">' + esc(fmtINR(c.sum)) + '</div>' +
       '</div>';
     });
-    html += '</div></div></div>';
+    html += '</div></div>';
     return html;
   }
 
-  /* ---- PDF: Container 2 — Deduction Claim Summary (3 cards) ---- */
-  function buildPrintDeductionSummary(ws) {
+  /* ---- PDF: "Post Verification Summary" — Submitted / Allowed / Disallowed ---- */
+  function buildPrintPostVerification(ws) {
     const col = state.activeDeductionCol;
     const rows = getDataRows();
-    if (!ws || col < 0 || !rows.length) return '';
-    let allowed = 0, review = 0, disallowed = 0;
-    let allowedN = 0, reviewN = 0, disallowedN = 0;
-    rows.forEach(tr => {
-      const rowIdx = Number(tr.dataset.rowIndex);
-      if (!isFinite(rowIdx)) return;
-      const cell = ws[XLSX.utils.encode_cell({ r: rowIdx, c: col })];
-      const v = numericCellValue(cell);
-      if (v == null) return;
-      if (tr.classList.contains('status-approved')) { allowed += v; allowedN++; }
-      else if (tr.classList.contains('status-later')) { review += v; reviewN++; }
-      else if (tr.classList.contains('status-discrepancy')) { disallowed += v; disallowedN++; }
-    });
-    const valTxt = (n, cnt) => cnt ? esc(formatSum(n)) : '—';
-    const cntTxt = cnt => cnt + ' row' + (cnt === 1 ? '' : 's');
-    let html = '<div class="ps-cards-wrap"><div class="ps-block">';
-    html += '<div class="ps-block-title">Deduction Claim Summary</div>';
+    let submitted = 0, allowed = 0, disallowed = 0;
+    if (ws && col >= 0) {
+      const { lastRow } = usedRange(ws);
+      submitted = computeColumnSum(ws, col, lastRow);
+      rows.forEach(tr => {
+        const rowIdx = Number(tr.dataset.rowIndex);
+        if (!isFinite(rowIdx)) return;
+        const v = numericCellValue(ws[XLSX.utils.encode_cell({ r: rowIdx, c: col })]);
+        if (v == null) return;
+        if (tr.classList.contains('status-approved')) allowed += v;
+        else if (tr.classList.contains('status-discrepancy')) disallowed += v;
+      });
+    }
+    const card = (title, val) =>
+      '<div class="ps-card">' +
+        '<div class="ps-card-title">' + esc(title) + '</div>' +
+        '<div class="ps-card-value">' + esc(fmtINR(val)) + '</div>' +
+      '</div>';
+    let html = '<div class="ps-cards-wrap">';
+    html += '<div class="ps-heading">Post Verification Summary</div>';
     html += '<div class="ps-cards three">';
-    html += '<div class="ps-card">' +
-      '<div class="ps-card-title">Deduction Claim Allowed</div>' +
-      '<div class="ps-card-value">' + valTxt(allowed, allowedN) + '</div>' +
-      '<div class="ps-card-sub">' + esc(cntTxt(allowedN)) + '</div>' +
-    '</div>';
-    html += '<div class="ps-card">' +
-      '<div class="ps-card-title">Deduction Claim Under Review</div>' +
-      '<div class="ps-card-value">' + valTxt(review, reviewN) + '</div>' +
-      '<div class="ps-card-sub">' + esc(cntTxt(reviewN)) + '</div>' +
-    '</div>';
-    html += '<div class="ps-card">' +
-      '<div class="ps-card-title">Deduction Claim Disallowed</div>' +
-      '<div class="ps-card-value">' + valTxt(disallowed, disallowedN) + '</div>' +
-      '<div class="ps-card-sub">' + esc(cntTxt(disallowedN)) + '</div>' +
-    '</div>';
-    html += '</div></div></div>';
+    html += card('Deduction Claim Submitted', submitted);
+    html += card('Deduction Claim Allowed', allowed);
+    html += card('Deduction Claim Disallowed', disallowed);
+    html += '</div></div>';
     return html;
   }
 
@@ -1565,48 +1611,43 @@
     const cats = categorizeRows();
     const printCols = getPrintColumnConfig(headers);
     const bd = basicDetails();
+    const line = (k, v) =>
+      '<div class="ps-detail-line"><span class="k">' + esc(k) + '</span><span class="v">' + esc(v) + '</span></div>';
 
     let html = '';
-    html += '<div class="ps-header">' +
-      '<div class="ps-left">' +
-        '<div class="ps-eyebrow">DVR Cleaner</div>' +
-        '<h1 class="ps-title">Deductions Report</h1>' +
-      '</div>' +
-      '<div class="ps-right">' +
-        'Name of the Licensee<b>' + esc(bd.licensee || '—') + '</b>' +
-        'Financial Year: ' + esc(bd.fy || '—') + '<br>' +
-        'Date of Verification: ' + esc(bd.verif) + '<br>' +
-        'Sheet: ' + esc(state.activeSheet) +
-      '</div>' +
-    '</div>';
+    html += '<h1 class="ps-title">Deduction Verification Report</h1>';
+    html += '<div class="ps-details-row"><div class="ps-details">' +
+      '<div class="ps-details-title">Basic Details</div>' +
+      line('Licensee', bd.licensee || '—') +
+      line('Financial Year', bd.fy || '—') +
+      line('Annexure', bd.annexure || '—') +
+      line('Date of Verification Report', bd.verif || '—') +
+    '</div></div>';
 
-    /* Container 1 & 2 — small, atomic card groups */
     html += buildPrintColumnTotals(ws, headers);
-    html += buildPrintDeductionSummary(ws);
+    html += buildPrintPostVerification(ws);
 
-    /* Containers 3-5 — sections with banner glued to the table start */
     if (sections.allowed) {
-      html += buildPrintSection('Deduction Claim Allowed', 'ps-allowed', cats.allowed, ws, printCols);
+      html += buildPrintSection('Deduction Claim Allowed', cats.allowed, ws, printCols);
     }
     if (sections.disallowed) {
-      html += buildPrintSection('Deduction Claim Disallowed', 'ps-disallowed', cats.disallowed, ws, printCols);
+      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed, ws, printCols);
     }
     if (sections.review) {
-      html += buildPrintSection('Deduction Claim Under Consideration', 'ps-review', cats.review, ws, printCols);
+      html += buildPrintSection('Deduction Claim Under Consideration', cats.review, ws, printCols);
     }
 
-    html += '<div class="ps-footer">Generated by DVR Cleaner — ' + fmtDate(new Date()) + '</div>';
+    html += '<div class="ps-footer">Sheet: ' + esc(state.activeSheet) +
+            ' · Generated by DVR Cleaner — ' + fmtDate(new Date()) + '</div>';
     ps.innerHTML = html;
   }
 
-  function buildPrintSection(title, cls, rowIdxs, ws, printCols) {
-    let html = '<div class="ps-section">';
-    html += '<div class="ps-banner">' + esc(title) + '</div>';
-    html += '<div class="ps-block">';
+  function buildPrintSection(title, rowIdxs, ws, printCols) {
+    let html = '<div class="ps-section"><div class="ps-box">';
+    html += '<div class="ps-box-title">' + esc(title) + '</div>';
 
     if (!rowIdxs.length) {
-      html += '<table class="ps-table"><tbody><tr><td>No rows in this category.</td></tr></tbody></table>';
-      html += '</div></div>';
+      html += '<div class="ps-empty">No rows in this category.</div></div></div>';
       return html;
     }
 
@@ -1617,7 +1658,7 @@
     html += '</tr></thead><tbody>';
 
     rowIdxs.forEach((rowIdx, i) => {
-      html += '<tr class="' + cls + '">';
+      html += '<tr>';
       printCols.forEach(pc => {
         if (pc.index >= 0) {
           const cell = ws[XLSX.utils.encode_cell({ r: rowIdx, c: pc.index })];
@@ -1647,7 +1688,6 @@
     if (!book || !ws || !headers.length) {
       log('No workbook loaded to export.', 'warn'); return;
     }
-    const { lastRow, lastCol } = usedRange(ws);
     const cats = categorizeRows();
     const printCols = getPrintColumnConfig(headers);
 
@@ -1663,6 +1703,7 @@
     const bdx = basicDetails();
     set(r, 0, 'Name of the Licensee: ' + (bdx.licensee || '—')); r++;
     set(r, 0, 'Financial Year: ' + (bdx.fy || '—')); r++;
+    set(r, 0, 'Annexure: ' + (bdx.annexure || '—')); r++;
     set(r, 0, 'Date of Verification: ' + bdx.verif); r++;
     set(r, 0, 'Sheet: ' + state.activeSheet); r += 2;
 
@@ -1936,7 +1977,14 @@
       const text = cellDisplayValue(cell);
       headers.push(text);
       const th = document.createElement('th');
-      th.textContent = text;
+      /* Header wraps inside a zero-width inner box, so the column width is set by the
+         longest data entry; min-width keeps the longest single header word readable. */
+      const inner = document.createElement('div');
+      inner.className = 'th-inner';
+      inner.textContent = text;
+      th.appendChild(inner);
+      const longestWord = text.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0);
+      if (longestWord) th.style.minWidth = (Math.ceil(longestWord * 1.3) + 2) + 'ch';
       th.dataset.col = c;
       if (emptyCols.has(c)) th.classList.add('col-hidden');
       headerRow.appendChild(th);
@@ -2207,6 +2255,7 @@
   /* =================== Voice settings =================== */
   function onVoiceSettingsChanged() {
     if (!els.voiceEnabled.checked) return;
+    if (state.muted) return;
     if (state.isReading) return;
     if (state.activeRowEl) {
       const cellsData = getRowCellsData(state.activeRowEl);
@@ -2290,6 +2339,9 @@
   els.zoomOutBtn.addEventListener('click', zoomOut);
 
   els.fullscreenBtn.addEventListener('click', toggleFullscreen);
+  els.muteBtn.addEventListener('click', toggleMute);
+  els.sidebarBtn.addEventListener('click', () =>
+    setSidebarCollapsed(!els.mainGrid.classList.contains('sidebar-collapsed')));
   document.addEventListener('fullscreenchange', syncFullscreenButton);
   document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
 
@@ -2306,6 +2358,7 @@
     else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomIn(); }
     else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomOut(); }
     else if (e.key === '0') { e.preventDefault(); resetZoom(); }
+    else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); toggleMute(); }
   });
 
   window.addEventListener('beforeprint', () => {
@@ -2331,6 +2384,7 @@
     let saved = {}; try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
     $('licenseeName').value = saved.licensee || '';
     $('fyLabel').value = saved.fy || '';
+    if (saved.annexure) $('annexureSel').value = saved.annexure;
     $('verifDate').value = todayISO();
     function msg() {
       const v = $('fyLabel').value.trim();
@@ -2338,13 +2392,25 @@
     }
     function save() {
       msg();
-      try { localStorage.setItem(KEY, JSON.stringify({ licensee: $('licenseeName').value, fy: $('fyLabel').value })); } catch (e) {}
+      try {
+        localStorage.setItem(KEY, JSON.stringify({
+          licensee: $('licenseeName').value,
+          fy: $('fyLabel').value,
+          annexure: $('annexureSel').value
+        }));
+      } catch (e) {}
     }
     ['licenseeName', 'fyLabel'].forEach(id => $(id).addEventListener('input', save));
+    $('annexureSel').addEventListener('change', save);
     msg();
   })();
 
   /* =================== Boot =================== */
+  (function restoreSidebar() {
+    let v = null; try { v = localStorage.getItem('dvr_sidebar'); } catch (e) {}
+    setSidebarCollapsed(v === '1');
+  })();
+  updateMuteButton();
   setStats();
   setProgress(0, 0);
   renderFileList();
