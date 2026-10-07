@@ -173,6 +173,9 @@
   .analytics-card-inline.check{background:var(--red-soft);border-color:var(--red)}
   .analytics-card-inline.check .check-status{color:var(--red)}
 
+  .check8-input{height:28px !important;font-size:12px !important;padding:4px 8px !important;margin:3px 0 2px;text-align:center}
+  .check8-input.invalid{border-color:var(--red) !important;background:var(--red-soft) !important;color:var(--red) !important;
+    outline-color:var(--red) !important}
   .book-tabs,.sheet-tabs{display:flex;gap:6px;overflow:auto;padding-bottom:8px;margin-bottom:8px}
   .book-tabs{border-bottom:1px solid var(--line)} .sheet-tabs{border-bottom:1px solid var(--line-soft)}
   .book-tab,.tab{height:auto;border:1px solid var(--line);background:var(--paper);padding:6px 10px;border-radius:var(--radius);
@@ -600,6 +603,14 @@
               <div class="check-status" id="check7Status">—</div>
               <div class="check-value" id="check7Value">—</div>
             </div>
+            <div class="analytics-card-inline" data-check="8">
+              <div class="check-title">Check 8 · Bank Stmt S.No. Sum</div>
+              <input type="text" id="check8Input" class="check8-input" inputmode="decimal"
+                     placeholder="Enter S.No. (number)" autocomplete="off"
+                     title="Sum of Net Amount Paid where S.No. of Bank Statement equals this number">
+              <div class="check-status" id="check8Status">—</div>
+              <div class="check-value" id="check8Value">—</div>
+            </div>
           </div>
         </div>
 
@@ -755,7 +766,8 @@
     netRecv:    'Net Recievable',
     payable:    'Amount Payable/Recievable',
     netPaid:    'Net Amount Paid',
-    dedClaimed: 'Deduction Claimed'
+    dedClaimed: 'Deduction Claimed',
+    bankSno:    'S.No. of Bank Statement'
   };
 
   const state = {
@@ -1450,11 +1462,43 @@
   }
   function resetAnalyticsCards() {
     for (let i = 1; i <= 7; i++) setAnalyticsCard(i, '—', '', '—');
+    updateCheck8();
+  }
+  /* Check 8: sum of "Net Amount Paid" for rows whose "S.No. of Bank Statement" equals the typed number */
+  function updateCheck8() {
+    const input = document.getElementById('check8Input');
+    if (!input) return;
+    const raw = input.value.trim();
+    const valid = raw === '' || /^\d+(\.\d+)?$/.test(raw);
+    input.classList.toggle('invalid', !valid);
+    if (raw === '') { setAnalyticsCard(8, '—', '', 'Enter a S.No.'); return; }
+    if (!valid) { setAnalyticsCard(8, 'Invalid', 'check', 'Numbers only'); return; }
+    const ws = state.activeWs, headers = state.activeHeaders;
+    if (!ws || !headers.length) { setAnalyticsCard(8, '—', '', 'No sheet loaded'); return; }
+    const snoCol = findColumnIndex(headers, ANALYTICS_COLUMNS.bankSno);
+    const paidCol = findColumnIndex(headers, ANALYTICS_COLUMNS.netPaid);
+    if (snoCol < 0 || paidCol < 0) {
+      setAnalyticsCard(8, 'Column missing', 'check', snoCol < 0 ? 'S.No. of Bank Statement' : 'Net Amount Paid');
+      return;
+    }
+    const target = Number(raw);
+    const { lastRow } = usedRange(ws);
+    let sum = 0, n = 0;
+    for (let r = 1; r < lastRow; r++) {
+      const sno = numericCellValue(ws[XLSX.utils.encode_cell({ r, c: snoCol })]);
+      if (sno === null || sno !== target) continue;
+      n++;
+      const paid = numericCellValue(ws[XLSX.utils.encode_cell({ r, c: paidCol })]);
+      if (paid !== null) sum += paid;
+    }
+    if (!n) setAnalyticsCard(8, 'No match', 'satisfactory', 'S.No. ' + raw + ' not found');
+    else setAnalyticsCard(8, formatSum(sum), 'good', n + ' row' + (n === 1 ? '' : 's') + ' matched');
   }
   function updateAnalytics() {
     const enabled = els.analyticsEnabled.checked;
     els.analyticsInline.classList.toggle('enabled', enabled);
     if (!enabled) return;
+    updateCheck8();   // independent of the selected row
 
     const ws = state.activeWs;
     const headers = state.activeHeaders;
@@ -2334,6 +2378,7 @@
   });
 
   els.analyticsEnabled.addEventListener('change', updateAnalytics);
+  $('check8Input').addEventListener('input', updateCheck8);
 
   els.zoomInBtn.addEventListener('click', zoomIn);
   els.zoomOutBtn.addEventListener('click', zoomOut);
@@ -2353,6 +2398,8 @@
       return;
     }
     if (!isFullscreen()) return;
+    const t = e.target;   // let the Check 8 box (and any text box) receive normal typing
+    if (t && (t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && t.type === 'text'))) return;
     if (e.key === 'ArrowDown') { e.preventDefault(); handleArrowDown(); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); handleArrowUp(); }
     else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomIn(); }
