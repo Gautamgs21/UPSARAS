@@ -450,7 +450,7 @@
        default unless the user explicitly picks dark with the toggle. */
 
     /* ============================================================
-       SIDEBAR MENU  (new)
+       SIDEBAR MENU
        Desktop: expanded (260px) ⇄ collapsed icon rail (72px) with tooltips.
        Narrow screens (≤760px): becomes a top bar; menu slides down.
        ============================================================ */
@@ -731,7 +731,7 @@
       body.sb-collapsed .nav-item .caret { display: none; }
       body.sb-collapsed .sb-footer { display: none; }
 
-      /* Tools tooltip is replaced by the flyout when collapsed */
+      /* Group tooltips are replaced by the flyout when collapsed */
       body.sb-collapsed .nav-group > .nav-item.tip::after,
       body.sb-collapsed .nav-group > .nav-item.tip::before { display: none; }
 
@@ -901,35 +901,37 @@
             <span class="label">SUC Assessment</span>
           </button>
         </li>
-        <li>
-          <button type="button" class="nav-item tip" data-tooltip="Deduction Verification">
+
+        <!-- Deduction Verification ▸ Load DVR / Initiate DVR -->
+        <li class="nav-group" id="deductionGroup">
+          <button type="button" class="nav-item tip" id="deductionBtn" data-tooltip="Deduction Verification" aria-expanded="false" aria-controls="deductionSub">
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
             <span class="label">Deduction Verification</span>
+            <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
           </button>
+          <ul class="submenu" id="deductionSub">
+            <li class="flyout-title" aria-hidden="true">Deduction Verification</li>
+            <li>
+              <!-- TODO: point this at the Load DVR page when it is available -->
+              <a class="nav-item" href="#" target="_blank" rel="noopener noreferrer">
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span class="label">Load DVR</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" href="https://gautamgs21.github.io/UPSARAS/pages/dvrcleaner.html" target="_blank" rel="noopener noreferrer">
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                <span class="label">Initiate DVR</span>
+              </a>
+            </li>
+          </ul>
         </li>
+
         <li>
           <button type="button" class="nav-item tip" data-tooltip="Settings">
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span class="label">Settings</span>
           </button>
-        </li>
-
-        <!-- Tools > DVR Tools -->
-        <li class="nav-group" id="toolsGroup">
-          <button type="button" class="nav-item tip" id="toolsBtn" data-tooltip="Tools" aria-expanded="false" aria-controls="toolsSub">
-            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg>
-            <span class="label">Tools</span>
-            <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
-          </button>
-          <ul class="submenu" id="toolsSub">
-            <li class="flyout-title" aria-hidden="true">Tools</li>
-            <li>
-              <a class="nav-item" href="https://gautamgs21.github.io/UPSARAS/pages/dvrcleaner.html" target="_blank" rel="noopener noreferrer">
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><line x1="10" y1="11" x2="10" y2="16"></line><line x1="14" y1="11" x2="14" y2="16"></line></svg>
-                <span class="label">DVR Tools</span>
-              </a>
-            </li>
-          </ul>
         </li>
       </ul>
 
@@ -1076,12 +1078,12 @@
          Desktop: collapse / expand (remembered). Narrow: slide-down menu.
          ============================================================ */
       (function sidebarInit() {
-        var body      = document.body;
-        var sidebar   = document.getElementById('sidebar');
-        var toggle    = document.getElementById('sbToggle');
-        var toolsGrp  = document.getElementById('toolsGroup');
-        var toolsBtn  = document.getElementById('toolsBtn');
-        var mq        = window.matchMedia('(max-width: 760px)');
+        var body         = document.body;
+        var sidebar      = document.getElementById('sidebar');
+        var toggle       = document.getElementById('sbToggle');
+        var deductionGrp = document.getElementById('deductionGroup');
+        var deductionBtn = document.getElementById('deductionBtn');
+        var mq           = window.matchMedia('(max-width: 760px)');
 
         if (!sidebar || !toggle) return;
 
@@ -1114,20 +1116,21 @@
           } else {
             var collapsed = body.classList.toggle('sb-collapsed');
             // close the inline submenu when collapsing so the rail stays tidy
-            if (collapsed && toolsGrp) {
-              toolsGrp.classList.remove('open');
-              if (toolsBtn) toolsBtn.setAttribute('aria-expanded', 'false');
+            if (collapsed && deductionGrp) {
+              deductionGrp.classList.remove('open');
+              if (deductionBtn) deductionBtn.setAttribute('aria-expanded', 'false');
             }
             try { localStorage.setItem('UPSARAS_sidebar', collapsed ? 'collapsed' : 'expanded'); } catch (e) {}
           }
           syncToggle();
         });
 
-        // Tools submenu (inline when expanded / on narrow screens; flyout on hover when collapsed)
-        if (toolsBtn && toolsGrp) {
-          toolsBtn.addEventListener('click', function() {
-            var open = toolsGrp.classList.toggle('open');
-            toolsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        // Deduction Verification submenu
+        // (inline when expanded / on narrow screens; flyout on hover when collapsed)
+        if (deductionBtn && deductionGrp) {
+          deductionBtn.addEventListener('click', function() {
+            var open = deductionGrp.classList.toggle('open');
+            deductionBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
           });
         }
 
