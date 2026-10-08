@@ -11,7 +11,7 @@
     --line:#CBD0C7; --line-soft:#DDE0D9; --brass:#9C7327; --brass-soft:#EFE3C8;
     --teal:#2C6357; --teal-soft:#DEEAE5; --red:#9C3B31; --red-soft:#F3DEDA;
     --green:#2E7D32; --orange:#B45309; --orange-soft:#FBD9A8; --shared-blue:#00008B;
-    --st-ok:#92D050; --st-bad:#E57373; --st-later:#FFB74D; --st-ink:#000;
+    --st-ok:#92D050; --st-bad:#E57373; --st-later:#FFB74D; --st-part:#81D4FA; --st-ink:#000;
     --read-row:#FFE98A; --read-cell:#A8E6A1;
     --font-sans:"Aptos Display",-apple-system,"Segoe UI",sans-serif;
     --font-serif:"Aptos Display",-apple-system,"Segoe UI",sans-serif;
@@ -26,7 +26,7 @@
     --line:#333B30; --line-soft:#2A3128; --brass:#D4A94B; --brass-soft:#332A16;
     --teal:#7FBDA9; --teal-soft:#1B2C26; --red:#D98A7C; --red-soft:#3A211D;
     --green:#6FCF77; --orange:#F0A85A; --orange-soft:#4A3010; --shared-blue:#7FB3FF;
-    --st-ok:#3E6B25; --st-bad:#8C3B3B; --st-later:#8A5A1C; --st-ink:#F2F4EE;
+    --st-ok:#3E6B25; --st-bad:#8C3B3B; --st-later:#8A5A1C; --st-part:#1F6E80; --st-ink:#F2F4EE;
     --read-row:#5A4E1A; --read-cell:#2F6B3A;
     --shadow-card:0 1px 3px rgba(0,0,0,0.4);
   }
@@ -35,7 +35,7 @@
     --line:#CBD0C7; --line-soft:#DDE0D9; --brass:#9C7327; --brass-soft:#EFE3C8;
     --teal:#2C6357; --teal-soft:#DEEAE5; --red:#9C3B31; --red-soft:#F3DEDA;
     --green:#2E7D32; --orange:#B45309; --orange-soft:#FBD9A8; --shared-blue:#00008B;
-    --st-ok:#92D050; --st-bad:#E57373; --st-later:#FFB74D; --st-ink:#000;
+    --st-ok:#92D050; --st-bad:#E57373; --st-later:#FFB74D; --st-part:#81D4FA; --st-ink:#000;
     --read-row:#FFE98A; --read-cell:#A8E6A1;
     --shadow-card:0 1px 3px rgba(0,0,0,0.03);
   }
@@ -222,6 +222,24 @@
   .calc-keys button.fn{color:var(--red)}
   .calc-keys button.eq{background:var(--ink);color:var(--paper-raised);border:none}
   .calc-keys button.eq:hover{background:var(--brass);color:#1a1200}
+  .bac-pop{position:fixed;left:0;top:0;width:310px;height:340px;min-width:260px;min-height:300px;max-width:96vw;max-height:96vh;
+    z-index:1500;display:flex;flex-direction:column;background:var(--paper-raised);color:var(--ink);border:1px solid var(--line);
+    border-radius:8px;box-shadow:0 16px 40px rgba(0,0,0,.3);resize:both;overflow:hidden}
+  .bac-body{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px 12px}
+  .bac-body label{display:flex;flex-direction:column;gap:3px;margin:0;font-size:11px;font-weight:700;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.04em}
+  .bac-body input{width:100%;height:32px;font-size:14px;text-align:right;font-family:var(--font-mono);text-transform:none;letter-spacing:0;font-weight:600}
+  .bac-formula{font-size:10.5px;color:var(--ink-soft);line-height:1.35}
+  .bac-result{margin-top:auto;border:1px solid var(--brass);background:var(--brass-soft);border-radius:var(--radius);padding:8px 10px}
+  .bac-result .bac-rl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+  .bac-result .bac-rv{font-size:20px;font-weight:700;font-family:var(--font-mono);text-align:right;overflow-wrap:anywhere}
+  .bac-note{min-height:1.2em;font-size:11px;color:var(--red)}
+  .bac-actions{display:flex;gap:6px}
+  .bac-actions button{flex:1;height:30px;font-size:12px;padding:0 8px}
+  .partial-modal .pm-row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin:0 0 6px}
+  .partial-modal .pm-row b{font-family:var(--font-mono)}
+  .partial-modal input{width:100%;height:38px;font-size:15px;font-family:var(--font-mono);text-align:right;margin:6px 0 8px}
+  .partial-modal .pm-err{min-height:1.3em;font-size:12px;color:var(--red);margin-bottom:8px}
   .book-tabs,.sheet-tabs{display:flex;gap:6px;overflow:auto;padding-bottom:8px;margin-bottom:8px}
   .book-tabs{border-bottom:1px solid var(--line)} .sheet-tabs{border-bottom:1px solid var(--line-soft)}
   .book-tab,.tab{height:auto;border:1px solid var(--line);background:var(--paper);padding:6px 10px;border-radius:var(--radius);
@@ -242,7 +260,8 @@
   tbody tr.status-approved td{background:var(--st-ok);color:var(--st-ink);font-weight:700}
   tbody tr.status-discrepancy td{background:var(--st-bad);color:var(--st-ink);font-weight:700}
   tbody tr.status-later td{background:var(--st-later);color:var(--st-ink);font-weight:700}
-  tbody tr.reading-row:not(.status-approved):not(.status-discrepancy):not(.status-later) td:not(.reading-cell){
+  tbody tr.status-partial td{background:var(--st-part);color:var(--st-ink);font-weight:700}
+  tbody tr.reading-row:not(.status-approved):not(.status-discrepancy):not(.status-later):not(.status-partial) td:not(.reading-cell){
     background:var(--read-row) !important;color:var(--st-ink);font-weight:700}
   tbody tr.reading-row td.reading-cell{background:var(--read-cell) !important;color:var(--st-ink);font-weight:700}
   tbody tr.active-row td:first-child{border-left:4px solid var(--brass)}
@@ -267,6 +286,7 @@
   .context-menu button[data-action="discrepancy"]{color:var(--red)}
   .context-menu button[data-action="later"]{color:var(--orange)}
   .context-menu button[data-action="approved"]{color:var(--green)}
+  .context-menu button[data-action="partial"]{color:var(--teal)}
   .context-menu .divider{height:1px;background:var(--line);margin:5px 4px}
 
   .zoom-group{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--paper)}
@@ -310,7 +330,10 @@
   .remarks-wrap:not(.closed) .rt-chev{transform:rotate(90deg)}
   .remarks-toggle .rt-dot{margin-left:auto;font-size:10px;font-weight:600;color:var(--brass);text-transform:none;letter-spacing:0}
   .remarks-wrap.closed .remarks-input{display:none}
-  .preview-panel:fullscreen .remarks-input,.preview-panel:-webkit-full-screen .remarks-input{min-height:30px;height:30px;margin-top:4px;padding:4px 8px;resize:none}
+  /* Pop-up remarks: floats above the page, drag the bottom-right corner to resize */
+  .remarks-wrap:not(.closed) .remarks-input{position:fixed;z-index:1600;width:340px;height:160px;min-width:220px;min-height:90px;
+    max-width:96vw;max-height:85vh;margin:0;resize:both;padding:8px 10px;background:var(--paper-raised);color:var(--ink);
+    border:1px solid var(--brass);border-radius:6px;box-shadow:0 14px 36px rgba(0,0,0,.32)}
   .preview-panel:fullscreen #saveStamp,.preview-panel:-webkit-full-screen #saveStamp{display:none}
   .preview-panel:fullscreen .resume-banner,.preview-panel:-webkit-full-screen .resume-banner{margin:4px 0}
   .resume-banner{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0;padding:9px 12px;border:1px solid var(--brass);
@@ -667,6 +690,7 @@
               <button type="button" class="small tb-toggle" aria-haspopup="true" aria-expanded="false">🛠 Tools</button>
               <div class="tb-panel">
                 <button id="calcBtn" class="tb-item" type="button" title="Open / close the calculator">🖩 Calculator</button>
+                <button id="bacBtn" class="tb-item" type="button" title="Open / close the Basic Amount Calculator">🧮 Basic Amount Calculator</button>
               </div>
             </div>
 
@@ -802,7 +826,7 @@
 
         <div class="footer-note">
           Click a row to speak it. Right-click a row to mark <b>discrepancy</b>,
-          <b>later</b> or <b>approved</b>. In fullscreen use ↑ / ↓ to move,
+          <b>later</b>, <b>approved</b> or <b>partially approved</b>. In fullscreen use ↑ / ↓ to move,
           <b>−</b> / <b>+</b> to zoom, <b>0</b> to reset zoom and <b>M</b> to mute.
         </div>
 
@@ -810,6 +834,7 @@
           <button data-action="discrepancy">Mark as discrepancy</button>
           <button data-action="later">Mark for later</button>
           <button data-action="approved">Mark as approved</button>
+          <button data-action="partial">Partially approve</button>
           <div class="divider"></div>
           <button data-action="clear">Clear status</button>
         </div>
@@ -825,6 +850,47 @@
                    spellcheck="false" placeholder="0">
             <div id="calcResult" class="calc-result">&nbsp;</div>
             <div id="calcKeys" class="calc-keys"></div>
+          </div>
+        </div>
+
+        <!-- Basic Amount Calculator: draggable + resizable -->
+        <div id="bacPop" class="bac-pop" style="display:none" role="dialog" aria-label="Basic Amount Calculator">
+          <div class="calc-head" id="bacHead">
+            <span>🧮 Basic Amount Calculator</span>
+            <button type="button" class="calc-x" id="bacClose" title="Close (Esc)">✕</button>
+          </div>
+          <div class="bac-body">
+            <label>Amount Paid
+              <input id="bacPaid" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="0.00">
+            </label>
+            <label>GST Rate (%)
+              <input id="bacRate" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="18">
+            </label>
+            <label>TDS Paid
+              <input id="bacTds" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="0.00">
+            </label>
+            <div class="bac-formula">Basic Amount = (Amount Paid + TDS Paid) ÷ (1 + GST Rate / 100)</div>
+            <div class="bac-note" id="bacNote">&nbsp;</div>
+            <div class="bac-result"><div class="bac-rl">Basic Amount</div><div class="bac-rv" id="bacResult">—</div></div>
+            <div class="bac-actions">
+              <button type="button" id="bacCopy">Copy result</button>
+              <button type="button" id="bacClear">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Partially approve: asks for the admissible amount -->
+        <div id="partialModal" class="modal-backdrop" style="display:none">
+          <div class="modal-box partial-modal" style="max-width:380px">
+            <h3>Enter Admissible Amount</h3>
+            <div class="pm-row"><span>Deduction Claimed</span><b id="partialClaim">—</b></div>
+            <input id="partialInput" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Admissible amount">
+            <div class="pm-row"><span>Will be disallowed</span><b id="partialDisallow">—</b></div>
+            <div class="pm-err" id="partialErr"></div>
+            <div class="modal-actions">
+              <button id="partialCancel" type="button">Cancel</button>
+              <button id="partialOk" type="button" class="primary">OK</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1363,14 +1429,41 @@
     const b = state.rowStatus[bookIndex] || (state.rowStatus[bookIndex] = {});
     return b[sheetName] || (b[sheetName] = {});
   }
+  /* A partially approved row is stored as the status string "partial:<admissible amount>" */
   function applyRowStatusClass(tr, status) {
-    tr.classList.remove('status-approved', 'status-discrepancy', 'status-later');
-    if (status) tr.classList.add('status-' + status);
+    tr.classList.remove('status-approved', 'status-discrepancy', 'status-later', 'status-partial');
+    delete tr.dataset.partial;
+    if (!status) return;
+    let st = String(status);
+    if (st.indexOf('partial:') === 0) {
+      const amt = parseFloat(st.slice(8));
+      if (!isFinite(amt)) return;
+      tr.dataset.partial = String(amt);
+      st = 'partial';
+    }
+    tr.classList.add('status-' + st);
   }
   function hasStatus(tr) {
     return tr.classList.contains('status-approved') ||
            tr.classList.contains('status-discrepancy') ||
-           tr.classList.contains('status-later');
+           tr.classList.contains('status-later') ||
+           tr.classList.contains('status-partial');
+  }
+  /* Split a partially approved row's claim into allowed / disallowed parts */
+  function partialSplit(tr, v) {
+    const a = Math.min(Math.max(parseFloat(tr.dataset.partial) || 0, 0), v);
+    return { allowed: a, disallowed: Math.round((v - a) * 100) / 100 };
+  }
+  /* Same split, looked up by row index (used for PDF / Excel). Returns null if the row is not partial. */
+  function partialShare(rowIdx, kind) {
+    const st = getStatusMap(state.activePreview, state.activeSheet)[rowIdx];
+    if (typeof st !== 'string' || st.indexOf('partial:') !== 0) return null;
+    const col = state.activeDeductionCol;
+    if (!state.activeWs || col < 0) return null;
+    const v = numericCellValue(state.activeWs[XLSX.utils.encode_cell({ r: Number(rowIdx), c: col })]);
+    if (v == null) return null;
+    const a = Math.min(Math.max(parseFloat(st.slice(8)) || 0, 0), v);
+    return kind === 'allowed' ? a : Math.round((v - a) * 100) / 100;
   }
   function setRowStatus(tr, status) {
     const bookIndex = state.activePreview;
@@ -1620,6 +1713,12 @@
       if (tr.classList.contains('status-approved')) { allowed += v; allowedN++; }
       else if (tr.classList.contains('status-later')) { review += v; reviewN++; }
       else if (tr.classList.contains('status-discrepancy')) { disallowed += v; disallowedN++; }
+      else if (tr.classList.contains('status-partial')) {
+        const sp = partialSplit(tr, v);
+        allowed += sp.allowed; disallowed += sp.disallowed;
+        if (sp.allowed > 0) allowedN++;
+        if (sp.disallowed > 0) disallowedN++;
+      }
     });
     els.deductionAllowedValue.textContent = allowedN ? formatSum(allowed) : '—';
     els.deductionReviewValue.textContent = reviewN ? formatSum(review) : '—';
@@ -1776,6 +1875,7 @@
       if (tr.classList.contains('status-approved')) allowed.push(rowIdx);
       else if (tr.classList.contains('status-later')) review.push(rowIdx);
       else if (tr.classList.contains('status-discrepancy')) disallowed.push(rowIdx);
+      else if (tr.classList.contains('status-partial')) { allowed.push(rowIdx); disallowed.push(rowIdx); }   // appears in both lists
     });
     return { allowed, review, disallowed };
   }
@@ -1842,6 +1942,10 @@
         if (v == null) return;
         if (tr.classList.contains('status-approved')) allowed += v;
         else if (tr.classList.contains('status-discrepancy')) disallowed += v;
+        else if (tr.classList.contains('status-partial')) {
+          const sp = partialSplit(tr, v);
+          allowed += sp.allowed; disallowed += sp.disallowed;
+        }
       });
     }
     const card = (title, val) =>
@@ -1889,13 +1993,13 @@
     html += buildPrintPostVerification(ws);
 
     if (sections.allowed) {
-      html += buildPrintSection('Deduction Claim Allowed', cats.allowed, ws, printCols);
+      html += buildPrintSection('Deduction Claim Allowed', cats.allowed, ws, printCols, undefined, 'allowed');
     }
     if (sections.disallowed) {
-      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed, ws, printCols, remarksFor(state.activePreview, state.activeSheet).disallowed);
+      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed, ws, printCols, remarksFor(state.activePreview, state.activeSheet).disallowed, 'disallowed');
     }
     if (sections.review) {
-      html += buildPrintSection('Deduction Claim Under Consideration', cats.review, ws, printCols, remarksFor(state.activePreview, state.activeSheet).review);
+      html += buildPrintSection('Deduction Claim Under Consideration', cats.review, ws, printCols, remarksFor(state.activePreview, state.activeSheet).review, 'review');
     }
 
     html += '<div class="ps-footer">Sheet: ' + esc(state.activeSheet) +
@@ -1909,7 +2013,7 @@
     return '<div class="ps-remarks"><div class="ps-remarks-label">Remarks:</div>' +
            '<div class="ps-remarks-text">' + esc(remarks || '') + '</div></div>';
   }
-  function buildPrintSection(title, rowIdxs, ws, printCols, remarks) {
+  function buildPrintSection(title, rowIdxs, ws, printCols, remarks, kind) {
     const hasRemarksBox = remarks !== undefined;
     let html = '<div class="ps-section"><div class="ps-box">';
     html += '<div class="ps-box-title">' + esc(title) + '</div>';
@@ -1932,7 +2036,12 @@
       printCols.forEach(pc => {
         if (pc.index >= 0) {
           const cell = ws[XLSX.utils.encode_cell({ r: rowIdx, c: pc.index })];
-          html += '<td>' + esc(cellDisplayValue(cell)) + '</td>';
+          let txt = cellDisplayValue(cell);
+          if (pc.index === state.activeDeductionCol) {   // partially approved: show only this list's share
+            const ps = partialShare(rowIdx, kind);
+            if (ps != null) txt = formatSum(ps);
+          }
+          html += '<td>' + esc(txt) + '</td>';
         } else if (pc.isSlNo) {
           html += '<td>' + (i + 1) + '</td>';
         } else {
@@ -1998,7 +2107,11 @@
         printCols.forEach((pc, ci) => {
           if (pc.index >= 0) {
             const cell = ws[XLSX.utils.encode_cell({ r: rowIdx, c: pc.index })];
-            const n = numericCellValue(cell);
+            let n = numericCellValue(cell);
+            if (pc.index === state.activeDeductionCol) {   // partially approved: show only this list's share
+              const ps = partialShare(rowIdx, sd.flag);
+              if (ps != null) n = ps;
+            }
             set(r, ci, n != null ? n : cellDisplayValue(cell));
           } else if (pc.isSlNo) {
             set(r, ci, i + 1);
@@ -2107,12 +2220,54 @@
       e.stopPropagation();
       const tr = contextTargetRow;
       const action = btn.dataset.action;
-      if (tr) {
-        if (action === 'clear') setRowStatus(tr, null);
-        else setRowStatus(tr, action);
-      }
       hideContextMenu();
+      if (!tr) return;
+      if (action === 'clear') setRowStatus(tr, null);
+      else if (action === 'partial') openPartialModal(tr);
+      else setRowStatus(tr, action);
     });
+  });
+
+  /* ---- Partially approve: "Enter Admissible Amount" pop-up ---- */
+  let partialTargetRow = null, partialClaim = 0;
+  function openPartialModal(tr) {
+    const ws = state.activeWs, col = state.activeDeductionCol, rowIdx = Number(tr.dataset.rowIndex);
+    const v = (ws && col >= 0 && isFinite(rowIdx)) ? numericCellValue(ws[XLSX.utils.encode_cell({ r: rowIdx, c: col })]) : null;
+    if (v == null) { log('Partial approval needs a numeric "Deduction Claimed" value in this row.', 'warn'); return; }
+    partialTargetRow = tr; partialClaim = v;
+    $('partialClaim').textContent = fmtINR(v);
+    const inp = $('partialInput');
+    inp.value = tr.dataset.partial || '';
+    $('partialErr').textContent = '';
+    updatePartialPreview();
+    $('partialModal').style.display = 'flex';
+    inp.focus(); inp.select();
+  }
+  function closePartialModal() { $('partialModal').style.display = 'none'; partialTargetRow = null; }
+  function parsePartialInput() {
+    const raw = $('partialInput').value.replace(/[,₹\s]/g, '');
+    return raw === '' ? null : Number(raw);
+  }
+  function updatePartialPreview() {
+    const a = parsePartialInput();
+    $('partialDisallow').textContent = (a != null && isFinite(a) && a >= 0 && a <= partialClaim + 0.005)
+      ? fmtINR(Math.round((partialClaim - a) * 100) / 100) : '—';
+  }
+  function confirmPartialModal() {
+    const a = parsePartialInput(), err = $('partialErr');
+    if (a == null || !isFinite(a) || a < 0) { err.textContent = 'Enter a valid amount (0 or more).'; return; }
+    if (a > partialClaim + 0.005) { err.textContent = 'Cannot exceed the Deduction Claimed (' + fmtINR(partialClaim) + ').'; return; }
+    const tr = partialTargetRow;
+    closePartialModal();
+    if (tr) setRowStatus(tr, 'partial:' + (Math.round(a * 100) / 100));
+  }
+  $('partialOk').addEventListener('click', confirmPartialModal);
+  $('partialCancel').addEventListener('click', closePartialModal);
+  $('partialModal').addEventListener('mousedown', e => { if (e.target === $('partialModal')) closePartialModal(); });
+  $('partialInput').addEventListener('input', () => { $('partialErr').textContent = ''; updatePartialPreview(); });
+  $('partialInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); confirmPartialModal(); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePartialModal(); }
   });
   document.addEventListener('click', e => {
     if (!els.contextMenu.contains(e.target)) hideContextMenu();
@@ -2648,6 +2803,7 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (e.target && e.target.closest && e.target.closest('#calcPop')) return;   // calculator handles its own Esc
+      if (e.target && e.target.closest && e.target.closest('#bacPop')) return;    // Basic Amount Calculator handles its own Esc
       if (els.sectionModal.style.display !== 'none') { closeSectionModal(); e.preventDefault(); return; }
       if (els.contextMenu.style.display !== 'none') { hideContextMenu(); e.preventDefault(); return; }
       if (!document.fullscreenElement && !document.webkitFullscreenElement) stopVoice();
@@ -2801,6 +2957,81 @@
     head.addEventListener('pointercancel', endDrag);
   })();
 
+  /* =================== Basic Amount Calculator =================== */
+  (function bacInit() {
+    const pop = $('bacPop'), head = $('bacHead'), btn = $('bacBtn');
+    const fPaid = $('bacPaid'), fRate = $('bacRate'), fTds = $('bacTds');
+    const out = $('bacResult'), note = $('bacNote');
+    let placed = false, lastValue = null;
+
+    const num = el => {                       // null = empty, NaN = invalid
+      const t = el.value.replace(/[,₹%\s]/g, '');
+      if (t === '') return null;
+      const n = Number(t);
+      return isFinite(n) ? n : NaN;
+    };
+    function compute() {
+      const paid = num(fPaid), rate = num(fRate), tds = num(fTds);
+      lastValue = null; note.innerHTML = '&nbsp;';
+      if (paid === null) { out.textContent = '—'; return; }
+      if (Number.isNaN(paid) || Number.isNaN(rate) || Number.isNaN(tds)) {
+        out.textContent = '—'; note.textContent = 'Enter numbers only.'; return;
+      }
+      const R = rate == null ? 0 : rate, T = tds == null ? 0 : tds;
+      if (1 + R / 100 === 0) { out.textContent = '—'; note.textContent = 'GST rate cannot be −100%.'; return; }
+      lastValue = (paid + T) / (1 + R / 100);
+      out.textContent = '₹' + lastValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    [fPaid, fRate, fTds].forEach((el, i, arr) => {
+      el.addEventListener('input', compute);
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); (arr[i + 1] || arr[0]).focus(); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(); }
+      });
+    });
+    $('bacClear').addEventListener('click', () => { fPaid.value = fRate.value = fTds.value = ''; compute(); fPaid.focus(); });
+    $('bacCopy').addEventListener('click', async () => {
+      if (lastValue == null) return;
+      const text = lastValue.toFixed(2), b = $('bacCopy');
+      try { await navigator.clipboard.writeText(text); }
+      catch (_) {
+        const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta);
+        ta.select(); try { document.execCommand('copy'); } catch (__) {} ta.remove();
+      }
+      b.textContent = 'Copied ✓'; setTimeout(() => { b.textContent = 'Copy result'; }, 1200);
+    });
+
+    function place() {
+      if (placed) return;
+      const w = pop.offsetWidth || 310;
+      pop.style.left = Math.max(10, window.innerWidth - w - 340) + 'px';
+      pop.style.top = '130px';
+      placed = true;
+    }
+    function open() { pop.style.display = 'flex'; place(); btn.classList.add('toggled'); fPaid.focus({ preventScroll: true }); }
+    function close() { pop.style.display = 'none'; btn.classList.remove('toggled'); }
+    btn.addEventListener('click', () => (pop.style.display === 'none' ? open() : close()));
+    $('bacClose').addEventListener('click', close);
+
+    let drag = null;
+    head.addEventListener('pointerdown', e => {
+      if (e.target.closest('button')) return;
+      const r = pop.getBoundingClientRect();
+      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      head.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    head.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const w = pop.offsetWidth;
+      pop.style.left = Math.min(Math.max(0, e.clientX - drag.dx), Math.max(0, window.innerWidth - Math.min(w, 80))) + 'px';
+      pop.style.top = Math.min(Math.max(0, e.clientY - drag.dy), Math.max(0, window.innerHeight - 36)) + 'px';
+    });
+    const endDrag = e => { if (drag) { drag = null; try { head.releasePointerCapture(e.pointerId); } catch (_) {} } };
+    head.addEventListener('pointerup', endDrag);
+    head.addEventListener('pointercancel', endDrag);
+  })();
+
   /* =================== Basic details wiring =================== */
   (function basicInit() {
     /* Nothing is pre-filled or remembered between visits: every field starts empty. */
@@ -2890,10 +3121,21 @@
   }
   document.querySelectorAll('.remarks-wrap').forEach(w => {
     const btn = w.querySelector('.remarks-toggle'), ta = w.querySelector('textarea');
+    /* The box pops up next to its header button (above it if there is no room below) */
+    const place = () => {
+      const r = btn.getBoundingClientRect(), W = ta.offsetWidth, H = ta.offsetHeight;
+      const left = Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth - W - 8));
+      let top = r.bottom + 6;
+      if (top + H > window.innerHeight - 8) top = Math.max(8, r.top - H - 6);
+      ta.style.left = left + 'px'; ta.style.top = top + 'px';
+    };
+    const reposition = e => { if (!w.classList.contains('closed') && !(e && e.target === ta)) place(); };
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
     const setOpen = open => {
       w.classList.toggle('closed', !open);
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) ta.focus(); else ta.blur();
+      if (open) { place(); ta.focus(); } else ta.blur();
     };
     btn.addEventListener('mousedown', e => e.preventDefault());   // keep focus so a click on the header can close it
     btn.addEventListener('click', () => setOpen(w.classList.contains('closed')));
