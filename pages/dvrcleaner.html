@@ -44,7 +44,7 @@
   html,body{height:100%}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:15px;
     line-height:1.5;-webkit-font-smoothing:antialiased;transition:var(--transition)}
-  .wrap{max-width:1600px;margin:0 auto;padding:28px 32px 70px}
+  .wrap{max-width:none;width:100%;margin:0;padding:24px 24px 70px}
   @media(max-width:1200px){.wrap{padding:24px 22px 60px}}
   @media(max-width:760px){.wrap{padding:16px 14px 50px}}
 
@@ -302,8 +302,15 @@
   .remarks-input{width:100%;min-height:62px;margin-top:3px;resize:vertical;font:inherit;font-size:12px;line-height:1.4;padding:6px 8px;
     border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-raised);color:var(--ink)}
   .remarks-input:focus{outline:2px solid var(--brass);outline-offset:0}
-  .preview-panel:fullscreen .remarks-label,.preview-panel:-webkit-full-screen .remarks-label{display:none}
-  .preview-panel:fullscreen .remarks-input,.preview-panel:-webkit-full-screen .remarks-input{min-height:30px;height:30px;margin-top:6px;padding:4px 8px;resize:none}
+  .remarks-wrap{margin-top:8px}
+  button.remarks-toggle{display:flex;align-items:center;gap:6px;width:100%;height:auto;padding:4px 2px;border:none;background:transparent;
+    font-size:10px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;text-align:left;cursor:pointer}
+  button.remarks-toggle:hover{color:var(--ink)}
+  .remarks-toggle .rt-chev{display:inline-block;transition:transform .15s ease;font-size:9px}
+  .remarks-wrap:not(.closed) .rt-chev{transform:rotate(90deg)}
+  .remarks-toggle .rt-dot{margin-left:auto;font-size:10px;font-weight:600;color:var(--brass);text-transform:none;letter-spacing:0}
+  .remarks-wrap.closed .remarks-input{display:none}
+  .preview-panel:fullscreen .remarks-input,.preview-panel:-webkit-full-screen .remarks-input{min-height:30px;height:30px;margin-top:4px;padding:4px 8px;resize:none}
   .preview-panel:fullscreen #saveStamp,.preview-panel:-webkit-full-screen #saveStamp{display:none}
   .preview-panel:fullscreen .resume-banner,.preview-panel:-webkit-full-screen .resume-banner{margin:4px 0}
   .resume-banner{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0;padding:9px 12px;border:1px solid var(--brass);
@@ -776,15 +783,19 @@
               <div class="label">Deduction Claim Under Review</div>
               <div class="count" id="deductionReviewCount">0 rows</div>
               <div class="value" id="deductionReviewValue">—</div>
-              <div class="remarks-label">Remarks (printed in PDF)</div>
-              <textarea class="remarks-input" id="remarksReview" spellcheck="true" placeholder="Remarks for Deduction Claim Under Review…"></textarea>
+              <div class="remarks-wrap closed" data-for="remarksReview">
+                <button type="button" class="remarks-toggle" aria-expanded="false"><span class="rt-chev">▶</span><span>Remarks (printed in PDF)</span><span class="rt-dot" hidden>● added</span></button>
+                <textarea class="remarks-input" id="remarksReview" spellcheck="true" placeholder="Remarks for Deduction Claim Under Review…"></textarea>
+              </div>
             </div>
             <div class="deduction-card disallowed">
               <div class="label">Deduction Claim Disallowed</div>
               <div class="count" id="deductionDisallowedCount">0 rows</div>
               <div class="value" id="deductionDisallowedValue">—</div>
-              <div class="remarks-label">Remarks (printed in PDF)</div>
-              <textarea class="remarks-input" id="remarksDisallowed" spellcheck="true" placeholder="Remarks for Deduction Claim Disallowed…"></textarea>
+              <div class="remarks-wrap closed" data-for="remarksDisallowed">
+                <button type="button" class="remarks-toggle" aria-expanded="false"><span class="rt-chev">▶</span><span>Remarks (printed in PDF)</span><span class="rt-dot" hidden>● added</span></button>
+                <textarea class="remarks-input" id="remarksDisallowed" spellcheck="true" placeholder="Remarks for Deduction Claim Disallowed…"></textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -2792,28 +2803,17 @@
 
   /* =================== Basic details wiring =================== */
   (function basicInit() {
-    const KEY = 'dvr_basic_v1';
-    let saved = {}; try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
-    $('licenseeName').value = saved.licensee || '';
-    $('fyLabel').value = saved.fy || '';
-    if (saved.annexure) $('annexureSel').value = saved.annexure;
-    $('verifDate').value = todayISO();
+    /* Nothing is pre-filled or remembered between visits: every field starts empty. */
+    try { localStorage.removeItem('dvr_basic_v1'); localStorage.removeItem('dvr_verif_type_v1'); } catch (e) {}
+    $('licenseeName').value = '';
+    $('fyLabel').value = '';
+    $('annexureSel').value = '';
+    $('verifDate').value = '';
     function msg() {
       const v = $('fyLabel').value.trim();
       $('fyMsg').textContent = (v && !fyValid(v)) ? 'Use the format YYYY-YY (second year must follow the first).' : '';
     }
-    function save() {
-      msg();
-      try {
-        localStorage.setItem(KEY, JSON.stringify({
-          licensee: $('licenseeName').value,
-          fy: $('fyLabel').value,
-          annexure: $('annexureSel').value
-        }));
-      } catch (e) {}
-    }
-    ['licenseeName', 'fyLabel'].forEach(id => $(id).addEventListener('input', save));
-    $('annexureSel').addEventListener('change', save);
+    ['licenseeName', 'fyLabel'].forEach(id => $(id).addEventListener('input', msg));
     msg();
   })();
 
@@ -2853,14 +2853,9 @@
     }
   }
   (function verifTypeInit() {
-    const KEY = 'dvr_verif_type_v1';
-    try { const v = localStorage.getItem(KEY); if (v) $('verifType').value = v; } catch (e) {}
-    if (!$('verifType').value) $('verifType').value = '';
+    $('verifType').value = '';
     updateSubmitField();
-    $('verifType').addEventListener('change', () => {
-      updateSubmitField();
-      try { localStorage.setItem(KEY, $('verifType').value); } catch (e) {}
-    });
+    $('verifType').addEventListener('change', updateSubmitField);
   })();
 
   /* =================== Remarks (Under Review / Disallowed) =================== */
@@ -2873,6 +2868,7 @@
     const r = remarksFor(state.activePreview, state.activeSheet);
     $('remarksReview').value = r.review || '';
     $('remarksDisallowed').value = r.disallowed || '';
+    refreshRemarksMarkers();
   }
   $('remarksReview').addEventListener('input', () => {
     if (state.activePreview < 0 || !state.activeSheet) return;
@@ -2883,6 +2879,27 @@
     if (state.activePreview < 0 || !state.activeSheet) return;
     remarksFor(state.activePreview, state.activeSheet).disallowed = $('remarksDisallowed').value;
     scheduleAutoSave();
+  });
+
+  /* Collapsible remarks: closed until opened, closes again when focus leaves the box */
+  function refreshRemarksMarkers() {
+    document.querySelectorAll('.remarks-wrap').forEach(w => {
+      const ta = w.querySelector('textarea'), dot = w.querySelector('.rt-dot');
+      if (ta && dot) dot.hidden = !ta.value.trim();
+    });
+  }
+  document.querySelectorAll('.remarks-wrap').forEach(w => {
+    const btn = w.querySelector('.remarks-toggle'), ta = w.querySelector('textarea');
+    const setOpen = open => {
+      w.classList.toggle('closed', !open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) ta.focus(); else ta.blur();
+    };
+    btn.addEventListener('mousedown', e => e.preventDefault());   // keep focus so a click on the header can close it
+    btn.addEventListener('click', () => setOpen(w.classList.contains('closed')));
+    ta.addEventListener('blur', () => setOpen(false));
+    ta.addEventListener('input', refreshRemarksMarkers);
+    ta.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); } });
   });
 
   /* =================== Save / resume progress (IndexedDB, this browser only) =================== */
