@@ -1862,6 +1862,10 @@
     const line = (k, v) =>
       '<div class="ps-detail-line"><span class="k">' + esc(k) + '</span><span class="v">' + esc(v) + '</span></div>';
 
+    /* Submission-date label mirrors the sidebar's label for the chosen verification
+       type; falls back to a generic label if no type is selected. */
+    const submitLabel = SUBMIT_LABELS[$('verifType').value] || 'Date of Submission of Documents';
+
     let html = '';
     html += '<h1 class="ps-title">Deduction Verification Report</h1>';
     html += '<div class="ps-details-row"><div class="ps-details">' +
@@ -1869,7 +1873,7 @@
       line('Licensee', bd.licensee || '—') +
       line('Financial Year', bd.fy || '—') +
       line('Annexure', bd.annexure || '—') +
-	  line(submitLabel, bd.submitDate || '—') +
+      line(submitLabel, bd.submitDate || '—') +
       line('Date of Verification Report', bd.verif || '—') +
     '</div></div>';
 
@@ -1964,6 +1968,8 @@
     set(r, 0, 'Name of the Licensee: ' + (bdx.licensee || '—')); r++;
     set(r, 0, 'Financial Year: ' + (bdx.fy || '—')); r++;
     set(r, 0, 'Annexure: ' + (bdx.annexure || '—')); r++;
+	const submitLabelX = SUBMIT_LABELS[$('verifType').value] || 'Date of Submission of Documents';
+    set(r, 0, submitLabelX + ': ' + (bdx.submitDate || '—')); r++;
     set(r, 0, 'Date of Verification: ' + bdx.verif); r++;
     set(r, 0, 'Sheet: ' + state.activeSheet); r += 2;
 
