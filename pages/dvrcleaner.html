@@ -348,13 +348,13 @@
     text-transform:uppercase;margin:0 0 12px;padding-bottom:5px;border-bottom:1.2px solid #222;line-height:1.2;letter-spacing:.02em}
 
   .ps-details-row{display:flex;margin-bottom:14px;break-inside:avoid;page-break-inside:avoid}
-  .ps-details{width:40%;min-width:230px;border:.75px solid #555;border-radius:4px;padding:9px 13px 12px}
+  .ps-details{width:max-content;min-width:230px;max-width:100%;border:.75px solid #555;border-radius:4px;padding:9px 13px 12px}
   .ps-details-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10.5pt;font-weight:700;
     text-transform:uppercase;padding-bottom:5px;border-bottom:.75px solid #555;margin-bottom:6px;letter-spacing:.03em}
-  .ps-detail-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  .ps-detail-line{display:flex;justify-content:space-between;align-items:baseline;gap:28px;white-space:nowrap;
     font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10pt;padding:2.5px 0}
   .ps-detail-line .k{font-weight:400}
-  .ps-detail-line .v{font-weight:700;text-align:right}
+  .ps-detail-line .v{font-weight:700;text-align:right;white-space:nowrap}
 
   .ps-heading{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:8.5pt;font-weight:700;
     text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px 2px;break-after:avoid;page-break-after:avoid}
@@ -958,6 +958,7 @@
     activeRowEl: null,
     readingRowEl: null,
     rowStatus: {},
+    hiddenCols: {},
     remarks: {},
     stats: { files:0, done:0, skipped:0, errors:0 },
     isReading: false,
@@ -1869,6 +1870,7 @@
       line('Licensee', bd.licensee || '—') +
       line('Financial Year', bd.fy || '—') +
       line('Annexure', bd.annexure || '—') +
+      line(SUBMIT_LABELS[$('verifType').value] || 'Date of Submission of Documents', bd.submitDate || '—') +
       line('Date of Verification Report', bd.verif || '—') +
     '</div></div>';
 
@@ -1963,6 +1965,7 @@
     set(r, 0, 'Name of the Licensee: ' + (bdx.licensee || '—')); r++;
     set(r, 0, 'Financial Year: ' + (bdx.fy || '—')); r++;
     set(r, 0, 'Annexure: ' + (bdx.annexure || '—')); r++;
+    set(r, 0, (SUBMIT_LABELS[$('verifType').value] || 'Date of Submission of Documents') + ': ' + (bdx.submitDate || '—')); r++;
     set(r, 0, 'Date of Verification: ' + bdx.verif); r++;
     set(r, 0, 'Sheet: ' + state.activeSheet); r += 2;
 
@@ -2133,8 +2136,19 @@
       });
     });
   }
+  function getHiddenColsStore() {
+    const b = state.hiddenCols[state.activePreview] || (state.hiddenCols[state.activePreview] = {});
+    return b;
+  }
+  function rememberHiddenCols(checkboxes) {
+    if (state.activePreview < 0 || !state.activeSheet) return;
+    getHiddenColsStore()[state.activeSheet] =
+      checkboxes.filter(cb => !cb.checked).map(cb => Number(cb.dataset.col));
+    scheduleAutoSave();
+  }
   function buildColumnPanel(headers, table, emptyCols) {
     const panel = els.colPanel;
+    const savedHidden = (state.hiddenCols[state.activePreview] || {})[state.activeSheet];
     panel.innerHTML = '';
     const actions = document.createElement('div');
     actions.className = 'col-actions';
@@ -2151,9 +2165,9 @@
       const label = document.createElement('label');
       const cb = document.createElement('input');
       cb.type = 'checkbox';
-      cb.checked = !emptyCols.has(i);
+      cb.checked = Array.isArray(savedHidden) ? !savedHidden.includes(i) : !emptyCols.has(i);
       cb.dataset.col = i;
-      cb.addEventListener('change', () => applyColumnVisibility(table, checkboxes));
+      cb.addEventListener('change', () => { applyColumnVisibility(table, checkboxes); rememberHiddenCols(checkboxes); });
       checkboxes.push(cb);
       const span = document.createElement('span');
       span.textContent = h || `Column ${i + 1}`;
@@ -2164,12 +2178,15 @@
     allBtn.addEventListener('click', () => {
       checkboxes.forEach(cb => cb.checked = true);
       applyColumnVisibility(table, checkboxes);
+      rememberHiddenCols(checkboxes);
     });
     noneBtn.addEventListener('click', () => {
       checkboxes.forEach(cb => cb.checked = false);
       applyColumnVisibility(table, checkboxes);
+      rememberHiddenCols(checkboxes);
     });
     panel.appendChild(list);
+    if (Array.isArray(savedHidden)) applyColumnVisibility(table, checkboxes);
   }
   function renderPreview(bookIndex, sheetName) {
     if (bookIndex === undefined || bookIndex === null) bookIndex = state.activePreview;
@@ -2369,7 +2386,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2407,7 +2424,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2465,7 +2482,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2930,6 +2947,7 @@
       activeSheet: state.activeSheet,
       rowStatus: JSON.parse(JSON.stringify(state.rowStatus)),
       remarks: JSON.parse(JSON.stringify(state.remarks)),
+      hiddenCols: JSON.parse(JSON.stringify(state.hiddenCols)),
       totalSelections: state.totalSelections.slice(),
       basic: {
         licensee: $('licenseeName').value, fy: $('fyLabel').value,
@@ -3015,7 +3033,7 @@
     state.stats = { files: state.files.length, done: 0, skipped: 0, errors: 0 };
     state.processedBooks = [];
     state.activePreview = -1; state.activeSheet = null; state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = []; state.activeWs = null; state.activeDeductionCol = -1;
@@ -3052,6 +3070,7 @@
     }
     state.rowStatus = prog.rowStatus || {};
     state.remarks = prog.remarks || {};
+    state.hiddenCols = prog.hiddenCols || {};
     if (Array.isArray(prog.totalSelections)) state.totalSelections = prog.totalSelections.slice(0, 5);
     while (state.totalSelections.length < 5) state.totalSelections.push(null);
 
