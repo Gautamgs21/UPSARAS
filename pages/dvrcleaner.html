@@ -240,6 +240,29 @@
   .partial-modal .pm-row b{font-family:var(--font-mono)}
   .partial-modal input{width:100%;height:38px;font-size:15px;font-family:var(--font-mono);text-align:right;margin:6px 0 8px}
   .partial-modal .pm-err{min-height:1.3em;font-size:12px;color:var(--red);margin-bottom:8px}
+  .sheet-bar{display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--line-soft);margin-bottom:8px}
+  .sheet-bar .sheet-tabs{flex:1 1 auto;min-width:0;border-bottom:none;margin-bottom:0}
+  .sheet-bar #massBtn{flex:0 0 auto;height:30px;font-size:12px;padding:0 12px;white-space:nowrap;margin-bottom:8px}
+  .mass-box{max-width:1000px !important;width:100%;height:min(82vh,760px);display:flex;flex-direction:column;gap:10px}
+  .mass-box h3{margin:0}
+  .mass-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mass-top label{margin:0;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+  .mass-top select{height:34px;font-size:13px;min-width:240px;width:auto;flex:0 0 auto}
+  .mass-tablewrap{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-raised)}
+  .mass-tablewrap td.mass-iuc{white-space:normal;text-align:left;min-width:220px}
+  .mass-tablewrap td.mass-ck,.mass-tablewrap th.mass-ck{width:34px;padding:4px 8px}
+  .mass-tablewrap input[type=checkbox]{width:16px;height:16px;accent-color:var(--brass);cursor:pointer}
+  .mass-tablewrap tbody tr.sel td{background:var(--brass-soft)}
+  .mass-tablewrap .mass-amt{display:none}
+  .mass-tablewrap.mass-partial .mass-amt{display:table-cell}
+  .mass-tablewrap .mass-amt input{width:120px;height:28px;text-align:right;font-family:var(--font-mono)}
+  .mass-tablewrap .mass-amt input.bad{outline:2px solid var(--red)}
+  .mass-empty{padding:30px;text-align:center;color:var(--ink-soft);font-size:13px}
+  .mass-bottom{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mass-bottom .mass-count{font-size:12.5px;font-weight:700}
+  .mass-bottom select{height:34px;font-size:13px;min-width:200px;width:auto;flex:0 0 auto}
+  .mass-msg{font-size:12.5px;min-height:1.3em;flex:1 1 100%}
+  .mass-msg.err{color:var(--red)} .mass-msg.ok{color:var(--green)}
   .book-tabs,.sheet-tabs{display:flex;gap:6px;overflow:auto;padding-bottom:8px;margin-bottom:8px}
   .book-tabs{border-bottom:1px solid var(--line)} .sheet-tabs{border-bottom:1px solid var(--line-soft)}
   .book-tab,.tab{height:auto;border:1px solid var(--line);background:var(--paper);padding:6px 10px;border-radius:var(--radius);
@@ -784,7 +807,10 @@
         </div>
 
         <div id="bookTabs" class="book-tabs" style="display:none"></div>
-        <div id="sheetTabs" class="sheet-tabs"></div>
+        <div class="sheet-bar">
+          <div id="sheetTabs" class="sheet-tabs"></div>
+          <button id="massBtn" type="button" class="small" title="Change the status of many rows at once">⇄ Mass Status Changer</button>
+        </div>
 
         <div id="tableWrap" class="table-wrap">
           <div class="empty">No workbook loaded yet.</div>
@@ -875,6 +901,40 @@
             <div class="bac-actions">
               <button type="button" id="bacCopy">Copy result</button>
               <button type="button" id="bacClear">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mass Status Changer -->
+        <div id="massModal" class="modal-backdrop" style="display:none">
+          <div class="modal-box mass-box" role="dialog" aria-label="Mass Status Changer">
+            <h3>Mass Status Changer</h3>
+            <div class="mass-top">
+              <label for="massList">Choose List</label>
+              <select id="massList"></select>
+            </div>
+            <div class="mass-tablewrap" id="massWrap">
+              <table>
+                <thead><tr>
+                  <th class="mass-ck"><input type="checkbox" id="massAll" title="Select all"></th>
+                  <th>Sl No</th>
+                  <th>IUC Payable to (Name of Licensee Company)</th>
+                  <th>Invoice/Debit Credit note Number</th>
+                  <th>Deduction Claimed</th>
+                  <th class="mass-amt">Admissible Amount</th>
+                </tr></thead>
+                <tbody id="massBody"></tbody>
+              </table>
+              <div class="mass-empty" id="massEmpty">Choose a list to see its Sl Nos.</div>
+            </div>
+            <div class="mass-bottom">
+              <span class="mass-count" id="massCount">0 selected</span>
+              <label for="massTarget" style="margin:0;font-size:12px;font-weight:700;color:var(--ink-soft)">Change selected to</label>
+              <select id="massTarget"></select>
+              <span style="flex:1"></span>
+              <button type="button" id="massClose">Close</button>
+              <button type="button" id="massApply" class="primary">Apply</button>
+              <div class="mass-msg" id="massMsg"></div>
             </div>
           </div>
         </div>
@@ -1881,11 +1941,20 @@
   }
 
   /* =================== Print config =================== */
+  /* The printed Sl No must be the row's ORIGINAL serial number from the sheet (it is used for
+     mapping), never a 1,2,3 count within each printed list. */
+  function findSlNoColumn(headers) {
+    const norm = x => String(x || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const names = ['slno', 'sno', 'srno', 'sino', 'serialno', 'serialnumber', 'slnumber', 'srnumber', 'sn', 'sl', 'sr'];
+    for (let i = 0; i < headers.length; i++) if (names.indexOf(norm(headers[i])) >= 0) return i;
+    if (headers.length && !norm(headers[0])) return 0;   // unnamed first column
+    return -1;
+  }
   function getPrintColumnConfig(headers) {
     return PRINT_COLUMN_NAMES.map((name, i) => {
       const label = PRINT_COLUMN_LABELS[i] || name;
-      let index = findColumnIndex(headers, label);
-      if (index < 0) index = findColumnIndex(headers, name);
+      let index = i === 0 ? findSlNoColumn(headers) : findColumnIndex(headers, label);
+      if (index < 0 && i !== 0) index = findColumnIndex(headers, name);
       return {
         name: name,
         label: label,
@@ -2043,7 +2112,7 @@
           }
           html += '<td>' + esc(txt) + '</td>';
         } else if (pc.isSlNo) {
-          html += '<td>' + (i + 1) + '</td>';
+          html += '<td>' + rowIdx + '</td>';
         } else {
           html += '<td>—</td>';
         }
@@ -2114,7 +2183,7 @@
             }
             set(r, ci, n != null ? n : cellDisplayValue(cell));
           } else if (pc.isSlNo) {
-            set(r, ci, i + 1);
+            set(r, ci, rowIdx);
           } else {
             set(r, ci, '—');
           }
@@ -2801,6 +2870,7 @@
   document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
 
   document.addEventListener('keydown', e => {
+    if (e.target && e.target.closest && e.target.closest('#massModal')) return;   // Mass Status Changer handles its own keys
     if (e.key === 'Escape') {
       if (e.target && e.target.closest && e.target.closest('#calcPop')) return;   // calculator handles its own Esc
       if (e.target && e.target.closest && e.target.closest('#bacPop')) return;    // Basic Amount Calculator handles its own Esc
@@ -2955,6 +3025,152 @@
     const endDrag = e => { if (drag) { drag = null; try { head.releasePointerCapture(e.pointerId); } catch (_) {} } };
     head.addEventListener('pointerup', endDrag);
     head.addEventListener('pointercancel', endDrag);
+  })();
+
+  /* =================== Mass Status Changer =================== */
+  (function massInit() {
+    const modal = $('massModal'), selList = $('massList'), selTarget = $('massTarget'), body = $('massBody');
+    const wrap = $('massWrap'), allCk = $('massAll'), msg = $('massMsg');
+    const LISTS = [
+      { key: 'discrepancy', label: 'Disallowed' },
+      { key: 'partial',     label: 'Partially Allowed' },
+      { key: 'later',       label: 'Marked for Later' },
+      { key: 'approved',    label: 'Allowed' },
+      { key: 'none',        label: 'Not Visited' }
+    ];
+    let items = [];            // rows currently shown in the table
+    let rowsByKey = {};
+
+    const keyOf = tr => {
+      if (tr.classList.contains('status-discrepancy')) return 'discrepancy';
+      if (tr.classList.contains('status-partial')) return 'partial';
+      if (tr.classList.contains('status-later')) return 'later';
+      if (tr.classList.contains('status-approved')) return 'approved';
+      return 'none';
+    };
+    function collect() {
+      rowsByKey = {}; LISTS.forEach(l => rowsByKey[l.key] = []);
+      const ws = state.activeWs, cols = getPrintColumnConfig(state.activeHeaders || []);
+      const show = (pc, rowIdx) => pc && pc.index >= 0 ? cellDisplayValue(ws[XLSX.utils.encode_cell({ r: rowIdx, c: pc.index })]) : '';
+      const dedCol = state.activeDeductionCol;
+      getDataRows().forEach(tr => {
+        const rowIdx = Number(tr.dataset.rowIndex);
+        if (!isFinite(rowIdx)) return;
+        const sl = cols[0].index >= 0 ? show(cols[0], rowIdx) : String(rowIdx);   // original Sl No
+        const dedCell = dedCol >= 0 ? ws[XLSX.utils.encode_cell({ r: rowIdx, c: dedCol })] : null;
+        rowsByKey[keyOf(tr)].push({
+          tr, rowIdx, sl,
+          iuc: show(cols[1], rowIdx), inv: show(cols[2], rowIdx),
+          ded: cellDisplayValue(dedCell), dedVal: numericCellValue(dedCell)
+        });
+      });
+    }
+    function fillSelects(keepList) {
+      selList.innerHTML = '';
+      const ph = document.createElement('option'); ph.value = ''; ph.textContent = 'Select a list…'; selList.appendChild(ph);
+      LISTS.forEach(l => {
+        const o = document.createElement('option'); o.value = l.key;
+        o.textContent = l.label + ' (' + rowsByKey[l.key].length + ')'; selList.appendChild(o);
+      });
+      selList.value = keepList || '';
+    }
+    function fillTargets() {
+      const cur = selList.value;
+      selTarget.innerHTML = '';
+      const ph = document.createElement('option'); ph.value = ''; ph.textContent = 'Select status…'; selTarget.appendChild(ph);
+      LISTS.forEach(l => { if (l.key === cur) return;
+        const o = document.createElement('option'); o.value = l.key; o.textContent = l.label; selTarget.appendChild(o); });
+      wrap.classList.remove('mass-partial');
+    }
+    function setMsg(text, kind) { msg.textContent = text || ''; msg.className = 'mass-msg' + (kind ? ' ' + kind : ''); }
+    function updateCount() {
+      const cks = body.querySelectorAll('input.mass-row');
+      const n = body.querySelectorAll('input.mass-row:checked').length;
+      $('massCount').textContent = n + ' selected' + (cks.length ? ' of ' + cks.length : '');
+      allCk.checked = cks.length > 0 && n === cks.length;
+      allCk.indeterminate = n > 0 && n < cks.length;
+      cks.forEach(c => c.closest('tr').classList.toggle('sel', c.checked));
+    }
+    function renderTable() {
+      body.innerHTML = '';
+      const key = selList.value;
+      items = key ? rowsByKey[key] : [];
+      $('massEmpty').style.display = items.length ? 'none' : 'block';
+      $('massEmpty').textContent = key ? 'No Sl Nos in this list.' : 'Choose a list to see its Sl Nos.';
+      items.forEach((it, i) => {
+        const tr = document.createElement('tr');
+        const add = (txt, cls) => { const td = document.createElement('td'); td.textContent = txt; if (cls) td.className = cls; tr.appendChild(td); return td; };
+        const ckTd = document.createElement('td'); ckTd.className = 'mass-ck';
+        const ck = document.createElement('input'); ck.type = 'checkbox'; ck.className = 'mass-row'; ck.dataset.i = i;
+        ckTd.appendChild(ck); tr.appendChild(ckTd);
+        add(it.sl); add(it.iuc, 'mass-iuc'); add(it.inv); add(it.ded);
+        const amtTd = document.createElement('td'); amtTd.className = 'mass-amt';
+        const inp = document.createElement('input'); inp.type = 'text'; inp.inputMode = 'decimal'; inp.autocomplete = 'off';
+        inp.placeholder = 'Amount'; if (it.tr.dataset.partial) inp.value = it.tr.dataset.partial;
+        inp.addEventListener('input', () => inp.classList.remove('bad'));
+        inp.addEventListener('click', e => e.stopPropagation());
+        amtTd.appendChild(inp); tr.appendChild(amtTd);
+        tr.addEventListener('click', e => { if (e.target === ck) return; ck.checked = !ck.checked; updateCount(); });
+        ck.addEventListener('change', updateCount);
+        body.appendChild(tr);
+      });
+      updateCount();
+    }
+    function refresh(keepList) {
+      collect(); fillSelects(keepList); fillTargets(); renderTable();
+    }
+    function open() {
+      if (!state.activeWs || !getDataRows().length) { log('Open a workbook sheet first to use the Mass Status Changer.', 'warn'); return; }
+      setMsg('');
+      refresh('');
+      modal.style.display = 'flex';
+      selList.focus();
+    }
+    function close() { modal.style.display = 'none'; }
+
+    $('massBtn').addEventListener('click', open);
+    $('massClose').addEventListener('click', close);
+    modal.addEventListener('mousedown', e => { if (e.target === modal) close(); });
+    modal.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); } });
+    selList.addEventListener('change', () => { setMsg(''); fillTargets(); renderTable(); });
+    selTarget.addEventListener('change', () => { setMsg(''); wrap.classList.toggle('mass-partial', selTarget.value === 'partial'); });
+    allCk.addEventListener('change', () => {
+      body.querySelectorAll('input.mass-row').forEach(c => { c.checked = allCk.checked; });
+      updateCount();
+    });
+
+    $('massApply').addEventListener('click', () => {
+      const target = selTarget.value, from = selList.value;
+      const picks = Array.from(body.querySelectorAll('input.mass-row:checked')).map(c => Number(c.dataset.i));
+      if (!from) { setMsg('Choose a list first.', 'err'); return; }
+      if (!picks.length) { setMsg('Select at least one Sl No.', 'err'); return; }
+      if (!target) { setMsg('Choose the status to change to.', 'err'); return; }
+      const changes = [];
+      let bad = 0;
+      picks.forEach(i => {
+        const it = items[i];
+        let status = target === 'none' ? null : target;
+        if (target === 'partial') {
+          const row = body.children[i], box = row.querySelector('.mass-amt input');
+          const raw = box.value.replace(/[,₹\s]/g, ''), a = raw === '' ? NaN : Number(raw);
+          if (!isFinite(a) || a < 0 || it.dedVal == null || a > it.dedVal + 0.005) { box.classList.add('bad'); bad++; return; }
+          status = 'partial:' + (Math.round(a * 100) / 100);
+        }
+        changes.push({ it, status });
+      });
+      if (bad) { setMsg(bad + ' row(s) need a valid Admissible Amount (0 up to the Deduction Claimed). Nothing was changed.', 'err'); return; }
+
+      const map = getStatusMap(state.activePreview, state.activeSheet);
+      changes.forEach(({ it, status }) => {
+        if (status) map[it.rowIdx] = status; else delete map[it.rowIdx];
+        applyRowStatusClass(it.tr, status);
+      });
+      updateDeductionSummary();
+      scheduleAutoSave();
+      const names = {}; LISTS.forEach(l => names[l.key] = l.label);
+      refresh(from);
+      setMsg('Changed ' + changes.length + ' row(s) from ' + names[from] + ' to ' + names[target] + '.', 'ok');
+    });
   })();
 
   /* =================== Basic Amount Calculator =================== */
