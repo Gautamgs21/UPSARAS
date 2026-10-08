@@ -65,6 +65,32 @@
   .grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px;align-items:start}
   .grid.sidebar-collapsed{grid-template-columns:minmax(0,1fr)}
   .grid.sidebar-collapsed .left-col{display:none}
+  .sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px 8px}
+  .sidebar-head span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+
+  .sidebar-toggle-btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;font-size:11.5px;
+    font-weight:500;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink-soft);cursor:pointer;transition:var(--transition)}
+  .sidebar-toggle-btn:hover{background:var(--brass-soft);color:var(--ink);border-color:var(--brass)}
+  .sidebar-show-pill{display:none;align-items:center;gap:6px;height:30px;padding:0 10px;font-size:11.5px; font-weight:600;border:1px solid var(--line);border-radius:4px;background:var(--paper-raised);color:var(--ink); cursor:pointer;margin-bottom:8px;box-shadow:var(--shadow-card);transition:var(--transition)}
+  .sidebar-show-pill:hover{background:var(--brass-soft);border-color:var(--brass)}
+  .grid.sidebar-collapsed .sidebar-show{display:inline-flex}
+  .sidebar-show{display:none;align-self:flex-start}
+  .grid.sidebar-collapsed .sidebar-show{display:inline-flex}
+
+  /* grouped toolbar menus */
+  .tb-menu{position:relative;display:inline-block}
+  .tb-menu>button.tb-toggle::after{content:"▾";margin-left:6px;font-size:10px;opacity:.7}
+  .tb-menu.open>button.tb-toggle{border-color:var(--brass);background:var(--brass-soft)}
+  .tb-panel{display:none;position:absolute;left:0;top:calc(100% + 6px);min-width:210px;padding:5px;z-index:300;
+    background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.16)}
+  .tb-menu.open>.tb-panel{display:flex;flex-direction:column;gap:2px}
+  .tb-menu.align-right>.tb-panel{left:auto;right:0}
+  button.tb-item{display:flex;align-items:center;gap:8px;width:100%;height:32px;padding:0 10px;border:none;border-radius:3px;
+    background:transparent;color:var(--ink);font-size:12.5px;font-weight:500;text-align:left;white-space:nowrap}
+  button.tb-item:hover{background:var(--brass-soft);color:var(--ink)}
+  button.tb-item.toggled{background:var(--brass-soft);color:var(--brass)}
+  button.tb-item small{margin-left:auto;padding-left:14px;font-size:10.5px;color:var(--ink-soft);font-weight:400}
+
   .left-col,.right-col{display:flex;flex-direction:column;gap:24px;min-width:0}
   .grid>*{min-width:0}
 
@@ -123,16 +149,18 @@
   .switch.sub{margin-left:16px}
   .switch.sub span{font-size:12px;color:var(--ink-soft)}
 
-  .collapsible{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:var(--shadow-card);overflow:hidden}
-  .collapsible-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;
-    cursor:pointer;user-select:none;transition:var(--transition)}
+.collapsible{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:8px;transition:var(--transition)}
+  .collapsible-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;
+    cursor:pointer;user-select:none;transition:var(--transition);background:var(--paper-raised)}
   .collapsible-header:hover{background:var(--paper)}
-  .collapsible-title{font-family:var(--font-serif);font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
-  .collapsible-chev{display:inline-block;transition:transform .18s ease;font-size:11px;color:var(--ink-soft)}
+  .collapsible-title{font-family:var(--font-serif);font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .collapsible-chev{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+    color:var(--ink-soft);transition:transform .2s cubic-bezier(0.4, 0, 0.2, 1)}
   .collapsible.closed .collapsible-chev{transform:rotate(-90deg)}
-  .collapsible-body{padding:14px 16px 16px;border-top:1px solid var(--line)}
+  .collapsible-body{padding:12px 14px 14px;border-top:1px solid var(--line-soft);background:var(--paper-raised)}
   .collapsible.closed .collapsible-body{display:none}
+
   .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
   .stat{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--paper)}
   .stat .n{font-size:22px;font-weight:700;letter-spacing:-.02em}
@@ -270,6 +298,18 @@
   .deduction-card.disallowed{border-color:var(--st-bad);box-shadow:inset 4px 0 0 var(--st-bad)}
   .deduction-card.disallowed .value{color:var(--red)}
 
+  .remarks-label{margin-top:8px;font-size:10px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+  .remarks-input{width:100%;min-height:62px;margin-top:3px;resize:vertical;font:inherit;font-size:12px;line-height:1.4;padding:6px 8px;
+    border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-raised);color:var(--ink)}
+  .remarks-input:focus{outline:2px solid var(--brass);outline-offset:0}
+  .preview-panel:fullscreen .remarks-label,.preview-panel:-webkit-full-screen .remarks-label{display:none}
+  .preview-panel:fullscreen .remarks-input,.preview-panel:-webkit-full-screen .remarks-input{min-height:30px;height:30px;margin-top:6px;padding:4px 8px;resize:none}
+  .preview-panel:fullscreen #saveStamp,.preview-panel:-webkit-full-screen #saveStamp{display:none}
+  .preview-panel:fullscreen .resume-banner,.preview-panel:-webkit-full-screen .resume-banner{margin:4px 0}
+  .resume-banner{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0;padding:9px 12px;border:1px solid var(--brass);
+    background:var(--brass-soft);color:var(--ink);border-radius:var(--radius);font-size:12.5px}
+  .resume-banner .msg{flex:1 1 260px}
+  .resume-banner button{height:30px;font-size:12px;padding:0 12px}
   .progress{height:8px;border-radius:999px;background:var(--line-soft);overflow:hidden;margin-top:10px}
   .progress>div{height:100%;width:0;background:var(--brass);transition:width .2s}
   .footer-note{margin-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.5}
@@ -347,6 +387,10 @@
   table.ps-table tbody tr{break-inside:avoid;page-break-inside:avoid}
   .ps-footer{margin-top:8px;font-size:6.5pt;color:#000;text-align:right}
 
+  .ps-remarks{margin-top:9px;border:.5px solid #888;border-radius:3px;padding:5px 8px 6px;min-height:46px;break-inside:avoid;page-break-inside:avoid}
+  .ps-remarks-label{font-size:7.5pt;font-weight:700;margin-bottom:2px}
+  .ps-remarks-text{font-size:8pt;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere}
+
   @media print {
     html,body{background:#fff !important;color:#000 !important;height:auto}
     .wrap, body > .modal-backdrop, #contextMenu {display:none !important}
@@ -371,7 +415,6 @@
     <div class="title-block">
       <div class="eyebrow">DVR Assessment</div>
       <h1>Deduction Verification Module</h1>
-      <p>Cleans DVR workbooks and turns the browser preview into the speech console.</p>
     </div>
     <div class="theme-toggle" id="themeToggle" role="group" aria-label="Theme">
       <button type="button" data-theme-value="light">Light</button>
@@ -382,6 +425,14 @@
   <div class="grid" id="mainGrid">
     <!-- ============================ LEFT COLUMN ============================ -->
     <div class="left-col" id="leftCol">
+      <div class="sidebar-head">
+        <span>Sidebar Settings</span>
+        <button id="sidebarBtn" class="sidebar-toggle-btn" type="button" title="Collapse sidebar">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Hide Sidebar</span>
+        </button>
+      </div>
+
       <section class="panel">
         <h2>Basic Details</h2>
         <div class="stack">
@@ -395,6 +446,15 @@
             <div class="field-msg" id="fyMsg" role="alert"></div>
           </div>
           <div class="field">
+            <label for="verifType">Type of Verification</label>
+            <select id="verifType">
+              <option value="">Select type of verification…</option>
+              <option value="Quarterly Provisional DVR">Quarterly Provisional DVR</option>
+              <option value="Final DVR">Final DVR</option>
+              <option value="Re-Verification of DVR">Re-Verification of DVR</option>
+            </select>
+          </div>
+          <div class="field">
             <label for="annexureSel">Annexure</label>
             <select id="annexureSel">
               <option value="">Select annexure…</option>
@@ -403,6 +463,10 @@
               <option value="Annexure IR">Annexure IR</option>
               <option value="Annexure PP">Annexure PP</option>
             </select>
+          </div>
+          <div class="field" id="submitDateField" style="display:none">
+            <label for="submitDate" id="submitDateLabel">Date of Submission of Documents</label>
+            <input type="date" id="submitDate">
           </div>
           <div class="field">
             <label for="verifDate">Date of Verification</label>
@@ -445,21 +509,19 @@
               <button id="destFolderBtn">Browse</button>
             </div>
           </div>
-
-          <div class="note">
-            Source selection works in every browser. A real destination folder needs a
-            Chromium-based browser (File System Access API); otherwise each output is
-            downloaded normally.
-          </div>
         </div>
       </section>
 
-      <!-- Voice Control: collapsed by default -->
+	<!-- Voice Control: collapsed by default -->
       <div class="collapsible closed" id="voiceCollapsible">
         <div class="collapsible-header">
-          <div class="collapsible-title"><span class="collapsible-chev">▾</span> 2. Voice Control</div>
+          <div class="collapsible-title">
+            <span class="collapsible-chev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            2. Voice Control
+          </div>
           <span class="status" id="voiceInline">Rate 2.5×</span>
         </div>
+
         <div class="collapsible-body">
           <div class="stack">
             <div class="switch">
@@ -513,18 +575,17 @@
         </div>
         <div class="progress"><div id="progressBar"></div></div>
         <div id="status" class="status" style="margin-top:8px">Ready.</div>
-        <div class="footer-note">
-          Mirrors <b>ProcessDVRFiles</b>: skip workbooks with no data sheets, delete empty sheets,
-          apply the Aptos Serif / blue-header / grey-band formatting, auto-fit columns, and save
-          with a collision-safe timestamp fallback.
-        </div>
       </section>
 
       <div class="collapsible closed" id="statsCollapsible">
         <div class="collapsible-header">
-          <div class="collapsible-title"><span class="collapsible-chev">▾</span> Statistics</div>
+          <div class="collapsible-title">
+            <span class="collapsible-chev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            Statistics
+          </div>
           <span class="status" id="statsInline">0 selected</span>
         </div>
+
         <div class="collapsible-body">
           <div class="stats">
             <div class="stat"><div id="statFiles" class="n">0</div><div class="l">Files selected</div></div>
@@ -537,7 +598,10 @@
 
       <div class="collapsible closed" id="logCollapsible">
         <div class="collapsible-header">
-          <div class="collapsible-title"><span class="collapsible-chev">▾</span> Processing log</div>
+          <div class="collapsible-title">
+            <span class="collapsible-chev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            Processing log
+          </div>
           <span class="status" id="fileCountText">0 workbook(s)</span>
         </div>
         <div class="collapsible-body">
@@ -548,30 +612,86 @@
 
     <!-- ============================ RIGHT COLUMN ============================ -->
     <div class="right-col">
+      <button id="sidebarShowBtn" class="sidebar-show-pill sidebar-show" type="button" title="Expand sidebar">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Show Sidebar</span>
+      </button>
       <div class="preview-panel" id="previewPanel">
         <div class="preview-toolbar">
           <div class="left">
-            <button id="sidebarBtn" class="small" type="button" title="Collapse / expand the sidebar">⇤ Hide sidebar</button>
             <strong>Interactive preview</strong>
             <span id="previewHint" class="status">Select a processed workbook.</span>
+            <span id="saveStamp" class="status"></span>
+            <span id="pcStamp" class="status"></span>
           </div>
           <div class="right">
+            <!-- 1. Load -->
+            <button id="loadPcBtn" class="small" type="button" title="Load a saved DVR progress file from your PC">📂 Load</button>
+            <input type="file" id="dvrFileInput" accept=".dvr,.json,application/json" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1" aria-hidden="true">
+
+            <!-- 2. Columns -->
             <div class="col-wrap" id="colWrap">
               <button id="columnsBtn" class="small" title="Hide / unhide columns">⚙ Columns</button>
               <div id="colPanel" class="col-panel" style="display:none"></div>
             </div>
-            <button id="downloadBookBtn" class="small" title="Download current workbook">⤓ Download</button>
-            <button id="savePdfBtn" class="small" title="Save deductions report as PDF">⎙ Save PDF</button>
-            <button id="saveXlsxBtn" class="small" title="Save deductions report as Excel">⤓ Save Excel</button>
-            <button id="calcBtn" class="small" type="button" title="Open / close the calculator">🖩 Calculator</button>
+
+            <!-- 3. Download -->
+            <div class="tb-menu">
+              <button type="button" class="small tb-toggle" aria-haspopup="true" aria-expanded="false">⤓ Download</button>
+              <div class="tb-panel">
+                <button id="downloadBookBtn" class="tb-item" type="button" title="Download current workbook">Download Formatted Excel File</button>
+              </div>
+            </div>
+
+            <!-- 4. Mute -->
+            <button id="muteBtn" class="small" type="button" title="Mute / unmute the voice (M in fullscreen)">🔊 Mute</button>
+
+            <!-- 5. Print / Save -->
+            <div class="tb-menu">
+              <button type="button" class="small tb-toggle" aria-haspopup="true" aria-expanded="false">⎙ Print/Save</button>
+              <div class="tb-panel">
+                <button id="savePdfBtn" class="tb-item" type="button" title="Save deductions report as PDF">As PDF</button>
+                <button id="saveXlsxBtn" class="tb-item" type="button" title="Save deductions report as Excel">As Excel</button>
+              </div>
+            </div>
+
+            <!-- 6. Tools -->
+            <div class="tb-menu">
+              <button type="button" class="small tb-toggle" aria-haspopup="true" aria-expanded="false">🛠 Tools</button>
+              <div class="tb-panel">
+                <button id="calcBtn" class="tb-item" type="button" title="Open / close the calculator">🖩 Calculator</button>
+              </div>
+            </div>
+
+            <!-- 7. Save Work -->
+            <div class="tb-menu">
+              <button type="button" class="small tb-toggle" aria-haspopup="true" aria-expanded="false">💾 Save Work</button>
+              <div class="tb-panel">
+                <button id="saveProgressBtn" class="tb-item" type="button" title="Save a temporary copy in this browser (also auto-saves)">Save Progress <small>in this browser</small></button>
+                <button id="savePcBtn" class="tb-item" type="button" title="Save your work as a file on your PC (Ctrl+S)">Save to PC <small>Ctrl+S</small></button>
+                <button id="saveAsPcBtn" class="tb-item" type="button" title="Pick the folder and file name yourself (Chrome / Edge)">Choose location… <small>Chrome/Edge</small></button>
+              </div>
+            </div>
+
+            <!-- 8. Zoom -->
             <div class="zoom-group" title="Zoom (use − / + keys in fullscreen)">
               <button id="zoomOutBtn" type="button" title="Zoom out">−</button>
               <span id="zoomLevel" class="zoom-level">100%</span>
               <button id="zoomInBtn" type="button" title="Zoom in">+</button>
             </div>
-            <button id="fullscreenBtn" class="small" title="Fullscreen preview">⛶ Fullscreen</button>
-            <button id="muteBtn" class="small" type="button" title="Mute / unmute the voice (M in fullscreen)">🔊 Mute</button>
+
+            <!-- 9. Full Screen -->
+            <button id="fullscreenBtn" class="small" title="Fullscreen preview">⛶ Full Screen</button>
+
+            <!-- 10. Exit -->
+            <button id="exitBtn" class="small danger" type="button" title="Exit — asks whether to save your progress">⏻ Exit</button>
           </div>
+        </div>
+
+        <div id="resumeBanner" class="resume-banner" role="status">
+          <span class="msg" id="resumeMsg"></span>
+          <button id="resumeBtn" class="primary" type="button">Resume saved work</button>
+          <button id="discardSavedBtn" type="button">Discard</button>
         </div>
 
         <!-- Analytics lives INSIDE the preview panel so it survives fullscreen -->
@@ -657,11 +777,15 @@
               <div class="label">Deduction Claim Under Review</div>
               <div class="count" id="deductionReviewCount">0 rows</div>
               <div class="value" id="deductionReviewValue">—</div>
+              <div class="remarks-label">Remarks (printed in PDF)</div>
+              <textarea class="remarks-input" id="remarksReview" spellcheck="true" placeholder="Remarks for Deduction Claim Under Review…"></textarea>
             </div>
             <div class="deduction-card disallowed">
               <div class="label">Deduction Claim Disallowed</div>
               <div class="count" id="deductionDisallowedCount">0 rows</div>
               <div class="value" id="deductionDisallowedValue">—</div>
+              <div class="remarks-label">Remarks (printed in PDF)</div>
+              <textarea class="remarks-input" id="remarksDisallowed" spellcheck="true" placeholder="Remarks for Deduction Claim Disallowed…"></textarea>
             </div>
           </div>
         </div>
@@ -699,6 +823,29 @@
 </div>
 
 <div id="printSheet"></div>
+
+<div id="exitModal" class="modal-backdrop" style="display:none">
+  <div class="modal-box">
+    <h3>Do you want to save the progress?</h3>
+    <p>You have work that is not saved to your PC yet. Choose where to save it and you can pick it up later with <b>Load DVR</b>.</p>
+    <div class="modal-actions">
+      <button id="exitCancel">Cancel</button>
+      <button id="exitDiscard" class="danger">Don't save</button>
+      <button id="exitSave" class="primary">Save to PC…</button>
+    </div>
+  </div>
+</div>
+
+<div id="loadModal" class="modal-backdrop" style="display:none">
+  <div class="modal-box">
+    <h3>Load DVR</h3>
+    <p>Browse to the DVR progress file (<b>.dvr</b>) you saved on your PC. Your workbooks, row marks and remarks will be restored.</p>
+    <div class="modal-actions">
+      <button id="loadModalCancel">Cancel</button>
+      <button id="loadModalBrowse" class="primary">Browse…</button>
+    </div>
+  </div>
+</div>
 
 <div id="sectionModal" class="modal-backdrop" style="display:none">
   <div class="modal-box">
@@ -812,6 +959,7 @@
     activeRowEl: null,
     readingRowEl: null,
     rowStatus: {},
+    remarks: {},
     stats: { files:0, done:0, skipped:0, errors:0 },
     isReading: false,
     lastSpokenRowEl: null,
@@ -909,7 +1057,7 @@
     const a = document.createElement('a');
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
@@ -949,6 +1097,8 @@
       licensee: ($('licenseeName').value || '').trim(),
       fy: ($('fyLabel').value || '').trim(),
       annexure: ($('annexureSel').value || '').trim(),
+      verifType: ($('verifType').value || '').trim(),
+      submitDate: isoToDMY($('submitDate').value),
       verif: isoToDMY($('verifDate').value) || fmtDate(new Date())
     };
   }
@@ -1222,6 +1372,7 @@
     }
     applyRowStatusClass(tr, status);
     updateDeductionSummary();
+    scheduleAutoSave();
   }
 
   /* =================== Row selection =================== */
@@ -1276,7 +1427,6 @@
   /* =================== Sidebar collapse =================== */
   function setSidebarCollapsed(collapsed) {
     els.mainGrid.classList.toggle('sidebar-collapsed', collapsed);
-    els.sidebarBtn.textContent = collapsed ? '⇥ Show sidebar' : '⇤ Hide sidebar';
     try { localStorage.setItem('dvr_sidebar', collapsed ? '1' : '0'); } catch (e) {}
   }
 
@@ -1432,6 +1582,7 @@
         if (isNaN(newCol)) return;
         state.totalSelections[capturedCardIdx] = newCol;
         valEl.textContent = formatSum(computeColumnSum(ws, newCol, lastRow));
+        scheduleAutoSave();
       });
       cardEl.appendChild(sel); cardEl.appendChild(valEl);
       els.totalsCards.appendChild(cardEl);
@@ -1729,10 +1880,10 @@
       html += buildPrintSection('Deduction Claim Allowed', cats.allowed, ws, printCols);
     }
     if (sections.disallowed) {
-      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed, ws, printCols);
+      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed, ws, printCols, remarksFor(state.activePreview, state.activeSheet).disallowed);
     }
     if (sections.review) {
-      html += buildPrintSection('Deduction Claim Under Consideration', cats.review, ws, printCols);
+      html += buildPrintSection('Deduction Claim Under Consideration', cats.review, ws, printCols, remarksFor(state.activePreview, state.activeSheet).review);
     }
 
     html += '<div class="ps-footer">Sheet: ' + esc(state.activeSheet) +
@@ -1740,12 +1891,21 @@
     ps.innerHTML = html;
   }
 
-  function buildPrintSection(title, rowIdxs, ws, printCols) {
+  /* Remarks box printed right after the list, inside the section container.
+     remarks === undefined -> section has no remarks box (e.g. Allowed). */
+  function buildRemarksBox(remarks) {
+    return '<div class="ps-remarks"><div class="ps-remarks-label">Remarks:</div>' +
+           '<div class="ps-remarks-text">' + esc(remarks || '') + '</div></div>';
+  }
+  function buildPrintSection(title, rowIdxs, ws, printCols, remarks) {
+    const hasRemarksBox = remarks !== undefined;
     let html = '<div class="ps-section"><div class="ps-box">';
     html += '<div class="ps-box-title">' + esc(title) + '</div>';
 
     if (!rowIdxs.length) {
-      html += '<div class="ps-empty">No rows in this category.</div></div></div>';
+      html += '<div class="ps-empty">No rows in this category.</div>';
+      if (hasRemarksBox && String(remarks).trim()) html += buildRemarksBox(remarks);
+      html += '</div></div>';
       return html;
     }
 
@@ -1770,7 +1930,9 @@
       html += '</tr>';
     });
 
-    html += '</tbody></table></div></div>';
+    html += '</tbody></table>';
+    if (hasRemarksBox) html += buildRemarksBox(remarks);
+    html += '</div></div>';
     return html;
   }
 
@@ -1884,8 +2046,15 @@
     }
     closeSectionModal();
     if (mode === 'pdf') {
-      buildPrintSheet(sections);
-      setTimeout(() => { try { window.print(); } catch (e) { log(`Print failed: ${e.message || e}`, 'err'); } }, 60);
+      const doPrint = () => {
+        buildPrintSheet(sections);
+        setTimeout(() => { try { window.print(); } catch (e) { log(`Print failed: ${e.message || e}`, 'err'); } }, 60);
+      };
+      const fs = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fs) {   // printing works best outside fullscreen
+        try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {}
+        setTimeout(doPrint, 450);
+      } else doPrint();
     } else if (mode === 'xlsx') {
       exportDeductionsExcel(sections);
     }
@@ -2031,6 +2200,7 @@
     const wb = item.wb;
     const selected = (sheetName && wb.SheetNames.includes(sheetName)) ? sheetName : wb.SheetNames[0];
     state.activeSheet = selected;
+    syncAnnexureFromSheet(selected);
     renderBookTabs();
     els.previewHint.textContent = `${item.fileName} • ${selected}`;
     els.sheetTabs.innerHTML = '';
@@ -2122,7 +2292,9 @@
     buildColumnPanel(headers, table, emptyCols);
     renderTotals();
     updateDeductionSummary();
+    loadRemarksIntoInputs();
     updateAnalytics();
+    scheduleAutoSave(true);
   }
 
   /* =================== Fullscreen =================== */
@@ -2141,7 +2313,7 @@
   function syncFullscreenButton() {
     const isFs = document.fullscreenElement === els.previewPanel ||
                  document.webkitFullscreenElement === els.previewPanel;
-    els.fullscreenBtn.textContent = isFs ? '⛶ Exit fullscreen' : '⛶ Fullscreen';
+    els.fullscreenBtn.textContent = isFs ? '⛶ Exit Full Screen' : '⛶ Full Screen';
   }
 
   /* =================== File list =================== */
@@ -2198,7 +2370,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {};
+    state.rowStatus = {}; state.remarks = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2236,7 +2408,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {};
+    state.rowStatus = {}; state.remarks = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2283,6 +2455,7 @@
       log('Tip: set a destination folder so multiple outputs are written instead of downloaded one by one.', 'warn');
     }
     log(`Done. ${state.stats.done} processed, ${state.stats.skipped} skipped, ${state.stats.errors} error(s).`, 'ok');
+    scheduleAutoSave();
   }
 
   function clearAll() {
@@ -2293,7 +2466,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {};
+    state.rowStatus = {}; state.remarks = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2441,6 +2614,7 @@
   els.muteBtn.addEventListener('click', toggleMute);
   els.sidebarBtn.addEventListener('click', () =>
     setSidebarCollapsed(!els.mainGrid.classList.contains('sidebar-collapsed')));
+  $('sidebarShowBtn').addEventListener('click', () => setSidebarCollapsed(false));
   document.addEventListener('fullscreenchange', syncFullscreenButton);
   document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
 
@@ -2627,6 +2801,503 @@
     msg();
   })();
 
+
+
+  /* =================== Type of Verification / Annexure auto-select / Submission date =================== */
+  const SUBMIT_LABELS = {
+    'Quarterly Provisional DVR': 'Date of Submission of Quarterly Un Audited Documents',
+    'Final DVR': 'Date of Submission of Audited Documents',
+    'Re-Verification of DVR': 'Date of Submission of Audited Documents'
+  };
+  function updateSubmitField() {
+    const label = SUBMIT_LABELS[$('verifType').value];
+    $('submitDateField').style.display = label ? '' : 'none';
+    if (label) $('submitDateLabel').textContent = label;
+  }
+  /* AO / AG / PP / IR found in the sheet name (as a separate word, or in capitals);
+     anything else defaults to Annexure AO. */
+  function annexureForSheet(name) {
+    const text = String(name || '');
+    const tokens = text.split(/[^A-Za-z0-9]+/).filter(Boolean);
+    const codes = ['AO', 'AG', 'PP', 'IR'];
+    for (const code of codes) {
+      const tokenRe = new RegExp('^(?:annexure)?' + code + '\\d*$', 'i');
+      const capsRe = new RegExp('(^|[^A-Z])' + code + '([^A-Z]|$)');
+      if (tokens.some(t => tokenRe.test(t)) || capsRe.test(text)) return 'Annexure ' + code;
+    }
+    return 'Annexure AO';
+  }
+  function syncAnnexureFromSheet(sheetName) {
+    const sel = $('annexureSel');
+    if (restoring && sel.value) return;      // keep the value saved in a loaded DVR file
+    const want = annexureForSheet(sheetName);
+    if (sel.value !== want) {
+      sel.value = want;
+      sel.dispatchEvent(new Event('change'));
+    }
+  }
+  (function verifTypeInit() {
+    const KEY = 'dvr_verif_type_v1';
+    try { const v = localStorage.getItem(KEY); if (v) $('verifType').value = v; } catch (e) {}
+    if (!$('verifType').value) $('verifType').value = '';
+    updateSubmitField();
+    $('verifType').addEventListener('change', () => {
+      updateSubmitField();
+      try { localStorage.setItem(KEY, $('verifType').value); } catch (e) {}
+    });
+  })();
+
+  /* =================== Remarks (Under Review / Disallowed) =================== */
+  function remarksFor(bookIndex, sheetName) {
+    if (bookIndex === undefined || bookIndex < 0 || !sheetName) return { review: '', disallowed: '' };
+    const b = state.remarks[bookIndex] || (state.remarks[bookIndex] = {});
+    return b[sheetName] || (b[sheetName] = { review: '', disallowed: '' });
+  }
+  function loadRemarksIntoInputs() {
+    const r = remarksFor(state.activePreview, state.activeSheet);
+    $('remarksReview').value = r.review || '';
+    $('remarksDisallowed').value = r.disallowed || '';
+  }
+  $('remarksReview').addEventListener('input', () => {
+    if (state.activePreview < 0 || !state.activeSheet) return;
+    remarksFor(state.activePreview, state.activeSheet).review = $('remarksReview').value;
+    scheduleAutoSave();
+  });
+  $('remarksDisallowed').addEventListener('input', () => {
+    if (state.activePreview < 0 || !state.activeSheet) return;
+    remarksFor(state.activePreview, state.activeSheet).disallowed = $('remarksDisallowed').value;
+    scheduleAutoSave();
+  });
+
+  /* =================== Save / resume progress (IndexedDB, this browser only) =================== */
+  const DB_NAME = 'dvr_module_db', DB_STORE = 'kv';
+  let saveTimer = null, savedFilesSig = '', restoring = false, saveWarned = false;
+  let unsavedToPC = false, pcHandle = null, pcFileName = '', skipUnloadPrompt = false;
+
+  function idbOpen() {
+    return new Promise((res, rej) => {
+      if (!window.indexedDB) { rej(new Error('IndexedDB is not available in this browser.')); return; }
+      let rq;
+      try { rq = indexedDB.open(DB_NAME, 1); } catch (e) { rej(e); return; }
+      rq.onupgradeneeded = () => { rq.result.createObjectStore(DB_STORE); };
+      rq.onsuccess = () => res(rq.result);
+      rq.onerror = () => rej(rq.error);
+    });
+  }
+  async function idbGet(key) {
+    const db = await idbOpen();
+    return new Promise((res, rej) => {
+      const rq = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get(key);
+      rq.onsuccess = () => { db.close(); res(rq.result); };
+      rq.onerror = () => { db.close(); rej(rq.error); };
+    });
+  }
+  async function idbSet(key, val) {
+    const db = await idbOpen();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      tx.objectStore(DB_STORE).put(val, key);
+      tx.oncomplete = () => { db.close(); res(); };
+      tx.onerror = tx.onabort = () => { db.close(); rej(tx.error || new Error('Write failed')); };
+    });
+  }
+  async function idbDelete(keys) {
+    const db = await idbOpen();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      keys.forEach(k => tx.objectStore(DB_STORE).delete(k));
+      tx.oncomplete = () => { db.close(); res(); };
+      tx.onerror = tx.onabort = () => { db.close(); rej(tx.error); };
+    });
+  }
+
+  function filesSignature() {
+    return state.files.map(f => f.name + '::' + f.size + '::' + f.lastModified).join('|');
+  }
+  function countMarked(rowStatus) {
+    let n = 0;
+    Object.keys(rowStatus || {}).forEach(b => Object.keys(rowStatus[b] || {}).forEach(sh => {
+      n += Object.keys(rowStatus[b][sh] || {}).length;
+    }));
+    return n;
+  }
+  function hideResumeBanner() { $('resumeBanner').style.display = 'none'; }
+
+  function collectProgress() {
+    return {
+      savedAt: Date.now(),
+      bookNames: state.processedBooks.map(b => b.fileName),
+      activePreview: state.activePreview,
+      activeSheet: state.activeSheet,
+      rowStatus: JSON.parse(JSON.stringify(state.rowStatus)),
+      remarks: JSON.parse(JSON.stringify(state.remarks)),
+      totalSelections: state.totalSelections.slice(),
+      basic: {
+        licensee: $('licenseeName').value, fy: $('fyLabel').value,
+        annexure: $('annexureSel').value, verif: $('verifDate').value,
+        verifType: $('verifType').value, submitDate: $('submitDate').value
+      }
+    };
+  }
+
+  function scheduleAutoSave(viewOnly) {
+    if (restoring || !state.processedBooks.length) return;
+    if (viewOnly !== true && !unsavedToPC) { unsavedToPC = true; updatePcStamp(); }
+    else if (viewOnly !== true) updatePcStamp();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { saveProgress(false); }, 700);
+  }
+
+  async function saveProgress(manual) {
+    clearTimeout(saveTimer); saveTimer = null;
+    if (restoring) return;
+    if (!state.processedBooks.length) {
+      if (manual) log('Nothing to save yet — process files first.', 'warn');
+      return;
+    }
+    try {
+      const sig = filesSignature();
+      if (sig !== savedFilesSig) {
+        await idbSet('files', {
+          sig,
+          files: state.files.map(f => ({ name: f.name, type: f.type, lastModified: f.lastModified, blob: f }))
+        });
+        savedFilesSig = sig;
+      }
+      await idbSet('progress', collectProgress());
+      const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      $('saveStamp').textContent = '· Saved ' + t;
+      hideResumeBanner();
+      if (manual) log('Progress saved in this browser. You can close the page and resume later.', 'ok');
+    } catch (e) {
+      $('saveStamp').textContent = '· Not saved';
+      if (manual || !saveWarned) {
+        saveWarned = true;
+        log('Could not save progress: ' + (e && e.message ? e.message : e) +
+            ' (browser storage may be blocked or full).', 'err');
+      }
+    }
+  }
+
+  async function checkSavedSession() {
+    try {
+      const [prog, fl] = await Promise.all([idbGet('progress'), idbGet('files')]);
+      if (!prog || !fl || !fl.files || !fl.files.length) return;
+      const when = new Date(prog.savedAt || Date.now()).toLocaleString();
+      $('resumeMsg').textContent = 'Saved work found (' + when + '): ' + fl.files.length +
+        ' workbook(s), ' + countMarked(prog.rowStatus) + ' row(s) marked. Resume where you left off?';
+      $('resumeBanner').style.display = 'flex';
+    } catch (e) { /* storage unavailable — feature simply stays hidden */ }
+  }
+
+  async function resumeSavedSession() {
+    if (restoring) return;
+    let prog, fl;
+    try { [prog, fl] = await Promise.all([idbGet('progress'), idbGet('files')]); }
+    catch (e) { log('Could not read saved work: ' + (e.message || e), 'err'); return; }
+    if (!prog || !fl || !fl.files || !fl.files.length) { log('No saved work found.', 'warn'); hideResumeBanner(); return; }
+    if (typeof XLSX === 'undefined') { log('Spreadsheet engine failed to load. Check your connection to jsDelivr.', 'err'); return; }
+
+    await applyRestore(fl.files.map(o => (o.blob instanceof File)
+      ? o.blob
+      : new File([o.blob], o.name, { type: o.type || '', lastModified: o.lastModified || Date.now() })), prog);
+    unsavedToPC = countMarked(state.rowStatus) > 0 || unsavedToPC;
+    updatePcStamp();
+  }
+
+  /* Rebuilds the whole session from workbook File objects + a saved progress object
+     (used by both the browser auto-save and a DVR file loaded from the PC). */
+  async function applyRestore(fileObjs, prog) {
+    if (restoring) return;
+    restoring = true;
+    els.processBtn.disabled = true;
+    stopVoice();
+    state.files = fileObjs;
+    state.stats = { files: state.files.length, done: 0, skipped: 0, errors: 0 };
+    state.processedBooks = [];
+    state.activePreview = -1; state.activeSheet = null; state.activeRowEl = null;
+    state.rowStatus = {}; state.remarks = {};
+    state.lastSpokenRowEl = null;
+    state.totalSelections = [null, null, null, null, null];
+    state.activeHeaders = []; state.activeWs = null; state.activeDeductionCol = -1;
+    setStats(); renderFileList(); renderPreview(-1);
+    log('Resuming saved work…', 'ok');
+
+    const total = state.files.length;
+    for (let i = 0; i < total; i++) {
+      const file = state.files[i];
+      els.status.textContent = `Restoring ${i + 1} / ${total}: ${file.name}`;
+      setProgress(i, total);
+      await new Promise(r => setTimeout(r, 0));
+      try {
+        const wb = await readWorkbook(file);
+        if (countValidSheets(wb) === 0) {
+          state.stats.skipped++; log(`${file.name} — No Data Sheets Found`, 'warn'); setStats(); continue;
+        }
+        deleteEmptySheets(wb);
+        styleWorkbook(wb);
+        state.processedBooks.push({ fileName: file.name, wb });
+        state.stats.done++;
+        setStats();
+      } catch (e) {
+        state.stats.errors++;
+        log(`${file.name} — ERROR: ${e.message || e}`, 'err');
+        setStats();
+      }
+    }
+    setProgress(total, total);
+
+    const namesNow = state.processedBooks.map(b => b.fileName).join('|');
+    if (prog.bookNames && prog.bookNames.join('|') !== namesNow) {
+      log('Warning: the restored workbooks differ from the saved session; some marks may not line up.', 'warn');
+    }
+    state.rowStatus = prog.rowStatus || {};
+    state.remarks = prog.remarks || {};
+    if (Array.isArray(prog.totalSelections)) state.totalSelections = prog.totalSelections.slice(0, 5);
+    while (state.totalSelections.length < 5) state.totalSelections.push(null);
+
+    const b = prog.basic || {};
+    if (b.licensee !== undefined) { $('licenseeName').value = b.licensee; $('licenseeName').dispatchEvent(new Event('input')); }
+    if (b.fy !== undefined) { $('fyLabel').value = b.fy; $('fyLabel').dispatchEvent(new Event('input')); }
+    if (b.annexure) { $('annexureSel').value = b.annexure; $('annexureSel').dispatchEvent(new Event('change')); }
+    if (b.verif) $('verifDate').value = b.verif;
+    if (b.verifType !== undefined) { $('verifType').value = b.verifType; $('verifType').dispatchEvent(new Event('change')); }
+    if (b.submitDate !== undefined) $('submitDate').value = b.submitDate;
+
+    savedFilesSig = filesSignature();
+    els.status.textContent = 'Saved work restored.';
+    els.processBtn.disabled = false;
+    if (state.processedBooks.length) {
+      const idx = (prog.activePreview >= 0 && prog.activePreview < state.processedBooks.length) ? prog.activePreview : 0;
+      renderPreview(idx, prog.activeSheet);
+    } else {
+      renderBookTabs();
+    }
+    restoring = false;
+    hideResumeBanner();
+    $('saveStamp').textContent = '· Restored';
+    log(`Restored ${state.processedBooks.length} workbook(s) and ${countMarked(state.rowStatus)} marked row(s). ` +
+        'No files were re-downloaded.', 'ok');
+  }
+
+  async function discardSavedSession() {
+    if (!confirm('Discard the saved work stored in this browser? This cannot be undone.')) return;
+    try { await idbDelete(['files', 'progress']); } catch (e) {}
+    savedFilesSig = '';
+    hideResumeBanner();
+    $('saveStamp').textContent = '';
+    log('Saved work discarded.', 'warn');
+  }
+
+  $('saveProgressBtn').addEventListener('click', () => saveProgress(true));
+  $('resumeBtn').addEventListener('click', resumeSavedSession);
+  $('discardSavedBtn').addEventListener('click', discardSavedSession);
+  ['licenseeName', 'fyLabel', 'verifDate', 'submitDate'].forEach(id => $(id).addEventListener('input', scheduleAutoSave));
+  ['annexureSel', 'verifDate', 'verifType', 'submitDate'].forEach(id => $(id).addEventListener('change', scheduleAutoSave));
+  document.addEventListener('visibilitychange', () => { if (document.hidden && state.processedBooks.length) saveProgress(false); });
+  window.addEventListener('pagehide', () => { if (state.processedBooks.length) saveProgress(false); });
+
+
+  /* =================== Save to / Load from PC (.dvr file) =================== */
+  function updatePcStamp() {
+    const el = $('pcStamp');
+    if (!el) return;
+    if (!state.processedBooks.length) { el.textContent = ''; return; }
+    el.textContent = unsavedToPC
+      ? '· ⚠ Not saved to PC'
+      : '· ✔ Saved to PC' + (pcFileName ? ' (' + pcFileName + ')' : '');
+  }
+  function fileToB64(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split(',')[1] || '');
+      r.onerror = () => rej(r.error || new Error('Could not read ' + file.name));
+      r.readAsDataURL(file);
+    });
+  }
+  function b64ToBytes(b64) {
+    const bin = atob(b64), len = bin.length, out = new Uint8Array(len);
+    for (let i = 0; i < len; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function suggestedPcName() {
+    const bd = basicDetails();
+    const clean = v => String(v || '').replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+    const parts = ['DVR', clean(bd.licensee), clean(bd.fy), timestampForFile()].filter(Boolean);
+    return parts.join('_') + '.dvr';
+  }
+
+  /* Returns true when the file was written (or downloaded), false if cancelled / failed. */
+  async function saveToPC(opts) {
+    opts = opts || {};
+    if (!state.processedBooks.length) { log('Nothing to save yet — process files first.', 'warn'); return false; }
+    try {
+      let handle = null;
+      // Ask for the location FIRST (needs the click gesture), then build the data.
+      if (opts.chooseLocation && window.showSaveFilePicker) {
+        if (!pcHandle || opts.saveAs) {
+          pcHandle = await window.showSaveFilePicker({
+            suggestedName: pcFileName || suggestedPcName(),
+            types: [{ description: 'DVR progress file', accept: { 'application/json': ['.dvr'] } }]
+          });
+        }
+        handle = pcHandle;
+      }
+      els.status.textContent = 'Preparing progress file…';
+      const files = [];
+      for (const f of state.files) {
+        files.push({ name: f.name, type: f.type || '', lastModified: f.lastModified, data: await fileToB64(f) });
+      }
+      const pkg = {
+        format: 'DVR-PROGRESS', version: 1, savedAt: new Date().toISOString(),
+        app: 'Deduction Verification Module', files, progress: collectProgress()
+      };
+      const blob = new Blob([JSON.stringify(pkg)], { type: 'application/json' });
+      let name;
+      if (handle) {
+        const w = await handle.createWritable();
+        await w.write(blob);
+        await w.close();
+        name = handle.name;
+      } else {
+        name = pcFileName || suggestedPcName();
+        downloadBlob(blob, name);
+      }
+      pcFileName = name;
+      unsavedToPC = false;
+      updatePcStamp();
+      els.status.textContent = 'Saved to PC: ' + name;
+      log('Progress saved to PC: ' + name + (handle ? '' : ' (check your Downloads folder)') + '.', 'ok');
+      return true;
+    } catch (e) {
+      els.status.textContent = 'Ready.';
+      if (e && e.name === 'AbortError') { log('Save cancelled.', 'warn'); return false; }
+      pcHandle = null;
+      log('Could not save to PC: ' + (e && e.message ? e.message : e), 'err');
+      return false;
+    }
+  }
+
+  async function loadDvrFile(file, handle) {
+    try {
+      const pkg = JSON.parse(await file.text());
+      if (!pkg || pkg.format !== 'DVR-PROGRESS' || !Array.isArray(pkg.files) || !pkg.files.length || !pkg.progress) {
+        throw new Error('This is not a valid DVR progress file.');
+      }
+      if (state.processedBooks.length && unsavedToPC &&
+          !confirm('Loading this file will replace your current work, which is not saved to your PC. Continue?')) return;
+      const fileObjs = pkg.files.map(o => new File([b64ToBytes(o.data)], o.name,
+        { type: o.type || '', lastModified: o.lastModified || Date.now() }));
+      $('loadModal').style.display = 'none';
+      await applyRestore(fileObjs, pkg.progress);
+      pcHandle = handle || null;
+      pcFileName = file.name;
+      unsavedToPC = false;
+      updatePcStamp();
+      hideResumeBanner();
+      saveProgress(false);   // refresh the temporary browser copy too
+      log('Loaded DVR file: ' + file.name, 'ok');
+    } catch (e) {
+      log('Could not load DVR file: ' + (e && e.message ? e.message : e), 'err');
+      alert('Could not load that file.\n' + (e && e.message ? e.message : e));
+    }
+  }
+
+  /* Uses the standard file-open dialog (works in every browser). */
+  function pickAndLoad() {
+    const inp = $('dvrFileInput');
+    inp.value = '';
+    inp.click();
+  }
+  $('dvrFileInput').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (f) await loadDvrFile(f, null);
+  });
+
+  $('savePcBtn').addEventListener('click', () => saveToPC());
+  $('saveAsPcBtn').addEventListener('click', () => saveToPC({ chooseLocation: true, saveAs: true }));
+  if (!window.showSaveFilePicker) $('saveAsPcBtn').style.display = 'none';
+  $('loadPcBtn').addEventListener('click', pickAndLoad);
+  $('loadModalBrowse').addEventListener('click', pickAndLoad);
+  $('loadModalCancel').addEventListener('click', () => { $('loadModal').style.display = 'none'; });
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+      if (state.processedBooks.length) { e.preventDefault(); saveToPC(); }
+    }
+  });
+
+  /* ---- Exit with "save progress?" prompt ---- */
+  function closeWindowNow() {
+    skipUnloadPrompt = true;
+    try { window.close(); } catch (e) {}
+    setTimeout(() => {
+      skipUnloadPrompt = false;
+      log('Your browser did not allow this tab to close itself — you can close the tab manually now.', 'warn');
+    }, 400);
+  }
+  $('exitBtn').addEventListener('click', () => {
+    if (state.processedBooks.length && unsavedToPC) $('exitModal').style.display = 'flex';
+    else closeWindowNow();
+  });
+  $('exitCancel').addEventListener('click', () => { $('exitModal').style.display = 'none'; });
+  $('exitDiscard').addEventListener('click', () => { $('exitModal').style.display = 'none'; closeWindowNow(); });
+  $('exitSave').addEventListener('click', async () => {
+    if (await saveToPC()) { $('exitModal').style.display = 'none'; setTimeout(closeWindowNow, 900); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { $('exitModal').style.display = 'none'; $('loadModal').style.display = 'none'; }
+  });
+  // Closing the tab / browser: the browser only allows its own generic warning (no file picker here).
+  window.addEventListener('beforeunload', e => {
+    if (skipUnloadPrompt || !state.processedBooks.length || !unsavedToPC) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+
+
+  /* =================== Grouped toolbar dropdown menus =================== */
+  (function toolbarMenus() {
+    const menus = Array.from(document.querySelectorAll('.tb-menu'));
+    function closeAll(except) {
+      menus.forEach(m => {
+        if (m === except) return;
+        m.classList.remove('open');
+        const t = m.querySelector('.tb-toggle'); if (t) t.setAttribute('aria-expanded', 'false');
+      });
+    }
+    menus.forEach(m => {
+      const toggle = m.querySelector('.tb-toggle'), panel = m.querySelector('.tb-panel');
+      toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        const willOpen = !m.classList.contains('open');
+        closeAll(m);
+        m.classList.toggle('open', willOpen);
+        toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        if (willOpen) {            // keep the panel inside the window
+          m.classList.remove('align-right');
+          const r = panel.getBoundingClientRect();
+          if (r.right > window.innerWidth - 8) m.classList.add('align-right');
+        }
+      });
+      panel.addEventListener('click', e => { if (e.target.closest('.tb-item')) closeAll(); });
+    });
+    document.addEventListener('click', e => { if (!e.target.closest('.tb-menu')) closeAll(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+  })();
+
+  /* Dialogs must live inside the fullscreen element to be visible while in Full Screen */
+  function relocateModals() {
+    const fs = document.fullscreenElement || document.webkitFullscreenElement;
+    const host = (fs && fs === els.previewPanel) ? els.previewPanel : document.body;
+    ['sectionModal', 'exitModal', 'loadModal'].forEach(id => {
+      const m = $(id);
+      if (m && m.parentElement !== host) host.appendChild(m);
+    });
+  }
+  document.addEventListener('fullscreenchange', relocateModals);
+  document.addEventListener('webkitfullscreenchange', relocateModals);
+
   /* =================== Boot =================== */
   (function restoreSidebar() {
     let v = null; try { v = localStorage.getItem('dvr_sidebar'); } catch (e) {}
@@ -2639,6 +3310,11 @@
   els.zoomLevel.textContent = '100%';
   resetAnalyticsCards();
   log('Ready. Add workbooks, pick a destination, then press “Process Files”.', 'ok');
+  if (/[?&]load=1\b/.test(location.search)) {
+    $('loadModal').style.display = 'flex';   // opened from "Load DVR" on the index page
+  } else {
+    checkSavedSession();
+  }
 })();
 </script>
 </body>
