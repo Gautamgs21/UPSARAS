@@ -669,8 +669,6 @@
               <div class="tb-panel">
                 <button id="saveProgressBtn" class="tb-item" type="button" title="Save a temporary copy in this browser (also auto-saves)">Save Progress <small>in this browser</small></button>
                 <button id="savePcBtn" class="tb-item" type="button" title="Save your work as a file on your PC (Ctrl+S)">Save to PC <small>Ctrl+S</small></button>
-                <button id="saveAsPcBtn" class="tb-item" type="button" title="Pick the folder and file name yourself (Chrome / Edge)">Choose location… <small>Chrome/Edge</small></button>
-              </div>
             </div>
 
             <!-- 8. Zoom -->
@@ -3132,17 +3130,18 @@
     opts = opts || {};
     if (!state.processedBooks.length) { log('Nothing to save yet — process files first.', 'warn'); return false; }
     try {
-      let handle = null;
-      // Ask for the location FIRST (needs the click gesture), then build the data.
-      if (opts.chooseLocation && window.showSaveFilePicker) {
-        if (!pcHandle || opts.saveAs) {
-          pcHandle = await window.showSaveFilePicker({
-            suggestedName: pcFileName || suggestedPcName(),
-            types: [{ description: 'DVR progress file', accept: { 'application/json': ['.dvr'] } }]
-          });
+        let handle = null;
+        // Ask for the location only when needed. Once we have a handle, reuse it
+        // so later saves silently overwrite the same file.
+        if (window.showSaveFilePicker) {
+            if (!pcHandle || opts.saveAs) {
+                pcHandle = await window.showSaveFilePicker({
+                    suggestedName: pcFileName || suggestedPcName(),
+                    types: [{ description: 'DVR progress file', accept: { 'application/json': ['.dvr'] } }]
+                });
+            }
+            handle = pcHandle;
         }
-        handle = pcHandle;
-      }
       els.status.textContent = 'Preparing progress file…';
       const files = [];
       for (const f of state.files) {
@@ -3215,9 +3214,7 @@
     if (f) await loadDvrFile(f, null);
   });
 
-  $('savePcBtn').addEventListener('click', () => saveToPC());
-  $('saveAsPcBtn').addEventListener('click', () => saveToPC({ chooseLocation: true, saveAs: true }));
-  if (!window.showSaveFilePicker) $('saveAsPcBtn').style.display = 'none';
+  $('savePcBtn').addEventListener('click', () => saveToPC({ chooseLocation: true }));
   $('loadPcBtn').addEventListener('click', pickAndLoad);
   $('loadModalBrowse').addEventListener('click', pickAndLoad);
   $('loadModalCancel').addEventListener('click', () => { $('loadModal').style.display = 'none'; });
