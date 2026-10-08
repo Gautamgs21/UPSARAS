@@ -240,6 +240,11 @@
   .partial-modal .pm-row b{font-family:var(--font-mono)}
   .partial-modal input{width:100%;height:38px;font-size:15px;font-family:var(--font-mono);text-align:right;margin:6px 0 8px}
   .partial-modal .pm-err{min-height:1.3em;font-size:12px;color:var(--red);margin-bottom:8px}
+  .modal-box .pm-err{min-height:1.3em;font-size:12px;color:var(--red);margin-bottom:8px}
+  .disc-other-input{width:100%;height:74px;min-height:56px;resize:vertical;font:inherit;font-size:13px;line-height:1.4;
+    padding:8px 9px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--ink)}
+  .disc-other-input:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass)}
+  select:disabled{opacity:.55;cursor:not-allowed}
   .sheet-bar{display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--line-soft);margin-bottom:8px}
   .sheet-bar .sheet-tabs{flex:1 1 auto;min-width:0;border-bottom:none;margin-bottom:0}
   .sheet-bar #massBtn{flex:0 0 auto;height:30px;font-size:12px;padding:0 12px;white-space:nowrap;margin-bottom:8px}
@@ -261,6 +266,16 @@
   .mass-bottom{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .mass-bottom .mass-count{font-size:12.5px;font-weight:700}
   .mass-bottom select{height:34px;font-size:13px;min-width:200px;width:auto;flex:0 0 auto}
+  .mass-tablewrap .mass-reasoncol{display:none}
+  .mass-tablewrap.mass-hasreason .mass-reasoncol{display:table-cell}
+  .mass-tablewrap td.mass-reasoncol{white-space:normal;text-align:left;min-width:220px;overflow-wrap:anywhere}
+  .mass-reasonbar{display:none;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:8px 10px;border:1px solid var(--line);
+    border-radius:var(--radius);background:var(--paper-raised)}
+  .mass-reasonbar.show{display:flex}
+  .mass-reasonbar .field{flex:1 1 230px;min-width:200px}
+  .mass-reasonbar .field.wide{flex:1 1 100%}
+  .mass-reasonbar .mass-reason-hint{flex:1 1 100%;font-size:11.5px;color:var(--ink-soft)}
+  .mass-reasonbar select{height:34px;font-size:13px;width:100%}
   .mass-msg{font-size:12.5px;min-height:1.3em;flex:1 1 100%}
   .mass-msg.err{color:var(--red)} .mass-msg.ok{color:var(--green)}
   .book-tabs,.sheet-tabs{display:flex;gap:6px;overflow:auto;padding-bottom:8px;margin-bottom:8px}
@@ -436,6 +451,7 @@
     white-space:normal;overflow-wrap:break-word;word-break:normal}
   table.ps-table td{border:.5px solid #aaa;padding:2.5px 4px;overflow-wrap:break-word;word-break:normal;line-height:1.25;
     text-align:center;vertical-align:middle}
+  table.ps-table td.ps-reason{white-space:normal;overflow-wrap:anywhere;word-break:normal;text-align:left}
   table.ps-table thead{display:table-header-group}
   table.ps-table tbody tr{break-inside:avoid;page-break-inside:avoid}
   .ps-footer{margin-top:8px;font-size:6.5pt;color:#000;text-align:right}
@@ -908,7 +924,7 @@
         <!-- Mass Status Changer -->
         <div id="massModal" class="modal-backdrop" style="display:none">
           <div class="modal-box mass-box" role="dialog" aria-label="Mass Status Changer">
-            <h3>Change Status</h3>
+            <h3>Mass Status Changer</h3>
             <div class="mass-top">
               <label for="massList">Choose List</label>
               <select id="massList"></select>
@@ -922,10 +938,32 @@
                   <th>Invoice/Debit Credit note Number</th>
                   <th>Deduction Claimed</th>
                   <th class="mass-amt">Admissible Amount</th>
+                  <th class="mass-reasoncol">Current Reason</th>
                 </tr></thead>
                 <tbody id="massBody"></tbody>
               </table>
               <div class="mass-empty" id="massEmpty">Choose a list to see its Sl Nos.</div>
+            </div>
+            <div class="mass-reasonbar" id="massReasonBar">
+              <div class="field">
+                <label for="massCategory">Category</label>
+                <select id="massCategory">
+                  <option value="">Select category…</option>
+                  <option value="Invoice">Invoice</option>
+                  <option value="Claim Sheet">Claim Sheet</option>
+                  <option value="Bank Statement">Bank Statement</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="massReason" id="massReasonLbl">Reason for Disallowance</label>
+                <select id="massReason" disabled><option value="">Select category first…</option></select>
+              </div>
+              <div class="field wide" id="massOtherField" style="display:none">
+                <label for="massOther">Specify the reason</label>
+                <textarea id="massOther" class="disc-other-input" placeholder="Type the reason…" spellcheck="true"></textarea>
+              </div>
+              <div class="mass-reason-hint" id="massReasonHint"></div>
             </div>
             <div class="mass-bottom">
               <span class="mass-count" id="massCount">0 selected</span>
@@ -941,15 +979,68 @@
 
         <!-- Partially approve: asks for the admissible amount -->
         <div id="partialModal" class="modal-backdrop" style="display:none">
-          <div class="modal-box partial-modal" style="max-width:380px">
+          <div class="modal-box partial-modal" style="max-width:460px">
             <h3>Enter Admissible Amount</h3>
             <div class="pm-row"><span>Deduction Claimed</span><b id="partialClaim">—</b></div>
             <input id="partialInput" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Admissible amount">
             <div class="pm-row"><span>Will be disallowed</span><b id="partialDisallow">—</b></div>
+            <div class="field" style="margin:10px 0 10px">
+              <label for="partCategory">Category</label>
+              <select id="partCategory">
+                <option value="">Select category…</option>
+                <option value="Invoice">Invoice</option>
+                <option value="Claim Sheet">Claim Sheet</option>
+                <option value="Bank Statement">Bank Statement</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:10px">
+              <label for="partReason">Reason for Partial Disallowance</label>
+              <select id="partReason" disabled>
+                <option value="">Select category first…</option>
+              </select>
+            </div>
+            <div class="field" id="partOtherField" style="display:none;margin-bottom:10px">
+              <label for="partOther">Specify the reason</label>
+              <textarea id="partOther" class="disc-other-input" placeholder="Type the reason for partial disallowance…" spellcheck="true"></textarea>
+            </div>
             <div class="pm-err" id="partialErr"></div>
             <div class="modal-actions">
               <button id="partialCancel" type="button">Cancel</button>
               <button id="partialOk" type="button" class="primary">OK</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discrepancy: Category + Reason for Disallowance -->
+        <div id="discrepancyModal" class="modal-backdrop" style="display:none">
+          <div class="modal-box" style="max-width:520px">
+            <h3>Reason for Disallowance</h3>
+            <p>Choose the category of the deduction and the specific reason it is being disallowed.</p>
+            <div class="field" style="margin-bottom:12px">
+              <label for="discCategory">Category</label>
+              <select id="discCategory">
+                <option value="">Select category…</option>
+                <option value="Invoice">Invoice</option>
+                <option value="Claim Sheet">Claim Sheet</option>
+                <option value="Bank Statement">Bank Statement</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:12px">
+              <label for="discReason">Reason for Disallowance</label>
+              <select id="discReason" disabled>
+                <option value="">Select category first…</option>
+              </select>
+            </div>
+            <div class="field" id="discOtherField" style="display:none;margin-bottom:12px">
+              <label for="discOther">Specify the reason</label>
+              <textarea id="discOther" class="disc-other-input" placeholder="Type the reason for disallowance…" spellcheck="true"></textarea>
+            </div>
+            <div class="pm-err" id="discErr"></div>
+            <div class="modal-actions">
+              <button id="discCancel" type="button">Cancel</button>
+              <button id="discOk" type="button" class="primary">OK</button>
             </div>
           </div>
         </div>
@@ -1072,6 +1163,92 @@
     'TDS on Cost/Claim'
   ];
 
+  /* ---- Disallowance reasons, grouped by Category ---- */
+  const DISCREPANCY_REASONS = {
+    'Invoice': [
+      'Illegible invoice',
+      'Invoice amount does not match claim sheet',
+      'Invoice date does not match claim sheet',
+      'Invoice does not pertain to Voice/SMS Charges.',
+      'Invoice pertains to another circle',
+      'Deduction under invoice already claimed under another financial year',
+      'Other Reasons'
+    ],
+    'Claim Sheet': [
+      'Annexure PP not submitted',
+      'Annexure AG not submitted with certified ledger extract.',
+      'Annexure IR not submitted.',
+      'Documents not mapped according to Annexure-AO/AG',
+      'Claim sheet not certified by statutory auditors',
+      'Claim sheet not in prescribed format',
+      'International roaming info not in prescribed format',
+      'Other Reasons'
+    ],
+    'Bank Statement': [
+      'Bank certificate not signed by authorized signatory',
+      'Bank statement not available',
+      'Bank statement not signed by authorities and signatory',
+      'Payee name missing from bank certificate',
+      'Payment proof (bank statement) does not match',
+      'Payment proof and statement not signed in ink',
+      'Payment made in next quarter',
+      'Cheque receipt date proof not given',
+      'Missing transaction break-up for LSAs',
+      'Corporate settlement certificate not in prescribed format',
+      'Corporate settlement consolidated proof not submitted',
+      'Corporate settlement LSA-wise break-up not submitted',
+      'Corporate settlement transaction break-up not submitted',
+      'Other Reasons'
+    ],
+    'Others': [
+      'No claim',
+      'Documents not properly arranged',
+      'Valid board resolution copy not certified by secretary',
+      'Annual auditor certificate for break-up.',
+      'LTDC not submitted',
+      'TDS payment proof with LSA break-up not submitted',
+      'Consolidated challan with Form 26Q/16A not submitted',
+      'Incomplete AGR and Annexure without payment breakdown',
+      'Authorized signatory signature mismatch on documents',
+      'Other Reasons'
+    ]
+  };
+
+  /* ---- Partial-disallowance reasons, grouped by Category ---- */
+  const PARTIAL_REASONS = {
+    'Invoice': [
+      'Only Partial Components of Invoice eligible for claim',
+      'Partial Amount already claimed under another financial year',
+      'Other Reasons'
+    ],
+    'Claim Sheet': [
+      'Claimed Deduction more than Invoice Amount.',
+      'Claimed amount more than Passed Amount',
+      'Wrong Claim Sheet Entry',
+      'Other Reasons'
+    ],
+    'Bank Statement': [
+      'Other Reasons'
+    ],
+    'Others': [
+      'LTDC not submitted',
+      'TDS payment mismatch/Not Submitted'
+    ]
+  };
+  /* Fill a Reason <select> from a reasons map (DISCREPANCY_REASONS / PARTIAL_REASONS) for the chosen category */
+  function fillReasonOptions(cat, reaSel, reasonSet) {
+    reaSel.innerHTML = '';
+    const ph = document.createElement('option'); ph.value = '';
+    if (!cat || !reasonSet || !reasonSet[cat]) {
+      ph.textContent = 'Select category first…'; reaSel.appendChild(ph); reaSel.disabled = true; return;
+    }
+    ph.textContent = 'Select reason…'; reaSel.appendChild(ph);
+    reasonSet[cat].forEach(r => {
+      const o = document.createElement('option'); o.value = r; o.textContent = r; reaSel.appendChild(o);
+    });
+    reaSel.disabled = false;
+  }
+
   /* ---- Analytics column map (7 checks) ---- */
   const ANALYTICS_COLUMNS = {
     iucAsPer:   'IUC cost as per Operator (payable)',
@@ -1095,6 +1272,7 @@
     activeRowEl: null,
     readingRowEl: null,
     rowStatus: {},
+    discrepancyReasons: {},
     hiddenCols: {},
     remarks: {},
     stats: { files:0, done:0, skipped:0, errors:0 },
@@ -1525,6 +1703,42 @@
     const a = Math.min(Math.max(parseFloat(st.slice(8)) || 0, 0), v);
     return kind === 'allowed' ? a : Math.round((v - a) * 100) / 100;
   }
+  /* ---- Discrepancy reason storage (mirrors rowStatus structure) ---- */
+  function getReasonMap(bookIndex, sheetName) {
+    const b = state.discrepancyReasons[bookIndex] || (state.discrepancyReasons[bookIndex] = {});
+    return b[sheetName] || (b[sheetName] = {});
+  }
+  function getDiscrepancyInfo(bookIndex, sheetName, rowIdx) {
+    if (bookIndex === undefined || bookIndex < 0 || !sheetName) return null;
+    const m = (state.discrepancyReasons[bookIndex] || {})[sheetName];
+    return m ? (m[rowIdx] || null) : null;
+  }
+  function setDiscrepancyInfo(bookIndex, sheetName, rowIdx, info) {
+    if (bookIndex < 0 || !sheetName) return;
+    const map = getReasonMap(bookIndex, sheetName);
+    if (info) map[rowIdx] = info;
+    else delete map[rowIdx];
+  }
+  /* Amount shown in the "Deduction Disallowed" column of the printed report. */
+  function disallowedAmountForRow(rowIdx) {
+    const ws = state.activeWs, col = state.activeDeductionCol;
+    if (!ws || col < 0) return null;
+    const v = numericCellValue(ws[XLSX.utils.encode_cell({ r: Number(rowIdx), c: col })]);
+    if (v == null) return null;
+    const st = getStatusMap(state.activePreview, state.activeSheet)[rowIdx];
+    if (typeof st === 'string' && st.indexOf('partial:') === 0) {
+      const a = Math.min(Math.max(parseFloat(st.slice(8)) || 0, 0), v);
+      return Math.round((v - a) * 100) / 100;
+    }
+    return v;
+  }
+  /* One-line reason text for a row ("Category: Reason"), or '' when not set. */
+  function formatDiscrepancyReason(info) {
+    if (!info) return '';
+    const reason = info.reason === 'Other Reasons' ? (info.other || '') : (info.reason || '');
+    if (!reason) return '';
+    return info.category ? info.category + ': ' + reason : reason;
+  }
   function setRowStatus(tr, status) {
     const bookIndex = state.activePreview;
     const sheetName = state.activeSheet;
@@ -1533,6 +1747,12 @@
       const map = getStatusMap(bookIndex, sheetName);
       if (status) map[rowIdx] = status;
       else delete map[rowIdx];
+      /* The disallowance reason is only meaningful while the row is a discrepancy or partially approved */
+      const stStr = String(status || '');
+      if (stStr.indexOf('discrepancy') !== 0 && stStr.indexOf('partial:') !== 0) {
+        const rmap = getReasonMap(bookIndex, sheetName);
+        if (rmap[rowIdx]) delete rmap[rowIdx];
+      }
     }
     applyRowStatusClass(tr, status);
     updateDeductionSummary();
@@ -1963,6 +2183,17 @@
       };
     });
   }
+  /* Extra columns shown only on the "Deduction Claim Disallowed" list */
+  function getDisallowedPrintColumns(headers) {
+    const base = getPrintColumnConfig(headers);
+    const widths = ['6%', '15%', '16%', '11%', '11%', '14%', '27%'];
+    const cols = base.map((pc, i) => Object.assign({}, pc, { width: widths[i] }));
+    cols.push({ name: 'Deduction Disallowed', label: 'Deduction Disallowed',
+                special: 'disallowedAmount', width: widths[5] });
+    cols.push({ name: 'Reason for Disallowance', label: 'Reason for Disallowance',
+                special: 'disallowanceReason', width: widths[6] });
+    return cols;
+  }
 
   /* ---- PDF: "Deduction Claim Sheet Summary" — 5 thick-bordered cards ---- */
   function buildPrintColumnTotals(ws, headers) {
@@ -2065,7 +2296,9 @@
       html += buildPrintSection('Deduction Claim Allowed', cats.allowed, ws, printCols, undefined, 'allowed');
     }
     if (sections.disallowed) {
-      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed, ws, printCols, remarksFor(state.activePreview, state.activeSheet).disallowed, 'disallowed');
+      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed,
+        ws, getDisallowedPrintColumns(headers),
+        remarksFor(state.activePreview, state.activeSheet).disallowed, 'disallowed');
     }
     if (sections.review) {
       html += buildPrintSection('Deduction Claim Under Consideration', cats.review, ws, printCols, remarksFor(state.activePreview, state.activeSheet).review, 'review');
@@ -2096,17 +2329,24 @@
 
     html += '<table class="ps-table"><thead><tr>';
     printCols.forEach(pc => {
-      html += '<th>' + esc(pc.label || pc.name) + '</th>';
+      html += '<th' + (pc.width ? ' style="width:' + esc(pc.width) + '"' : '') + '>' +
+              esc(pc.label || pc.name) + '</th>';
     });
     html += '</tr></thead><tbody>';
 
     rowIdxs.forEach((rowIdx, i) => {
       html += '<tr>';
       printCols.forEach(pc => {
-        if (pc.index >= 0) {
+        if (pc.special === 'disallowedAmount') {
+          const amt = disallowedAmountForRow(rowIdx);
+          html += '<td>' + esc(amt != null ? formatSum(amt) : '—') + '</td>';
+        } else if (pc.special === 'disallowanceReason') {
+          const info = getDiscrepancyInfo(state.activePreview, state.activeSheet, rowIdx);
+          html += '<td class="ps-reason">' + esc(formatDiscrepancyReason(info) || '—') + '</td>';
+        } else if (pc.index >= 0) {
           const cell = ws[XLSX.utils.encode_cell({ r: rowIdx, c: pc.index })];
           let txt = cellDisplayValue(cell);
-          if (pc.index === state.activeDeductionCol) {   // partially approved: show only this list's share
+          if (pc.index === state.activeDeductionCol && kind !== 'disallowed') {   // partially approved: show only this list's share (Disallowed list keeps the full claim; its own column shows the disallowed part)
             const ps = partialShare(rowIdx, kind);
             if (ps != null) txt = formatSum(ps);
           }
@@ -2166,18 +2406,26 @@
 
     sectionDefs.forEach(sd => {
       if (!sections[sd.flag]) return;
+      const cols = (sd.flag === 'disallowed') ? getDisallowedPrintColumns(headers) : printCols;
       set(r, 0, sd.title.toUpperCase()); r++;
-      printCols.forEach((pc, ci) => set(r, ci, pc.name)); r++;
+      cols.forEach((pc, ci) => set(r, ci, pc.name)); r++;
       if (!sd.rows.length) {
         set(r, 0, '(No rows in this category)');
         r += 2; return;
       }
       sd.rows.forEach((rowIdx, i) => {
-        printCols.forEach((pc, ci) => {
-          if (pc.index >= 0) {
+        cols.forEach((pc, ci) => {
+          if (pc.special === 'disallowedAmount') {
+            const amt = disallowedAmountForRow(rowIdx);
+            set(r, ci, amt != null ? amt : '—');
+          } else if (pc.special === 'disallowanceReason') {
+            const info = getDiscrepancyInfo(state.activePreview, state.activeSheet, rowIdx);
+            set(r, ci, { v: formatDiscrepancyReason(info) || '—', t: 's',
+                         s: { alignment: { wrapText: true, vertical: 'top', horizontal: 'left' } } });
+          } else if (pc.index >= 0) {
             const cell = ws[XLSX.utils.encode_cell({ r: rowIdx, c: pc.index })];
             let n = numericCellValue(cell);
-            if (pc.index === state.activeDeductionCol) {   // partially approved: show only this list's share
+            if (pc.index === state.activeDeductionCol && sd.flag !== 'disallowed') {   // partially approved: show only this list's share (Disallowed list keeps the full claim)
               const ps = partialShare(rowIdx, sd.flag);
               if (ps != null) n = ps;
             }
@@ -2194,7 +2442,7 @@
     });
 
     const wsOut = XLSX.utils.aoa_to_sheet(grid);
-    wsOut['!cols'] = printCols.map(() => ({ wch: 26 }));
+    wsOut['!cols'] = Array.from({ length: 7 }, (_, ci) => ({ wch: ci === 6 ? 55 : 24 }));   // Reason column is wider and wraps
 
     const wbOut = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wbOut, wsOut, 'Deductions Report');
@@ -2293,6 +2541,7 @@
       if (!tr) return;
       if (action === 'clear') setRowStatus(tr, null);
       else if (action === 'partial') openPartialModal(tr);
+      else if (action === 'discrepancy') openDiscrepancyModal(tr);
       else setRowStatus(tr, action);
     });
   });
@@ -2308,6 +2557,17 @@
     const inp = $('partialInput');
     inp.value = tr.dataset.partial || '';
     $('partialErr').textContent = '';
+    /* Pre-fill Category / Reason when this row already has one */
+    const ex = getDiscrepancyInfo(state.activePreview, state.activeSheet, tr.dataset.rowIndex);
+    const pc = $('partCategory'), pr = $('partReason'), po = $('partOther');
+    pc.value = (ex && ex.category && PARTIAL_REASONS[ex.category]) ? ex.category : '';
+    fillReasonOptions(pc.value, pr, PARTIAL_REASONS);
+    po.value = '';
+    $('partOtherField').style.display = 'none';
+    if (pc.value && ex && ex.reason && PARTIAL_REASONS[pc.value].indexOf(ex.reason) >= 0) {
+      pr.value = ex.reason;
+      if (ex.reason === 'Other Reasons') { $('partOtherField').style.display = ''; po.value = ex.other || ''; }
+    }
     updatePartialPreview();
     $('partialModal').style.display = 'flex';
     inp.focus(); inp.select();
@@ -2326,10 +2586,35 @@
     const a = parsePartialInput(), err = $('partialErr');
     if (a == null || !isFinite(a) || a < 0) { err.textContent = 'Enter a valid amount (0 or more).'; return; }
     if (a > partialClaim + 0.005) { err.textContent = 'Cannot exceed the Deduction Claimed (' + fmtINR(partialClaim) + ').'; return; }
+    const cat = $('partCategory').value, reason = $('partReason').value, other = $('partOther').value.trim();
+    if (!cat) { err.textContent = 'Please choose a category.'; return; }
+    if (!reason) { err.textContent = 'Please choose a reason for partial disallowance.'; return; }
+    if (reason === 'Other Reasons' && !other) { err.textContent = 'Please type the reason for partial disallowance.'; return; }
     const tr = partialTargetRow;
+    if (!tr) { closePartialModal(); return; }
+    setDiscrepancyInfo(state.activePreview, state.activeSheet, tr.dataset.rowIndex, {
+      category: cat,
+      reason: reason,
+      other: reason === 'Other Reasons' ? other : ''
+    });
     closePartialModal();
-    if (tr) setRowStatus(tr, 'partial:' + (Math.round(a * 100) / 100));
+    setRowStatus(tr, 'partial:' + (Math.round(a * 100) / 100));   /* keeps the reason while the row stays partial */
   }
+  $('partCategory').addEventListener('change', () => {
+    $('partialErr').textContent = '';
+    fillReasonOptions($('partCategory').value, $('partReason'), PARTIAL_REASONS);
+    $('partOtherField').style.display = 'none';
+  });
+  $('partReason').addEventListener('change', () => {
+    $('partialErr').textContent = '';
+    const isOther = $('partReason').value === 'Other Reasons';
+    $('partOtherField').style.display = isOther ? '' : 'none';
+    if (isOther) $('partOther').focus();
+  });
+  $('partOther').addEventListener('input', () => { $('partialErr').textContent = ''; });
+  $('partialModal').addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePartialModal(); }
+  });
   $('partialOk').addEventListener('click', confirmPartialModal);
   $('partialCancel').addEventListener('click', closePartialModal);
   $('partialModal').addEventListener('mousedown', e => { if (e.target === $('partialModal')) closePartialModal(); });
@@ -2338,6 +2623,99 @@
     if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); confirmPartialModal(); }
     else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closePartialModal(); }
   });
+
+  /* ---- Discrepancy modal: Category + Reason for Disallowance ---- */
+  let discTargetRow = null;
+  function updateDiscReasonOptions() {
+    const cat = $('discCategory').value;
+    const reaSel = $('discReason');
+    const othField = $('discOtherField');
+    reaSel.innerHTML = '';
+    if (!cat || !DISCREPANCY_REASONS[cat]) {
+      const opt = document.createElement('option');
+      opt.value = ''; opt.textContent = 'Select category first…';
+      reaSel.appendChild(opt);
+      reaSel.disabled = true;
+      othField.style.display = 'none';
+      return;
+    }
+    const ph = document.createElement('option');
+    ph.value = ''; ph.textContent = 'Select reason…';
+    reaSel.appendChild(ph);
+    DISCREPANCY_REASONS[cat].forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r; opt.textContent = r;
+      reaSel.appendChild(opt);
+    });
+    reaSel.disabled = false;
+  }
+  function openDiscrepancyModal(tr) {
+    discTargetRow = tr;
+    const existing = getDiscrepancyInfo(state.activePreview, state.activeSheet, tr.dataset.rowIndex);
+    const catSel = $('discCategory'), reaSel = $('discReason');
+    const othField = $('discOtherField'), othInput = $('discOther');
+    $('discErr').textContent = '';
+    catSel.value = (existing && existing.category) ? existing.category : '';
+    updateDiscReasonOptions();
+    if (existing && existing.reason) {
+      reaSel.value = existing.reason;
+      if (existing.reason === 'Other Reasons') {
+        othField.style.display = '';
+        othInput.value = existing.other || '';
+      } else {
+        othField.style.display = 'none';
+        othInput.value = '';
+      }
+    } else {
+      othField.style.display = 'none';
+      othInput.value = '';
+    }
+    $('discrepancyModal').style.display = 'flex';
+    catSel.focus();
+  }
+  function closeDiscrepancyModal() {
+    $('discrepancyModal').style.display = 'none';
+    discTargetRow = null;
+  }
+  function confirmDiscrepancyModal() {
+    const cat = $('discCategory').value;
+    const reason = $('discReason').value;
+    const other = $('discOther').value.trim();
+    const err = $('discErr');
+    if (!cat) { err.textContent = 'Please choose a category.'; return; }
+    if (!reason) { err.textContent = 'Please choose a reason for disallowance.'; return; }
+    if (reason === 'Other Reasons' && !other) { err.textContent = 'Please type the reason for disallowance.'; return; }
+    const tr = discTargetRow;
+    if (!tr) { closeDiscrepancyModal(); return; }
+    setDiscrepancyInfo(state.activePreview, state.activeSheet, tr.dataset.rowIndex, {
+      category: cat,
+      reason: reason,
+      other: reason === 'Other Reasons' ? other : ''
+    });
+    closeDiscrepancyModal();
+    setRowStatus(tr, 'discrepancy');   /* clears reason only if status changes away */
+    scheduleAutoSave();
+  }
+  $('discCategory').addEventListener('change', () => {
+    $('discErr').textContent = '';
+    updateDiscReasonOptions();
+  });
+  $('discReason').addEventListener('change', () => {
+    $('discErr').textContent = '';
+    const isOther = $('discReason').value === 'Other Reasons';
+    $('discOtherField').style.display = isOther ? '' : 'none';
+    if (isOther) $('discOther').focus();
+  });
+  $('discOther').addEventListener('input', () => { $('discErr').textContent = ''; });
+  $('discOk').addEventListener('click', confirmDiscrepancyModal);
+  $('discCancel').addEventListener('click', closeDiscrepancyModal);
+  $('discrepancyModal').addEventListener('mousedown', e => {
+    if (e.target === $('discrepancyModal')) closeDiscrepancyModal();
+  });
+  $('discrepancyModal').addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeDiscrepancyModal(); }
+  });
+
   document.addEventListener('click', e => {
     if (!els.contextMenu.contains(e.target)) hideContextMenu();
     if (!els.colWrap.contains(e.target)) els.colPanel.style.display = 'none';
@@ -2621,7 +2999,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {}; state.discrepancyReasons = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2659,7 +3037,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {}; state.discrepancyReasons = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2717,7 +3095,7 @@
     state.activePreview = -1;
     state.activeSheet = null;
     state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {}; state.discrepancyReasons = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = [];
@@ -2871,6 +3249,8 @@
 
   document.addEventListener('keydown', e => {
     if (e.target && e.target.closest && e.target.closest('#massModal')) return;   // Mass Status Changer handles its own keys
+    if (e.target && e.target.closest && e.target.closest('#discrepancyModal')) return;   // Discrepancy modal handles its own keys
+    if (e.target && e.target.closest && e.target.closest('#partialModal')) return;   // Partial-approval modal handles its own keys
     if (e.key === 'Escape') {
       if (e.target && e.target.closest && e.target.closest('#calcPop')) return;   // calculator handles its own Esc
       if (e.target && e.target.closest && e.target.closest('#bacPop')) return;    // Basic Amount Calculator handles its own Esc
@@ -3040,6 +3420,43 @@
     ];
     let items = [];            // rows currently shown in the table
     let rowsByKey = {};
+    const rBar = $('massReasonBar'), rCat = $('massCategory'), rRea = $('massReason'),
+          rOthF = $('massOtherField'), rOth = $('massOther');
+    const isReasonKind = k => k === 'discrepancy' || k === 'partial';
+
+    /* Which reason list the Reason box applies to (null = hide the box) */
+    function reasonKind() {
+      const t = selTarget.value;
+      if (t === 'reasononly') return isReasonKind(selList.value) ? selList.value : null;
+      return isReasonKind(t) ? t : null;
+    }
+    function resetReasonFields() {
+      rCat.value = ''; fillReasonOptions('', rRea, null); rOth.value = ''; rOthF.style.display = 'none';
+    }
+    function updateReasonBar() {
+      const kind = reasonKind();
+      rBar.classList.toggle('show', !!kind);
+      if (!kind) return;
+      $('massReasonLbl').textContent = kind === 'partial' ? 'Reason for Partial Disallowance' : 'Reason for Disallowance';
+      $('massReasonHint').textContent = selTarget.value === 'reasononly'
+        ? 'The chosen Category and Reason will replace the current reason of every selected row. Status and amounts stay unchanged.'
+        : 'Optional: choose a Category and Reason to set it for every selected row. Leave blank to keep each row\'s existing reason.';
+      fillReasonOptions(rCat.value, rRea, kind === 'partial' ? PARTIAL_REASONS : DISCREPANCY_REASONS);
+      rOthF.style.display = 'none';
+    }
+    /* Read + validate the Reason box. required=true -> Category and Reason must be chosen.
+       Returns { ok, info } where info is null when nothing was chosen (optional case). */
+    function readReason(required) {
+      const cat = rCat.value, reason = rRea.value, other = rOth.value.trim();
+      if (!cat && !reason) {
+        if (required) { setMsg('Please choose a category and a reason.', 'err'); return { ok: false }; }
+        return { ok: true, info: null };
+      }
+      if (!cat) { setMsg('Please choose a category.', 'err'); return { ok: false }; }
+      if (!reason) { setMsg('Please choose a reason.', 'err'); return { ok: false }; }
+      if (reason === 'Other Reasons' && !other) { setMsg('Please type the reason.', 'err'); return { ok: false }; }
+      return { ok: true, info: { category: cat, reason: reason, other: reason === 'Other Reasons' ? other : '' } };
+    }
 
     const keyOf = tr => {
       if (tr.classList.contains('status-discrepancy')) return 'discrepancy';
@@ -3080,7 +3497,12 @@
       const ph = document.createElement('option'); ph.value = ''; ph.textContent = 'Select status…'; selTarget.appendChild(ph);
       LISTS.forEach(l => { if (l.key === cur) return;
         const o = document.createElement('option'); o.value = l.key; o.textContent = l.label; selTarget.appendChild(o); });
+      if (isReasonKind(cur)) {   // change only the reason, keep status + amounts
+        const o = document.createElement('option'); o.value = 'reasononly';
+        o.textContent = 'Change reason only (keep status)'; selTarget.appendChild(o);
+      }
       wrap.classList.remove('mass-partial');
+      resetReasonFields(); updateReasonBar();
     }
     function setMsg(text, kind) { msg.textContent = text || ''; msg.className = 'mass-msg' + (kind ? ' ' + kind : ''); }
     function updateCount() {
@@ -3095,6 +3517,7 @@
       body.innerHTML = '';
       const key = selList.value;
       items = key ? rowsByKey[key] : [];
+      wrap.classList.toggle('mass-hasreason', isReasonKind(key));
       $('massEmpty').style.display = items.length ? 'none' : 'block';
       $('massEmpty').textContent = key ? 'No Sl Nos in this list.' : 'Choose a list to see its Sl Nos.';
       items.forEach((it, i) => {
@@ -3110,6 +3533,7 @@
         inp.addEventListener('input', () => inp.classList.remove('bad'));
         inp.addEventListener('click', e => e.stopPropagation());
         amtTd.appendChild(inp); tr.appendChild(amtTd);
+        add(formatDiscrepancyReason(getDiscrepancyInfo(state.activePreview, state.activeSheet, it.rowIdx)) || '—', 'mass-reasoncol');
         tr.addEventListener('click', e => { if (e.target === ck) return; ck.checked = !ck.checked; updateCount(); });
         ck.addEventListener('change', updateCount);
         body.appendChild(tr);
@@ -3133,7 +3557,18 @@
     modal.addEventListener('mousedown', e => { if (e.target === modal) close(); });
     modal.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); } });
     selList.addEventListener('change', () => { setMsg(''); fillTargets(); renderTable(); });
-    selTarget.addEventListener('change', () => { setMsg(''); wrap.classList.toggle('mass-partial', selTarget.value === 'partial'); });
+    selTarget.addEventListener('change', () => {
+      setMsg(''); wrap.classList.toggle('mass-partial', selTarget.value === 'partial');
+      resetReasonFields(); updateReasonBar();
+    });
+    rCat.addEventListener('change', () => { setMsg(''); rOth.value = ''; updateReasonBar(); });
+    rRea.addEventListener('change', () => {
+      setMsg('');
+      const isOther = rRea.value === 'Other Reasons';
+      rOthF.style.display = isOther ? '' : 'none';
+      if (isOther) rOth.focus();
+    });
+    rOth.addEventListener('input', () => setMsg(''));
     allCk.addEventListener('change', () => {
       body.querySelectorAll('input.mass-row').forEach(c => { c.checked = allCk.checked; });
       updateCount();
@@ -3145,6 +3580,21 @@
       if (!from) { setMsg('Choose a list first.', 'err'); return; }
       if (!picks.length) { setMsg('Select at least one Sl No.', 'err'); return; }
       if (!target) { setMsg('Choose the status to change to.', 'err'); return; }
+
+      /* Reason-only change: keep status and amounts, just replace the reason on the selected rows */
+      if (target === 'reasononly') {
+        const rr = readReason(true);
+        if (!rr.ok) return;
+        picks.forEach(i => setDiscrepancyInfo(state.activePreview, state.activeSheet, items[i].rowIdx, rr.info));
+        scheduleAutoSave();
+        const n = picks.length;
+        refresh(from);
+        setMsg('Updated the reason for ' + n + ' row(s).', 'ok');
+        return;
+      }
+      /* Moving to Disallowed / Partially Allowed: an optional new reason for the selected rows */
+      const newReason = isReasonKind(target) ? readReason(false) : { ok: true, info: null };
+      if (!newReason.ok) return;
       const changes = [];
       let bad = 0;
       picks.forEach(i => {
@@ -3164,6 +3614,11 @@
       changes.forEach(({ it, status }) => {
         if (status) map[it.rowIdx] = status; else delete map[it.rowIdx];
         applyRowStatusClass(it.tr, status);
+        if (isReasonKind(target)) {
+          if (newReason.info) setDiscrepancyInfo(state.activePreview, state.activeSheet, it.rowIdx, newReason.info);
+        } else {
+          setDiscrepancyInfo(state.activePreview, state.activeSheet, it.rowIdx, null);   // reason only applies to Disallowed / Partial rows
+        }
       });
       updateDeductionSummary();
       scheduleAutoSave();
@@ -3421,6 +3876,7 @@
       activePreview: state.activePreview,
       activeSheet: state.activeSheet,
       rowStatus: JSON.parse(JSON.stringify(state.rowStatus)),
+      discrepancyReasons: JSON.parse(JSON.stringify(state.discrepancyReasons)),
       remarks: JSON.parse(JSON.stringify(state.remarks)),
       hiddenCols: JSON.parse(JSON.stringify(state.hiddenCols)),
       totalSelections: state.totalSelections.slice(),
@@ -3508,7 +3964,7 @@
     state.stats = { files: state.files.length, done: 0, skipped: 0, errors: 0 };
     state.processedBooks = [];
     state.activePreview = -1; state.activeSheet = null; state.activeRowEl = null;
-    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {};
+    state.rowStatus = {}; state.remarks = {}; state.hiddenCols = {}; state.discrepancyReasons = {};
     state.lastSpokenRowEl = null;
     state.totalSelections = [null, null, null, null, null];
     state.activeHeaders = []; state.activeWs = null; state.activeDeductionCol = -1;
@@ -3544,6 +4000,7 @@
       log('Warning: the restored workbooks differ from the saved session; some marks may not line up.', 'warn');
     }
     state.rowStatus = prog.rowStatus || {};
+    state.discrepancyReasons = prog.discrepancyReasons || {};
     state.remarks = prog.remarks || {};
     state.hiddenCols = prog.hiddenCols || {};
     if (Array.isArray(prog.totalSelections)) state.totalSelections = prog.totalSelections.slice(0, 5);
