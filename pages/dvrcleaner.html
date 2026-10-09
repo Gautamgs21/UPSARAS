@@ -367,11 +367,73 @@
   .remarks-toggle .rt-chev{display:inline-block;transition:transform .15s ease;font-size:9px}
   .remarks-wrap:not(.closed) .rt-chev{transform:rotate(90deg)}
   .remarks-toggle .rt-dot{margin-left:auto;font-size:10px;font-weight:600;color:var(--brass);text-transform:none;letter-spacing:0}
-  .remarks-wrap.closed .remarks-input{display:none}
-  /* Pop-up remarks: floats above the page, drag the bottom-right corner to resize */
-  .remarks-wrap:not(.closed) .remarks-input{position:fixed;z-index:1600;width:340px;height:160px;min-width:220px;min-height:90px;
-    max-width:96vw;max-height:85vh;margin:0;resize:both;padding:8px 10px;background:var(--paper-raised);color:var(--ink);
-    border:1px solid var(--brass);border-radius:6px;box-shadow:0 14px 36px rgba(0,0,0,.32)}
+  /* ===== Remarks rich-text editor (pop-up window) ===== */
+  .remarks-input{display:none !important}
+  .rm-backdrop{z-index:2100}
+  .rm-box{position:relative;display:flex;flex-direction:column;width:min(940px,96vw);height:min(600px,88vh);background:var(--paper-raised);
+    color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:hidden}
+  .rm-box.max{width:100vw;height:100vh;border-radius:0;border:none}
+  .rm-backdrop.max{padding:0}
+  .rm-titlebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;background:var(--ink);color:var(--paper-raised);user-select:none;flex:0 0 auto}
+  .rm-titlebar .rm-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rm-wbtns{display:flex;gap:4px;flex:0 0 auto}
+  .rm-wbtns button{height:26px;min-width:34px;padding:0 8px;border:none;border-radius:3px;background:transparent;color:inherit;font-size:14px;line-height:1}
+  .rm-wbtns button:hover{background:rgba(255,255,255,.18);color:inherit}
+  .rm-wbtns button.rm-close:hover{background:#c0392b;color:#fff}
+  .rm-ribbon{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;padding:6px 8px 0;background:var(--paper);border-bottom:1px solid var(--line);flex:0 0 auto}
+  .rm-group{display:flex;flex-direction:column;padding:0 8px 0 0;margin-right:8px;border-right:1px solid var(--line-soft)}
+  .rm-group:last-child{border-right:none;margin-right:0}
+  .rm-rows{display:flex;flex-direction:column;gap:3px;padding-bottom:2px}
+  .rm-row{display:flex;align-items:center;gap:2px;flex-wrap:nowrap}
+  .rm-glabel{text-align:center;font-size:11px;color:var(--ink-soft);padding:1px 0 3px}
+  .rm-ribbon button.rb{position:relative;height:26px;min-width:26px;padding:0 5px;border:1px solid transparent;border-radius:3px;background:transparent;color:var(--ink);
+    font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:2px}
+  .rm-ribbon button.rb:hover{background:var(--brass-soft);border-color:var(--line);color:var(--ink)}
+  .rm-ribbon button.rb.on{background:var(--brass-soft);border-color:var(--brass)}
+  .rm-ribbon button.rb.arrow{min-width:14px;width:14px;padding:0;font-size:8px;margin-left:-3px}
+  .rm-ribbon button.rb svg{display:block}
+  .rm-ribbon button.rb .bar{position:absolute;left:5px;right:5px;bottom:2px;height:3px;background:var(--c,#000);border-radius:1px}
+  .rm-ribbon button.rb.tcol{flex-direction:column;justify-content:flex-start;padding-top:2px}
+  .rm-ribbon button.rb.wide{padding:0 9px}
+  .rm-ribbon select{height:26px;padding:0 4px;font-size:12.5px;border-radius:3px}
+  #rmFont{width:138px} #rmSize{width:58px}
+  .rm-ribbon button.rb.sub1{font-size:12px}
+  .rm-editor-wrap{flex:1 1 auto;min-height:0;overflow:auto;background:#fff;color:#000;padding:18px 22px;margin:10px 12px 0;border:1px solid var(--line);border-radius:3px}
+  :root[data-theme="dark"] .rm-editor-wrap{background:#fff;color:#000}
+  .rm-editor{outline:none;min-height:100%;font-family:"Aptos Display",-apple-system,"Segoe UI",sans-serif;font-size:8pt;line-height:1.35;overflow-wrap:anywhere;word-break:break-word;zoom:1.5}
+  .rm-editor ul,.rm-editor ol{margin:2px 0;padding-left:22px}
+  .rm-editor blockquote{margin:0 0 0 40px;padding:0;border:none}
+  .rm-editor.rm-marks div::after,.rm-editor.rm-marks p::after,.rm-editor.rm-marks li::after{content:"\00b6";color:#4a78c8;opacity:.75;margin-left:2px}
+  .rm-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;flex:0 0 auto;font-size:12px;color:var(--ink-soft)}
+  .rm-foot .rm-status{flex:1 1 auto;min-width:0}
+  .rm-foot select{height:26px;width:84px;font-size:12px}
+  .rm-pop{position:absolute;z-index:30;background:var(--paper-raised);border:1px solid var(--line);border-radius:4px;box-shadow:0 10px 28px rgba(0,0,0,.3);padding:6px;display:none;color:var(--ink)}
+  .rm-pop.show{display:block}
+  .rm-pal{display:grid;grid-template-columns:repeat(10,20px);gap:3px}
+  .rm-pal .sw{width:20px;height:20px;border:1px solid rgba(0,0,0,.25);border-radius:2px;padding:0;cursor:pointer}
+  .rm-pal .sw:hover{outline:2px solid var(--brass)}
+  .rm-pop .rm-pal-row{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:12px}
+  .rm-pop .rm-pal-row button{height:24px;font-size:12px;padding:0 8px}
+  .rm-pop .rm-pal-row input[type=color]{width:34px;height:24px;padding:0;border:1px solid var(--line);background:transparent}
+  .rm-menu{display:flex;flex-direction:column;min-width:190px}
+  .rm-menu button{height:28px;justify-content:flex-start;text-align:left;border:none;border-radius:3px;padding:0 10px;font-size:12.5px;color:var(--ink);background:transparent}
+  .rm-menu button:hover{background:var(--brass-soft);color:var(--ink)}
+  .rm-menu .sep{height:1px;background:var(--line-soft);margin:3px 0}
+  .rm-menu .hd{font-size:11px;color:var(--ink-soft);padding:3px 10px}
+  @media(max-width:700px){.rm-group{border-right:none;margin-right:0}}
+  .ps-remarks-text ul,.ps-remarks-text ol{margin:2px 0;padding-left:18px}
+  .ps-remarks-text blockquote{margin:0 0 0 24px}
+  .ps-remarks-text *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* ===== Load DVR dialog ===== */
+  .load-modal{max-width:520px}
+  .load-modal h3{font-size:15px}
+  .load-modal h4{margin:0 0 6px;font-family:var(--font-serif);font-size:14px}
+  .load-modal .lm-fields{display:grid;gap:10px;margin:10px 0 10px}
+  .load-modal .lm-msg{min-height:1.3em;font-size:12px;color:var(--red);margin:6px 0 0}
+  .load-modal .lm-msg.ok{color:var(--green)}
+  .load-modal .lm-or{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--ink-soft);font-size:12px;font-weight:700;letter-spacing:.08em}
+  .load-modal .lm-or::before,.load-modal .lm-or::after{content:"";flex:1;height:1px;background:var(--line)}
   .preview-panel:fullscreen #saveStamp,.preview-panel:-webkit-full-screen #saveStamp{display:none}
   .preview-panel:fullscreen .resume-banner,.preview-panel:-webkit-full-screen .resume-banner{margin:4px 0}
   .resume-banner{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0;padding:9px 12px;border:1px solid var(--brass);
@@ -458,7 +520,7 @@
 
   .ps-remarks{margin-top:9px;border:.5px solid #888;border-radius:3px;padding:5px 8px 6px;min-height:46px;break-inside:avoid;page-break-inside:avoid}
   .ps-remarks-label{font-size:7.5pt;font-weight:700;margin-bottom:2px}
-  .ps-remarks-text{font-size:8pt;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere}
+  .ps-remarks-text{font-size:8pt;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
 
   @media print {
     html,body{background:#fff !important;color:#000 !important;height:auto}
@@ -515,6 +577,16 @@
             <div class="field-msg" id="fyMsg" role="alert"></div>
           </div>
           <div class="field">
+            <label for="quarterSel">Quarter</label>
+            <select id="quarterSel">
+              <option value="">Select quarter…</option>
+              <option value="Q1">Q1</option>
+              <option value="Q2">Q2</option>
+              <option value="Q3">Q3</option>
+              <option value="Q4">Q4</option>
+            </select>
+          </div>
+          <div class="field">
             <label for="verifType">Type of Verification</label>
             <select id="verifType">
               <option value="">Select type of verification…</option>
@@ -544,8 +616,16 @@
         </div>
       </section>
 
-      <section class="panel">
-        <h2>1. Source &amp; Destination</h2>
+      <!-- Source & Destination: collapsed by default -->
+      <div class="collapsible closed" id="sourceCollapsible">
+        <div class="collapsible-header">
+          <div class="collapsible-title">
+            <span class="collapsible-chev"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            1. Source &amp; Destination
+          </div>
+          <span class="status" id="sourceInline">No files</span>
+        </div>
+        <div class="collapsible-body">
         <div class="stack">
           <div class="field">
             <label>Source workbooks</label>
@@ -579,7 +659,8 @@
             </div>
           </div>
         </div>
-      </section>
+        </div>
+      </div>
 
 	<!-- Voice Control: collapsed by default -->
       <div class="collapsible closed" id="voiceCollapsible">
@@ -825,7 +906,7 @@
         <div id="bookTabs" class="book-tabs" style="display:none"></div>
         <div class="sheet-bar">
           <div id="sheetTabs" class="sheet-tabs"></div>
-          <button id="massBtn" type="button" class="small" title="Change the status of many rows at once">⇄ Edit Status</button>
+          <button id="massBtn" type="button" class="small" title="Change the status of many rows at once">⇄ Mass Status Changer</button>
         </div>
 
         <div id="tableWrap" class="table-wrap">
@@ -851,7 +932,7 @@
               <div class="value" id="deductionReviewValue">—</div>
               <div class="remarks-wrap closed" data-for="remarksReview">
                 <button type="button" class="remarks-toggle" aria-expanded="false"><span class="rt-chev">▶</span><span>Remarks (printed in PDF)</span><span class="rt-dot" hidden>● added</span></button>
-                <textarea class="remarks-input" id="remarksReview" spellcheck="true" placeholder="Remarks for Deduction Claim Under Review…"></textarea>
+                <textarea class="remarks-input" id="remarksReview" tabindex="-1" aria-hidden="true"></textarea>
               </div>
             </div>
             <div class="deduction-card disallowed">
@@ -860,7 +941,7 @@
               <div class="value" id="deductionDisallowedValue">—</div>
               <div class="remarks-wrap closed" data-for="remarksDisallowed">
                 <button type="button" class="remarks-toggle" aria-expanded="false"><span class="rt-chev">▶</span><span>Remarks (printed in PDF)</span><span class="rt-dot" hidden>● added</span></button>
-                <textarea class="remarks-input" id="remarksDisallowed" spellcheck="true" placeholder="Remarks for Deduction Claim Disallowed…"></textarea>
+                <textarea class="remarks-input" id="remarksDisallowed" tabindex="-1" aria-hidden="true"></textarea>
               </div>
             </div>
           </div>
@@ -924,7 +1005,7 @@
         <!-- Mass Status Changer -->
         <div id="massModal" class="modal-backdrop" style="display:none">
           <div class="modal-box mass-box" role="dialog" aria-label="Mass Status Changer">
-            <h3>Edit Verification Status</h3>
+            <h3>Mass Status Changer</h3>
             <div class="mass-top">
               <label for="massList">Choose List</label>
               <select id="massList"></select>
@@ -1063,9 +1144,117 @@
   </div>
 </div>
 
+<div id="remarksModal" class="modal-backdrop rm-backdrop" style="display:none">
+  <div class="rm-box" id="rmBox" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+    <div class="rm-titlebar">
+      <span class="rm-title" id="rmTitle">Remarks (printed in PDF)</span>
+      <div class="rm-wbtns">
+        <button type="button" id="rmMax" title="Maximise" aria-label="Maximise">▢</button>
+        <button type="button" id="rmClose" class="rm-close" title="Close" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="rm-ribbon" id="rmRibbon">
+      <div class="rm-group">
+        <div class="rm-rows">
+          <div class="rm-row">
+            <select id="rmFont" title="Font"></select>
+            <select id="rmSize" title="Font size"></select>
+            <button type="button" class="rb" data-act="grow" title="Increase font size">A<span style="font-size:9px">▲</span></button>
+            <button type="button" class="rb" data-act="shrink" title="Decrease font size"><span style="font-size:11px">A</span><span style="font-size:9px">▼</span></button>
+            <button type="button" class="rb" data-pop="case" title="Change case">Aa<span style="font-size:8px">▼</span></button>
+            <button type="button" class="rb" data-act="clear" title="Clear all formatting" data-icon="eraser"></button>
+          </div>
+          <div class="rm-row">
+            <button type="button" class="rb" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+            <button type="button" class="rb" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+            <button type="button" class="rb" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+            <button type="button" class="rb" data-cmd="strikeThrough" title="Strikethrough"><s>ab</s></button>
+            <button type="button" class="rb sub1" data-cmd="subscript" title="Subscript">x<sub>2</sub></button>
+            <button type="button" class="rb sub1" data-cmd="superscript" title="Superscript">x<sup>2</sup></button>
+            <button type="button" class="rb" data-act="effect" title="Text effect (glow)"><span style="font-weight:700;color:#2e75b6;text-shadow:0 0 4px #7fb3e8">A</span></button>
+            <button type="button" class="rb tcol" data-act="hilite" title="Text highlight colour" id="rmHiBtn" style="--c:#FFFF00"><span style="font-size:13px">&#9998;</span><span class="bar"></span></button>
+            <button type="button" class="rb arrow" data-pop="hilite" title="Highlight colours">▼</button>
+            <button type="button" class="rb tcol" data-act="fcolor" title="Font colour" id="rmFcBtn" style="--c:#FF0000"><span style="font-weight:700;font-size:13px">A</span><span class="bar"></span></button>
+            <button type="button" class="rb arrow" data-pop="fcolor" title="Font colours">▼</button>
+          </div>
+        </div>
+        <div class="rm-glabel">Font</div>
+      </div>
+      <div class="rm-group">
+        <div class="rm-rows">
+          <div class="rm-row">
+            <button type="button" class="rb" data-cmd="insertUnorderedList" title="Bullets" data-icon="ul"></button>
+            <button type="button" class="rb" data-cmd="insertOrderedList" title="Numbering" data-icon="ol"></button>
+            <button type="button" class="rb" data-pop="liststyle" title="List style" data-icon="ml"></button>
+            <button type="button" class="rb" data-cmd="outdent" title="Decrease indent" data-icon="outdent"></button>
+            <button type="button" class="rb" data-cmd="indent" title="Increase indent" data-icon="indent"></button>
+            <button type="button" class="rb" data-act="sort" title="Sort selected lines A–Z (click again for Z–A)" data-icon="sort"></button>
+            <button type="button" class="rb" data-act="marks" title="Show / hide paragraph marks" id="rmMarksBtn">¶</button>
+          </div>
+          <div class="rm-row">
+            <button type="button" class="rb" data-cmd="justifyLeft" title="Align left" data-icon="al"></button>
+            <button type="button" class="rb" data-cmd="justifyCenter" title="Centre" data-icon="ac"></button>
+            <button type="button" class="rb" data-cmd="justifyRight" title="Align right" data-icon="ar"></button>
+            <button type="button" class="rb" data-cmd="justifyFull" title="Justify" data-icon="aj"></button>
+            <button type="button" class="rb" data-pop="spacing" title="Line spacing" data-icon="ls"></button>
+            <button type="button" class="rb tcol" data-act="shade" title="Shading (paragraph background)" id="rmShBtn" style="--c:#FFF2CC" data-icon="shade"></button>
+            <button type="button" class="rb arrow" data-pop="shade" title="Shading colours">▼</button>
+            <button type="button" class="rb" data-pop="border" title="Borders" data-icon="border"></button>
+          </div>
+        </div>
+        <div class="rm-glabel">Paragraph</div>
+      </div>
+      <div class="rm-group">
+        <div class="rm-rows">
+          <div class="rm-row">
+            <button type="button" class="rb wide" data-pop="auto" title="Generate notes from the data in this sheet" id="rmAutoBtn">✨ Auto Generate Notes <span style="font-size:8px">▼</span></button>
+          </div>
+        </div>
+        <div class="rm-glabel">Notes</div>
+      </div>
+    </div>
+    <div class="rm-editor-wrap" id="rmWrap"><div class="rm-editor" id="rmEditor" contenteditable="true" spellcheck="true"></div></div>
+    <div class="rm-foot">
+      <span class="rm-status" id="rmStatus">Changes are saved automatically and printed in the PDF.</span>
+      <label style="margin:0;display:flex;align-items:center;gap:6px">Zoom
+        <select id="rmZoom"><option value="1">100%</option><option value="1.25">125%</option><option value="1.5" selected>150%</option><option value="2">200%</option></select>
+      </label>
+    </div>
+    <div class="rm-pop" id="rmPop"></div>
+  </div>
+</div>
+
 <div id="loadModal" class="modal-backdrop" style="display:none">
-  <div class="modal-box">
-    <h3>Load DVR</h3>
+  <div class="modal-box load-modal">
+    <h3>Select Licensee and Financial Year to Load.</h3>
+    <div class="lm-fields">
+      <div class="field">
+        <label for="lmLicensee">Licensee Name</label>
+        <input type="text" id="lmLicensee" list="lmLicenseeList" placeholder="Licensee Name" autocomplete="off">
+        <datalist id="lmLicenseeList"></datalist>
+      </div>
+      <div class="field">
+        <label for="lmFy">Financial Year</label>
+        <input type="text" id="lmFy" list="lmFyList" placeholder="YYYY-YY" autocomplete="off">
+        <datalist id="lmFyList"></datalist>
+      </div>
+      <div class="field">
+        <label for="lmQuarter">Quarter</label>
+        <select id="lmQuarter">
+          <option value="">Select quarter…</option>
+          <option value="Q1">Q1</option>
+          <option value="Q2">Q2</option>
+          <option value="Q3">Q3</option>
+          <option value="Q4">Q4</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions"><button id="lmLoadBtn" class="primary" type="button" disabled>Load</button></div>
+    <div class="lm-msg" id="lmMsg" role="alert"></div>
+
+    <div class="lm-or">OR</div>
+
+    <h4>Load DVR Progress File</h4>
     <p>Browse to the DVR progress file (<b>.dvr</b>) you saved on your PC. Your workbooks, row marks and remarks will be restored.</p>
     <div class="modal-actions">
       <button id="loadModalCancel">Cancel</button>
@@ -1411,6 +1600,7 @@
     return {
       licensee: ($('licenseeName').value || '').trim(),
       fy: ($('fyLabel').value || '').trim(),
+      quarter: ($('quarterSel').value || '').trim(),
       annexure: ($('annexureSel').value || '').trim(),
       verifType: ($('verifType').value || '').trim(),
       submitDate: isoToDMY($('submitDate').value),
@@ -2284,6 +2474,7 @@
       '<div class="ps-details-title">Basic Details</div>' +
       line('Licensee', bd.licensee || '—') +
       line('Financial Year', bd.fy || '—') +
+      line('Quarter', bd.quarter || '—') +
       line('Annexure', bd.annexure || '—') +
       line(SUBMIT_LABELS[$('verifType').value] || 'Date of Submission of Documents', bd.submitDate || '—') +
       line('Date of Verification Report', bd.verif || '—') +
@@ -2313,7 +2504,7 @@
      remarks === undefined -> section has no remarks box (e.g. Allowed). */
   function buildRemarksBox(remarks) {
     return '<div class="ps-remarks"><div class="ps-remarks-label">Remarks:</div>' +
-           '<div class="ps-remarks-text">' + esc(remarks || '') + '</div></div>';
+           '<div class="ps-remarks-text">' + remarkToHtml(remarks) + '</div></div>';
   }
   function buildPrintSection(title, rowIdxs, ws, printCols, remarks, kind) {
     const hasRemarksBox = remarks !== undefined;
@@ -2322,7 +2513,7 @@
 
     if (!rowIdxs.length) {
       html += '<div class="ps-empty">No rows in this category.</div>';
-      if (hasRemarksBox && String(remarks).trim()) html += buildRemarksBox(remarks);
+      if (hasRemarksBox && remarksHasText(remarks)) html += buildRemarksBox(remarks);
       html += '</div></div>';
       return html;
     }
@@ -2393,6 +2584,7 @@
     const bdx = basicDetails();
     set(r, 0, 'Name of the Licensee: ' + (bdx.licensee || '—')); r++;
     set(r, 0, 'Financial Year: ' + (bdx.fy || '—')); r++;
+    set(r, 0, 'Quarter: ' + (bdx.quarter || '—')); r++;
     set(r, 0, 'Annexure: ' + (bdx.annexure || '—')); r++;
     set(r, 0, (SUBMIT_LABELS[$('verifType').value] || 'Date of Submission of Documents') + ': ' + (bdx.submitDate || '—')); r++;
     set(r, 0, 'Date of Verification: ' + bdx.verif); r++;
@@ -3152,6 +3344,15 @@
     });
   });
 
+  (function sourceInlineStatus() {
+    const upd = () => {
+      const n = parseInt(els.fileCountBadge.textContent, 10) || 0;
+      $('sourceInline').textContent = n ? (n + ' file' + (n === 1 ? '' : 's')) : 'No files';
+    };
+    new MutationObserver(upd).observe(els.fileCountBadge, { childList: true, characterData: true, subtree: true });
+    upd();
+  })();
+
   /* =================== Voice settings =================== */
   function onVoiceSettingsChanged() {
     if (!els.voiceEnabled.checked) return;
@@ -3251,6 +3452,7 @@
     if (e.target && e.target.closest && e.target.closest('#massModal')) return;   // Mass Status Changer handles its own keys
     if (e.target && e.target.closest && e.target.closest('#discrepancyModal')) return;   // Discrepancy modal handles its own keys
     if (e.target && e.target.closest && e.target.closest('#partialModal')) return;   // Partial-approval modal handles its own keys
+    if (e.target && e.target.closest && e.target.closest('#remarksModal')) return;   // Remarks editor handles its own keys
     if (e.key === 'Escape') {
       if (e.target && e.target.closest && e.target.closest('#calcPop')) return;   // calculator handles its own Esc
       if (e.target && e.target.closest && e.target.closest('#bacPop')) return;    // Basic Amount Calculator handles its own Esc
@@ -3761,6 +3963,61 @@
   })();
 
   /* =================== Remarks (Under Review / Disallowed) =================== */
+  /* Remarks are stored as rich text. Rich values start with RM_TAG; older plain-text remarks
+     (saved before the rich editor existed) are still read and printed correctly. */
+  const RM_TAG = '<!--rmhtml-->';
+  const RM_TAGS = new Set(['B','STRONG','I','EM','U','S','STRIKE','DEL','SUB','SUP','SPAN','FONT','DIV','P','BR','UL','OL','LI','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','MARK']);
+  const RM_STYLES = new Set(['font-family','font-size','font-weight','font-style','text-decoration','text-decoration-line','color','background-color','background',
+    'text-align','line-height','margin','margin-left','margin-right','margin-top','margin-bottom','padding','padding-left','padding-right','padding-top','padding-bottom',
+    'text-indent','border','border-top','border-bottom','border-left','border-right','border-color','border-style','border-width','text-shadow','list-style-type','vertical-align']);
+  function rmCleanStyle(css) {
+    return String(css || '').split(';').map(s => s.trim()).filter(s => {
+      const i = s.indexOf(':'); if (i < 1) return false;
+      const p = s.slice(0, i).trim().toLowerCase(), v = s.slice(i + 1).toLowerCase();
+      return RM_STYLES.has(p) && !/url\s*\(|expression|javascript|@import|[<>]/.test(v);
+    }).join('; ');
+  }
+  function sanitizeRemarkHtml(html) {
+    const doc = new DOMParser().parseFromString('<body>' + String(html || '') + '</body>', 'text/html');
+    (function walk(node) {
+      Array.from(node.childNodes).forEach(ch => {
+        if (ch.nodeType === 3) return;
+        if (ch.nodeType !== 1) { ch.remove(); return; }
+        if (/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|LINK|META|TEMPLATE|NOSCRIPT)$/.test(ch.tagName)) { ch.remove(); return; }
+        if (!RM_TAGS.has(ch.tagName)) {
+          walk(ch);
+          while (ch.firstChild) ch.parentNode.insertBefore(ch.firstChild, ch);
+          ch.remove(); return;
+        }
+        Array.from(ch.attributes).forEach(a => {
+          const n = a.name.toLowerCase();
+          if (n === 'style') { const c = rmCleanStyle(a.value); if (c) ch.setAttribute('style', c); else ch.removeAttribute('style'); }
+          else if (ch.tagName === 'FONT' && n === 'face') { ch.style.fontFamily = a.value.replace(/[<>;"]/g, ''); ch.removeAttribute('face'); }
+          else if (ch.tagName === 'FONT' && n === 'color') { if (/^[#a-z0-9(),.\s%]+$/i.test(a.value)) ch.style.color = a.value; ch.removeAttribute('color'); }
+          else ch.removeAttribute(a.name);
+        });
+        walk(ch);
+      });
+    })(doc.body);
+    return doc.body.innerHTML;
+  }
+  function rmPlainToHtml(text) {
+    return String(text || '').split(/\r?\n/).map(l => '<div>' + (l.trim() === '' ? '<br>' : esc(l)) + '</div>').join('');
+  }
+  /* any stored value -> safe HTML for the editor / the printed report */
+  function remarkToHtml(v) {
+    v = String(v == null ? '' : v);
+    if (!v.trim()) return '';
+    if (v.indexOf(RM_TAG) === 0) return sanitizeRemarkHtml(v.slice(RM_TAG.length));
+    return rmPlainToHtml(v);
+  }
+  function remarksHasText(v) {
+    v = String(v == null ? '' : v);
+    if (v.indexOf(RM_TAG) !== 0) return !!v.trim();
+    const d = document.createElement('div'); d.innerHTML = sanitizeRemarkHtml(v.slice(RM_TAG.length));
+    return !!d.textContent.replace(/[\s\u200B\u00A0]+/g, '');
+  }
+
   function remarksFor(bookIndex, sheetName) {
     if (bookIndex === undefined || bookIndex < 0 || !sheetName) return { review: '', disallowed: '' };
     const b = state.remarks[bookIndex] || (state.remarks[bookIndex] = {});
@@ -3783,40 +4040,424 @@
     scheduleAutoSave();
   });
 
-  /* Collapsible remarks: closed until opened, closes again when focus leaves the box */
+  /* "● added" marker next to the Remarks button */
   function refreshRemarksMarkers() {
     document.querySelectorAll('.remarks-wrap').forEach(w => {
       const ta = w.querySelector('textarea'), dot = w.querySelector('.rt-dot');
-      if (ta && dot) dot.hidden = !ta.value.trim();
+      if (ta && dot) dot.hidden = !remarksHasText(ta.value);
     });
   }
-  document.querySelectorAll('.remarks-wrap').forEach(w => {
-    const btn = w.querySelector('.remarks-toggle'), ta = w.querySelector('textarea');
-    /* The box pops up next to its header button (above it if there is no room below) */
-    const place = () => {
-      const r = btn.getBoundingClientRect(), W = ta.offsetWidth, H = ta.offsetHeight;
-      const left = Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth - W - 8));
-      let top = r.bottom + 6;
-      if (top + H > window.innerHeight - 8) top = Math.max(8, r.top - H - 6);
-      ta.style.left = left + 'px'; ta.style.top = top + 'px';
+
+  ['remarksReview', 'remarksDisallowed'].forEach(id => $(id).addEventListener('input', refreshRemarksMarkers));
+
+  /* ---------- Auto-generated notes (built from the marks in the sheet) ---------- */
+  function rmReasonText(rowIdx) {
+    const info = getDiscrepancyInfo(state.activePreview, state.activeSheet, rowIdx);
+    if (!info) return '';
+    let t = String(info.reason === 'Other Reasons' ? (info.other || '') : (info.reason || '')).trim();
+    if (t && !/[.!?]$/.test(t)) t += '.';
+    return t;
+  }
+  function rmSerialList(rows) {
+    const ws = state.activeWs, slCol = findSlNoColumn(state.activeHeaders);
+    const vals = rows.map(r => {
+      let t = '';
+      if (slCol >= 0 && ws) t = String(cellDisplayValue(ws[XLSX.utils.encode_cell({ r: Number(r), c: slCol })]) || '').trim();
+      return t || String(r);
+    });
+    vals.sort((a, b) => {
+      const na = Number(a), nb = Number(b);
+      return (isFinite(na) && isFinite(nb) && a !== '' && b !== '') ? na - nb : a.localeCompare(b, undefined, { numeric: true });
+    });
+    return vals.join(',');
+  }
+  function rmGroupByReason(rows) {
+    const m = new Map();
+    rows.forEach(r => { const k = rmReasonText(r) || 'Reason not specified.'; if (!m.has(k)) m.set(k, []); m.get(k).push(r); });
+    return m;
+  }
+  const RM_LTDC_NOTE = 'Note: Lower Tax Deduction Certificate may be provided in case of TDS reversal.';
+  /* returns { html, empty } ; empty = a message explaining why nothing could be generated */
+  function buildAutoNotes(kind) {
+    if (state.activePreview < 0 || !state.activeSheet || !state.activeWs) return { html: '', empty: 'Open a sheet in the preview first.' };
+    const cats = categorizeRows(), map = getStatusMap(state.activePreview, state.activeSheet);
+    const div = h => '<div>' + h + '</div>', blank = '<div><br></div>';
+    const out = [];
+    const hasTds = rows => rows.some(r => /LTDC|TDS/i.test(rmReasonText(r)));
+    if (kind === 'disallowed') {
+      const full = [], part = [];
+      cats.disallowed.forEach(r => { (String(map[r] || '').indexOf('partial:') === 0 ? part : full).push(r); });
+      if (!full.length && !part.length) return { html: '', empty: 'No rows are marked Disallowed / Partially Disallowed in this sheet yet.' };
+      if (full.length) {
+        out.push(div('<b>Disallowed</b>'));
+        let n = 0;
+        rmGroupByReason(full).forEach((rows, reason) => out.push(div((++n) + '. Serial No: ' + esc(rmSerialList(rows)) + ' : ' + esc(reason))));
+      }
+      if (part.length) {
+        if (out.length) out.push(blank);
+        out.push(div('<b>Disallowed Partially:</b>'));
+        rmGroupByReason(part).forEach((rows, reason) => out.push(div('Serial No: ' + esc(rmSerialList(rows)) + '; ' + esc(reason))));
+      }
+      if (hasTds(full.concat(part))) { out.push(blank); out.push(div(esc(RM_LTDC_NOTE))); }
+    } else {
+      if (!cats.review.length) return { html: '', empty: 'No rows are marked Under Review (Later) in this sheet yet.' };
+      out.push(div('<b>Under Scrutiny (Not Disallowed):</b>'));
+      out.push(div('Serial No: ' + esc(rmSerialList(cats.review))));
+      out.push(blank);
+      out.push(div('Documents required to submit.'));
+      if (hasTds(cats.disallowed)) out.push(div(esc(RM_LTDC_NOTE)));
+    }
+    return { html: out.join(''), empty: '' };
+  }
+
+  /* ---------- The editor window ---------- */
+  (function remarksEditor() {
+    const modal = $('remarksModal'), box = $('rmBox'), editor = $('rmEditor'), pop = $('rmPop'), status = $('rmStatus');
+    const DEFAULT_FONT = 'Aptos Display', DEFAULT_PT = 8;
+    const FONTS = ['Aptos Display','Aptos','Arial','Calibri','Cambria','Candara','Consolas','Courier New','Georgia','Segoe UI','Tahoma','Times New Roman','Trebuchet MS','Verdana'];
+    const SIZES = [6,7,8,9,10,10.5,11,12,14,16,18,20,22,24,26,28,36,48,72];
+    const PALETTE = ['#000000','#434343','#7F7F7F','#BFBFBF','#FFFFFF','#FF0000','#FF9900','#FFFF00','#00FF00','#00FFFF',
+      '#0000FF','#9900FF','#FF00FF','#C00000','#ED7D31','#FFD966','#70AD47','#5B9BD5','#2F5597','#7030A0',
+      '#F4CCCC','#FCE5CD','#FFF2CC','#D9EAD3','#D0E0E3','#CFE2F3','#D9D2E9','#EAD1DC','#E6B8AF','#DDDDDD'];
+    const ICON = (function () {
+      const s = (b, inner) => '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+      const dots = '<circle cx="2.5" cy="3.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.5" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.5" cy="12.5" r="1.1" fill="currentColor" stroke="none"/>';
+      return {
+        ul: s(0, dots + '<path d="M6 3.5h8M6 8h8M6 12.5h8"/>'),
+        ol: s(0, '<text x="0.5" y="5" font-size="5" fill="currentColor" stroke="none">1</text><text x="0.5" y="9.5" font-size="5" fill="currentColor" stroke="none">2</text><text x="0.5" y="14" font-size="5" fill="currentColor" stroke="none">3</text><path d="M6 3.5h8M6 8h8M6 12.5h8"/>'),
+        ml: s(0, '<path d="M2 3h2M5 3h9M4 8h2M7 8h7M6 13h2M9 13h5"/>'),
+        outdent: s(0, '<path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M5 6l-3 2 3 2z"/>'),
+        indent: s(0, '<path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M2 6l3 2-3 2z"/>'),
+        sort: s(0, '<path d="M4 2v10M2 10l2 2 2-2M9 3h5M9 6h3M9 9h5M9 12h3"/>'),
+        al: s(0, '<path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8"/>'),
+        ac: s(0, '<path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8"/>'),
+        ar: s(0, '<path d="M2 3h12M6 6.5h8M2 10h12M6 13.5h8"/>'),
+        aj: s(0, '<path d="M2 3h12M2 6.5h12M2 10h12M2 13.5h12"/>'),
+        ls: s(0, '<path d="M8 3h6M8 8h6M8 13h6M4 2v12M2 4l2-2 2 2M2 12l2 2 2-2"/>'),
+        shade: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M3 8l5-5 5 5-4 4H7z"/><path d="M13 11c1 1.2 1 2 0 2.4-1 0-1-1.2 0-2.4z" fill="currentColor"/></svg><span class="bar"></span>',
+        border: s(0, '<rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="1.5 1.5"/><path d="M2.5 13.5h11"/>'),
+        eraser: s(0, '<path d="M3 11l6-7 4 3.5-5 6H5z"/><path d="M8 13.5h6"/>')
+      };
+    })();
+    document.querySelectorAll('#rmRibbon [data-icon]').forEach(b => { b.insertAdjacentHTML('afterbegin', ICON[b.dataset.icon] || ''); });
+
+    /* font & size drop-downs */
+    $('rmFont').innerHTML = FONTS.map(f => '<option value="' + f + '" style="font-family:\'' + f + '\'">' + f + '</option>').join('');
+    $('rmSize').innerHTML = SIZES.map(z => '<option value="' + z + '">' + z + '</option>').join('');
+    $('rmFont').value = DEFAULT_FONT; $('rmSize').value = String(DEFAULT_PT);
+
+    let cur = null;            // { ta, btn, kind }
+    let savedRange = null;     // selection inside the editor, kept while a drop-down has the focus
+    let pendingFont = null;    // style for the next typed text when nothing was selected
+    let sortDir = 1, hiColor = '#FFFF00', fcColor = '#FF0000', shColor = '#FFF2CC';
+
+    const sel = () => window.getSelection();
+    const inEditor = n => !!n && editor.contains(n.nodeType === 3 ? n.parentNode : n);
+    document.addEventListener('selectionchange', () => {
+      if (modal.style.display === 'none') return;
+      const s = sel();
+      if (s.rangeCount && inEditor(s.anchorNode) && inEditor(s.focusNode)) { savedRange = s.getRangeAt(0).cloneRange(); updateState(); }
+    });
+    function restoreSel() {
+      editor.focus();
+      if (savedRange && inEditor(savedRange.startContainer)) { const s = sel(); s.removeAllRanges(); s.addRange(savedRange); }
+    }
+    function say(msg, ms) { status.textContent = msg; clearTimeout(say.t); if (ms) say.t = setTimeout(() => { status.textContent = 'Changes are saved automatically and printed in the PDF.'; }, ms); }
+
+    /* editor -> hidden textarea (existing save / print code reads that) */
+    function fixMarkerFonts() {
+      editor.querySelectorAll('font[size]').forEach(f => {
+        const st = pendingFont || {};
+        Object.keys(st).forEach(k => { f.style[k] = st[k]; });
+        f.removeAttribute('size');
+        if (st.fontSize) f.querySelectorAll('[style*="font-size"]').forEach(d => { d.style.fontSize = ''; if (!d.getAttribute('style')) d.removeAttribute('style'); });
+      });
+    }
+    function sync() {
+      if (!cur) return;
+      fixMarkerFonts();
+      const html = sanitizeRemarkHtml(editor.innerHTML);
+      const probe = document.createElement('div'); probe.innerHTML = html;
+      const val = probe.textContent.replace(/[\s\u200B\u00A0]+/g, '') ? RM_TAG + html : '';
+      if (cur.ta.value !== val) { cur.ta.value = val; cur.ta.dispatchEvent(new Event('input')); }
+    }
+    editor.addEventListener('input', sync);
+
+    /* ---- generic command helpers ---- */
+    function cmd(name, val, css) {
+      restoreSel();
+      document.execCommand('styleWithCSS', false, css !== false);
+      document.execCommand(name, false, val);
+      sync(); updateState();
+    }
+    function applyFontStyle(styleObj) {         // arbitrary inline style on the selection (size, shadow…)
+      restoreSel();
+      const s = sel(); const collapsed = !s.rangeCount || s.isCollapsed;
+      pendingFont = styleObj;
+      document.execCommand('styleWithCSS', false, false);
+      document.execCommand('fontSize', false, '7');
+      document.execCommand('styleWithCSS', false, true);
+      if (!collapsed) fixMarkerFonts();
+      sync(); updateState();
+    }
+    function curElement() {
+      const s = sel(); let n = s.rangeCount ? s.getRangeAt(0).startContainer : null;
+      if (n && n.nodeType === 3) n = n.parentNode;
+      return n && inEditor(n) ? n : editor;
+    }
+    function curSizePt() {
+      for (let n = curElement(); n && n !== editor.parentNode; n = n.parentNode) {
+        const f = n.style && n.style.fontSize;
+        if (f) { const v = parseFloat(f); if (/pt/.test(f)) return v; if (/px/.test(f)) return Math.round(v * 0.75 * 2) / 2; }
+        if (n === editor) break;
+      }
+      return DEFAULT_PT;
+    }
+    function curFont() {
+      for (let n = curElement(); n; n = n.parentNode) {
+        const f = n.style && n.style.fontFamily;
+        if (f) return f.split(',')[0].replace(/["']/g, '').trim();
+        if (n === editor) break;
+      }
+      return DEFAULT_FONT;
+    }
+    function setSize(pt) { applyFontStyle({ fontSize: pt + 'pt' }); }
+    function step(dir) {
+      const c = curSizePt();
+      let next = dir > 0 ? SIZES.find(z => z > c + 0.01) : SIZES.slice().reverse().find(z => z < c - 0.01);
+      if (next == null) next = dir > 0 ? c + 2 : Math.max(1, c - 1);
+      setSize(next);
+    }
+
+    /* ---- block helpers ---- */
+    const BLOCK = 'div,p,li,h1,h2,h3,h4,h5,h6,blockquote';
+    function selectedBlocks() {
+      restoreSel();
+      const s = sel(); if (!s.rangeCount) return [];
+      const r = s.getRangeAt(0);
+      let all = Array.from(editor.querySelectorAll(BLOCK)).filter(b => !b.querySelector(BLOCK) && r.intersectsNode(b));
+      if (!all.length) { document.execCommand('formatBlock', false, 'div'); all = Array.from(editor.querySelectorAll(BLOCK)).filter(b => !b.querySelector(BLOCK) && sel().rangeCount && sel().getRangeAt(0).intersectsNode(b)); }
+      return all;
+    }
+    function eachBlock(fn) { const b = selectedBlocks(); if (b.length) { b.forEach(fn); sync(); } }
+
+    function transformSelection(fn) {
+      restoreSel();
+      const s = sel(); if (!s.rangeCount || s.isCollapsed) { say('Select some text first.', 2500); return; }
+      const r = s.getRangeAt(0), sc = r.startContainer, so = r.startOffset, ec = r.endContainer, eo = r.endOffset;
+      const root = r.commonAncestorContainer.nodeType === 3 ? r.commonAncestorContainer.parentNode : r.commonAncestorContainer;
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [];
+      while (w.nextNode()) if (r.intersectsNode(w.currentNode)) nodes.push(w.currentNode);
+      const ctx = { cap: true };
+      nodes.forEach(n => {
+        const a = n === sc ? so : 0, b = n === ec ? eo : n.nodeValue.length;
+        n.replaceData(a, b - a, fn(n.nodeValue.slice(a, b), ctx));
+      });
+      try { const nr = document.createRange(); nr.setStart(sc, Math.min(so, sc.nodeType === 3 ? sc.length : so)); nr.setEnd(ec, Math.min(eo, ec.nodeType === 3 ? ec.length : eo)); s.removeAllRanges(); s.addRange(nr); } catch (e) {}
+      sync();
+    }
+    const CASES = {
+      sentence: (t, c) => t.toLowerCase().replace(/(^|[.!?]\s+)([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/^([a-z])/, (m, b) => c.cap ? b.toUpperCase() : b),
+      lower: t => t.toLowerCase(),
+      upper: t => t.toUpperCase(),
+      title: t => t.toLowerCase().replace(/(^|[\s(\-\/])([a-z])/g, (m, a, b) => a + b.toUpperCase()),
+      toggle: t => t.replace(/[a-zA-Z]/g, ch => ch === ch.toUpperCase() ? ch.toLowerCase() : ch.toUpperCase())
     };
-    const reposition = e => { if (!w.classList.contains('closed') && !(e && e.target === ta)) place(); };
-    window.addEventListener('scroll', reposition, true);
-    window.addEventListener('resize', reposition);
-    const setOpen = open => {
-      w.classList.toggle('closed', !open);
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) { place(); ta.focus(); } else ta.blur();
-    };
-    btn.addEventListener('mousedown', e => e.preventDefault());   // keep focus so a click on the header can close it
-    btn.addEventListener('click', () => setOpen(w.classList.contains('closed')));
-    ta.addEventListener('blur', () => setOpen(false));
-    ta.addEventListener('input', refreshRemarksMarkers);
-    ta.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); } });
-  });
+
+    function sortLines() {
+      const blocks = selectedBlocks();
+      let group = blocks.length > 1 ? blocks : null;
+      if (!group) { const b = blocks[0]; if (b && b.parentNode) group = Array.from(b.parentNode.children).filter(x => x.matches(BLOCK)); }
+      if (!group || group.length < 2) { say('Select two or more lines to sort.', 2500); return; }
+      const parent = group[0].parentNode; if (!group.every(g => g.parentNode === parent)) { say('Select lines that sit at the same level.', 2500); return; }
+      const key = el => el.textContent.trim().toLowerCase();
+      const sorted = group.slice().sort((a, b) => sortDir * key(a).localeCompare(key(b), undefined, { numeric: true }));
+      const marker = document.createComment('s'); parent.insertBefore(marker, group[0]);
+      sorted.forEach(el => parent.insertBefore(el, marker)); marker.remove();
+      say(sortDir > 0 ? 'Sorted A → Z (click again for Z → A).' : 'Sorted Z → A.', 2500);
+      sortDir = -sortDir; sync();
+    }
+    function clearFormatting() {
+      restoreSel();
+      document.execCommand('removeFormat'); document.execCommand('unlink');
+      selectedBlocks().forEach(b => { b.removeAttribute('style'); });
+      editor.querySelectorAll('font,span').forEach(e => { if (!e.getAttribute('style') && !e.attributes.length) { while (e.firstChild) e.parentNode.insertBefore(e.firstChild, e); e.remove(); } });
+      sync(); updateState();
+    }
+    function setBorder(kind) {
+      eachBlock(b => {
+        ['border','borderTop','borderBottom','borderLeft','borderRight','padding'].forEach(p => { b.style[p] = ''; });
+        if (kind === 'box') { b.style.border = '1px solid #444'; b.style.padding = '2px 4px'; }
+        else if (kind === 'bottom') b.style.borderBottom = '1px solid #444';
+        else if (kind === 'top') b.style.borderTop = '1px solid #444';
+        if (!b.getAttribute('style')) b.removeAttribute('style');
+      });
+    }
+    function listStyle(type) {
+      restoreSel();
+      let el = curElement().closest('ol,ul');
+      if (!el) { document.execCommand('insertOrderedList'); el = curElement().closest('ol,ul'); }
+      if (el) { el.style.listStyleType = type; }
+      sync();
+    }
+    function setSpacing(v) { eachBlock(b => { b.style.lineHeight = v; }); }
+    function shade(color) { eachBlock(b => { if (color) b.style.backgroundColor = color; else b.style.backgroundColor = ''; if (!b.getAttribute('style')) b.removeAttribute('style'); }); }
+
+    /* ---- pop-ups (palettes & menus) ---- */
+    function closePop() { pop.classList.remove('show'); pop.innerHTML = ''; }
+    function placePop(anchor) {
+      const br = box.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
+      pop.style.left = '0px'; pop.style.top = '0px'; pop.classList.add('show');
+      let left = ar.left - br.left, top = ar.bottom - br.top + 3;
+      left = Math.max(4, Math.min(left, br.width - pop.offsetWidth - 4));
+      pop.style.left = left + 'px'; pop.style.top = top + 'px';
+    }
+    function palette(anchor, onPick, noneLabel) {
+      pop.innerHTML = '<div class="rm-pal">' + PALETTE.map(c => '<button type="button" class="sw" data-c="' + c + '" style="background:' + c + '" title="' + c + '"></button>').join('') + '</div>' +
+        '<div class="rm-pal-row"><button type="button" data-none="1">' + noneLabel + '</button><span>More:</span><input type="color" id="rmMoreColor" value="#336699"></div>';
+      pop.onclick = e => {
+        const sw = e.target.closest('.sw'), no = e.target.closest('[data-none]');
+        if (sw) { onPick(sw.dataset.c); closePop(); } else if (no) { onPick(''); closePop(); }
+      };
+      pop.querySelector('#rmMoreColor').addEventListener('change', e => { onPick(e.target.value); closePop(); });
+      placePop(anchor);
+    }
+    function menu(anchor, items) {
+      pop.innerHTML = '<div class="rm-menu">' + items.map((it, i) => it === '-' ? '<div class="sep"></div>' : (it.head ? '<div class="hd">' + it.head + '</div>' : '<button type="button" data-i="' + i + '">' + it.label + '</button>')).join('') + '</div>';
+      pop.onclick = e => { const b = e.target.closest('button[data-i]'); if (!b) return; const it = items[Number(b.dataset.i)]; closePop(); it.fn(); };
+      placePop(anchor);
+    }
+    function applyHilite(c) { hiColor = c || hiColor; $('rmHiBtn').style.setProperty('--c', hiColor); cmd('hiliteColor', c || 'transparent'); }
+    function applyFcolor(c) { if (c) { fcColor = c; $('rmFcBtn').style.setProperty('--c', c); } cmd('foreColor', c || '#000000'); }
+    function applyShade(c) { if (c) { shColor = c; $('rmShBtn').style.setProperty('--c', c); } shade(c); }
+
+    function autoGenerate(mode) {
+      if (!cur) return;
+      const res = buildAutoNotes(cur.kind);
+      if (!res.html) { say(res.empty || 'Nothing to generate.', 5000); return; }
+      restoreSel();
+      const hasText = !!editor.textContent.replace(/[\s\u200B\u00A0]+/g, '');
+      if (mode === 'append' && hasText) editor.insertAdjacentHTML('beforeend', '<div><br></div>' + res.html);
+      else editor.innerHTML = res.html;
+      const r = document.createRange(); r.selectNodeContents(editor); r.collapse(false);
+      const s = sel(); s.removeAllRanges(); s.addRange(r); savedRange = r.cloneRange();
+      sync(); say('Notes generated from the sheet data — edit them as needed.', 5000);
+    }
+
+    /* ---- ribbon wiring ---- */
+    $('rmRibbon').addEventListener('mousedown', e => { if (!e.target.closest('select,input')) e.preventDefault(); });   // keep the text selection
+    $('rmRibbon').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      const wasOpen = pop.classList.contains('show'); closePop();
+      if (b.dataset.cmd) { cmd(b.dataset.cmd); return; }
+      if (b.dataset.act) {
+        ({ grow: () => step(1), shrink: () => step(-1), clear: clearFormatting, sort: sortLines,
+           hilite: () => applyHilite(hiColor), fcolor: () => applyFcolor(fcColor), shade: () => applyShade(shColor),
+           effect: () => { const on = /\S/.test((curElement().style && curElement().style.textShadow) || ''); applyFontStyle({ textShadow: on ? 'none' : '0 0 3px #7fb3e8, 0 0 1px #2e75b6' }); },
+           marks: () => { const on = editor.classList.toggle('rm-marks'); b.classList.toggle('on', on); } }[b.dataset.act] || (() => {}))();
+        return;
+      }
+      if (b.dataset.pop) {
+        if (wasOpen && pop.dataset.for === b.dataset.pop) { pop.dataset.for = ''; return; }
+        pop.dataset.for = b.dataset.pop;
+        restoreSel();
+        const m = {
+          hilite: () => palette(b, applyHilite, 'No colour'),
+          fcolor: () => palette(b, applyFcolor, 'Automatic'),
+          shade: () => palette(b, applyShade, 'No shading'),
+          case: () => menu(b, [
+            { label: 'Sentence case', fn: () => transformSelection(CASES.sentence) }, { label: 'lowercase', fn: () => transformSelection(CASES.lower) },
+            { label: 'UPPERCASE', fn: () => transformSelection(CASES.upper) }, { label: 'Capitalize Each Word', fn: () => transformSelection(CASES.title) },
+            { label: 'tOGGLE cASE', fn: () => transformSelection(CASES.toggle) }]),
+          liststyle: () => menu(b, [{ head: 'List style' },
+            { label: '1.  2.  3.', fn: () => listStyle('decimal') }, { label: 'a.  b.  c.', fn: () => listStyle('lower-alpha') }, { label: 'A.  B.  C.', fn: () => listStyle('upper-alpha') },
+            { label: 'i.  ii.  iii.', fn: () => listStyle('lower-roman') }, { label: 'I.  II.  III.', fn: () => listStyle('upper-roman') },
+            '-', { label: '●  Disc', fn: () => { restoreSel(); const l = curElement().closest('ul'); if (l) { l.style.listStyleType = 'disc'; sync(); } else cmd('insertUnorderedList'); } },
+            { label: '○  Circle', fn: () => { restoreSel(); let l = curElement().closest('ul'); if (!l) { document.execCommand('insertUnorderedList'); l = curElement().closest('ul'); } if (l) { l.style.listStyleType = 'circle'; sync(); } } }]),
+          spacing: () => menu(b, [{ head: 'Line spacing' }, ...['1.0', '1.15', '1.5', '2.0', '2.5'].map(v => ({ label: v, fn: () => setSpacing(v) }))]),
+          border: () => menu(b, [{ label: 'Box border', fn: () => setBorder('box') }, { label: 'Bottom border', fn: () => setBorder('bottom') },
+            { label: 'Top border', fn: () => setBorder('top') }, { label: 'No border', fn: () => setBorder('none') }]),
+          auto: () => menu(b, [{ head: cur && cur.kind === 'disallowed' ? 'From Disallowed / Partially Disallowed rows' : 'From Under Review rows' },
+            { label: 'Replace remarks with generated notes', fn: () => autoGenerate('replace') },
+            { label: 'Add generated notes at the end', fn: () => autoGenerate('append') }])
+        }[b.dataset.pop];
+        if (m) m();
+      }
+    });
+    document.addEventListener('mousedown', e => { if (pop.classList.contains('show') && !e.target.closest('#rmPop') && !e.target.closest('[data-pop]')) { closePop(); pop.dataset.for = ''; } });
+    pop.addEventListener('mousedown', e => { if (!e.target.closest('input')) e.preventDefault(); });
+    $('rmFont').addEventListener('change', e => { cmd('fontName', e.target.value); });
+    $('rmSize').addEventListener('change', e => { setSize(parseFloat(e.target.value)); });
+    $('rmZoom').addEventListener('change', e => { editor.style.zoom = e.target.value; });
+
+    function updateState() {
+      ['bold','italic','underline','strikeThrough','subscript','superscript','insertUnorderedList','insertOrderedList','justifyLeft','justifyCenter','justifyRight','justifyFull'].forEach(c => {
+        const b = $('rmRibbon').querySelector('[data-cmd="' + c + '"]'); if (!b) return;
+        let on = false; try { on = document.queryCommandState(c); } catch (e) {}
+        b.classList.toggle('on', !!on);
+      });
+      const f = curFont(), z = curSizePt();
+      if (!Array.from($('rmFont').options).some(o => o.value === f)) $('rmFont').add(new Option(f, f));
+      $('rmFont').value = f;
+      if (!Array.from($('rmSize').options).some(o => Number(o.value) === z)) { $('rmSize').add(new Option(String(z), String(z))); }
+      $('rmSize').value = String(z);
+    }
+
+    /* ---- keyboard & paste ---- */
+    editor.addEventListener('keydown', e => {
+      if (e.key === 'Tab') { e.preventDefault(); cmd(e.shiftKey ? 'outdent' : 'indent'); }
+    });
+    editor.addEventListener('paste', e => {
+      const cd = e.clipboardData; if (!cd) return;
+      e.preventDefault();
+      const html = cd.getData('text/html'), text = cd.getData('text/plain');
+      document.execCommand('styleWithCSS', false, true);
+      if (html) document.execCommand('insertHTML', false, sanitizeRemarkHtml(html.replace(/<!--[\s\S]*?-->/g, '')));
+      else document.execCommand('insertHTML', false, rmPlainToHtml(text).replace(/^<div>|<\/div>$/g, '').replace(/<\/div><div>/g, '<br>'));
+      sync();
+    });
+    modal.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); if (pop.classList.contains('show')) closePop(); else closeEditor(); }
+    });
+
+    /* ---- open / close / maximise ---- */
+    function setMax(on) {
+      box.classList.toggle('max', on); modal.classList.toggle('max', on);
+      $('rmMax').textContent = on ? '❐' : '▢';
+      $('rmMax').title = on ? 'Restore' : 'Maximise'; $('rmMax').setAttribute('aria-label', on ? 'Restore' : 'Maximise');
+    }
+    $('rmMax').addEventListener('click', () => setMax(!box.classList.contains('max')));
+    function openEditor(w) {
+      const ta = w.querySelector('textarea'), btn = w.querySelector('.remarks-toggle');
+      cur = { ta, btn, kind: ta.id === 'remarksDisallowed' ? 'disallowed' : 'review' };
+      $('rmTitle').textContent = 'Remarks (printed in PDF) — ' + (cur.kind === 'disallowed' ? 'Deduction Claim Disallowed' : 'Deduction Claim Under Review');
+      editor.innerHTML = remarkToHtml(ta.value) || '<div><br></div>';
+      editor.classList.remove('rm-marks'); $('rmMarksBtn').classList.remove('on');
+      setMax(false); closePop(); say('Changes are saved automatically and printed in the PDF.');
+      if (typeof relocateModals === 'function') relocateModals();
+      modal.style.display = 'flex';
+      editor.focus();
+      const r = document.createRange(); r.selectNodeContents(editor); r.collapse(false);
+      const s = sel(); s.removeAllRanges(); s.addRange(r); savedRange = r.cloneRange();
+      updateState();
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    function closeEditor() {
+      if (modal.style.display === 'none') return;
+      sync(); closePop();
+      modal.style.display = 'none';
+      if (cur && cur.btn) { cur.btn.setAttribute('aria-expanded', 'false'); try { cur.btn.focus(); } catch (e) {} }
+      cur = null; refreshRemarksMarkers();
+    }
+    $('rmClose').addEventListener('click', closeEditor);
+    document.querySelectorAll('.remarks-wrap').forEach(w => {
+      w.querySelector('.remarks-toggle').addEventListener('click', () => openEditor(w));
+    });
+  })();
 
   /* =================== Save / resume progress (IndexedDB, this browser only) =================== */
   const DB_NAME = 'dvr_module_db', DB_STORE = 'kv';
+  let sessFilesSig = {};
   let saveTimer = null, savedFilesSig = '', restoring = false, saveWarned = false;
   let unsavedToPC = false, pcHandle = null, pcFileName = '', skipUnloadPrompt = false;
 
@@ -3881,7 +4522,7 @@
       hiddenCols: JSON.parse(JSON.stringify(state.hiddenCols)),
       totalSelections: state.totalSelections.slice(),
       basic: {
-        licensee: $('licenseeName').value, fy: $('fyLabel').value,
+        licensee: $('licenseeName').value, fy: $('fyLabel').value, quarter: $('quarterSel').value,
         annexure: $('annexureSel').value, verif: $('verifDate').value,
         verifType: $('verifType').value, submitDate: $('submitDate').value
       }
@@ -3905,14 +4546,22 @@
     }
     try {
       const sig = filesSignature();
+      const filesRec = () => ({
+        sig,
+        files: state.files.map(f => ({ name: f.name, type: f.type, lastModified: f.lastModified, blob: f }))
+      });
       if (sig !== savedFilesSig) {
-        await idbSet('files', {
-          sig,
-          files: state.files.map(f => ({ name: f.name, type: f.type, lastModified: f.lastModified, blob: f }))
-        });
+        await idbSet('files', filesRec());
         savedFilesSig = sig;
       }
-      await idbSet('progress', collectProgress());
+      const progNow = collectProgress();
+      await idbSet('progress', progNow);
+      /* also keep a copy under Licensee + Financial Year + Quarter so it can be found from the Load dialog */
+      const sk = sessKeyFromBasic(progNow.basic);
+      if (sk) {
+        if (sessFilesSig[sk] !== sig) { await idbSet('sessfiles:' + sk, filesRec()); sessFilesSig[sk] = sig; }
+        await idbSet('sess:' + sk, progNow);
+      }
       const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       $('saveStamp').textContent = '· Saved ' + t;
       hideResumeBanner();
@@ -4009,6 +4658,7 @@
     const b = prog.basic || {};
     if (b.licensee !== undefined) { $('licenseeName').value = b.licensee; $('licenseeName').dispatchEvent(new Event('input')); }
     if (b.fy !== undefined) { $('fyLabel').value = b.fy; $('fyLabel').dispatchEvent(new Event('input')); }
+    $('quarterSel').value = b.quarter || '';
     if (b.annexure) { $('annexureSel').value = b.annexure; $('annexureSel').dispatchEvent(new Event('change')); }
     if (b.verif) $('verifDate').value = b.verif;
     if (b.verifType !== undefined) { $('verifType').value = b.verifType; $('verifType').dispatchEvent(new Event('change')); }
@@ -4032,7 +4682,11 @@
 
   async function discardSavedSession() {
     if (!confirm('Discard the saved work stored in this browser? This cannot be undone.')) return;
-    try { await idbDelete(['files', 'progress']); } catch (e) {}
+    try {
+      const dk = ['files', 'progress'], sk = sessKeyFromBasic(collectProgress().basic);
+      if (sk) { dk.push('sess:' + sk, 'sessfiles:' + sk); delete sessFilesSig[sk]; }
+      await idbDelete(dk);
+    } catch (e) {}
     savedFilesSig = '';
     hideResumeBanner();
     $('saveStamp').textContent = '';
@@ -4043,7 +4697,7 @@
   $('resumeBtn').addEventListener('click', resumeSavedSession);
   $('discardSavedBtn').addEventListener('click', discardSavedSession);
   ['licenseeName', 'fyLabel', 'verifDate', 'submitDate'].forEach(id => $(id).addEventListener('input', scheduleAutoSave));
-  ['annexureSel', 'verifDate', 'verifType', 'submitDate'].forEach(id => $(id).addEventListener('change', scheduleAutoSave));
+  ['annexureSel', 'quarterSel', 'verifDate', 'verifType', 'submitDate'].forEach(id => $(id).addEventListener('change', scheduleAutoSave));
   document.addEventListener('visibilitychange', () => { if (document.hidden && state.processedBooks.length) saveProgress(false); });
   window.addEventListener('pagehide', () => { if (state.processedBooks.length) saveProgress(false); });
 
@@ -4073,7 +4727,7 @@
   function suggestedPcName() {
     const bd = basicDetails();
     const clean = v => String(v || '').replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
-    const parts = ['DVR', clean(bd.licensee), clean(bd.fy), timestampForFile()].filter(Boolean);
+    const parts = ['DVR', clean(bd.licensee), clean(bd.fy), clean(bd.quarter), timestampForFile()].filter(Boolean);
     return parts.join('_') + '.dvr';
   }
 
@@ -4167,9 +4821,100 @@
   });
 
   $('savePcBtn').addEventListener('click', () => saveToPC({ chooseLocation: true }));
-  $('loadPcBtn').addEventListener('click', pickAndLoad);
+  $('loadPcBtn').addEventListener('click', () => openLoadModal(true));
   $('loadModalBrowse').addEventListener('click', pickAndLoad);
-  $('loadModalCancel').addEventListener('click', () => { $('loadModal').style.display = 'none'; });
+  $('loadModalCancel').addEventListener('click', cancelLoadModal);
+  /* ---- Load DVR dialog: pick Licensee + Financial Year + Quarter, or browse for a .dvr file ---- */
+  function normName(v) { return String(v || '').trim().replace(/\s+/g, ' ').toLowerCase(); }
+  function normFy(v) {
+    const s = String(v || '').trim().toUpperCase().replace(/^FY\s*/, '').replace(/\s+/g, '').replace(/[–—\/]/g, '-');
+    const m = s.match(/^(\d{4})-(\d{2}|\d{4})$/);
+    return m ? m[1] + '-' + m[2].slice(-2) : s.toLowerCase();
+  }
+  function sessKey(l, f, q) { return normName(l) + '|' + normFy(f) + '|' + String(q || '').trim().toUpperCase(); }
+  function sessKeyFromBasic(b) {
+    b = b || {};
+    return (normName(b.licensee) && normFy(b.fy) && String(b.quarter || '').trim()) ? sessKey(b.licensee, b.fy, b.quarter) : '';
+  }
+  async function idbKeys() {
+    const db = await idbOpen();
+    return new Promise((res, rej) => {
+      const rq = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).getAllKeys();
+      rq.onsuccess = () => { db.close(); res(rq.result || []); };
+      rq.onerror = () => { db.close(); rej(rq.error); };
+    });
+  }
+  let loadModalOpenedFromApp = false;
+  const lmMsg = (t, ok) => { const el = $('lmMsg'); el.textContent = t || ''; el.classList.toggle('ok', !!ok); };
+  function lmUpdateBtn() {
+    $('lmLoadBtn').disabled = !($('lmLicensee').value.trim() && $('lmFy').value.trim() && $('lmQuarter').value);
+  }
+  async function openLoadModal(fromApp) {
+    loadModalOpenedFromApp = !!fromApp;
+    lmMsg('');
+    $('lmLicensee').value = ($('licenseeName').value || '').trim();
+    $('lmFy').value = ($('fyLabel').value || '').trim();
+    $('lmQuarter').value = $('quarterSel').value || '';
+    lmUpdateBtn();
+    if (typeof relocateModals === 'function') relocateModals();
+    $('loadModal').style.display = 'flex';
+    setTimeout(() => { try { ($('lmLicensee').value ? $('lmQuarter') : $('lmLicensee')).focus(); } catch (e) {} }, 30);
+    /* suggestions from work already saved in this browser */
+    try {
+      const keys = (await idbKeys()).filter(k => String(k).indexOf('sess:') === 0);
+      const progs = await Promise.all(keys.map(k => idbGet(k)));
+      try { progs.push(await idbGet('progress')); } catch (e) {}
+      const names = new Set(), fys = new Set();
+      progs.forEach(p => { const b = p && p.basic; if (b) { if (b.licensee) names.add(String(b.licensee).trim()); if (b.fy) fys.add(String(b.fy).trim()); } });
+      $('lmLicenseeList').innerHTML = Array.from(names).map(n => '<option value="' + esc(n) + '"></option>').join('');
+      $('lmFyList').innerHTML = Array.from(fys).map(n => '<option value="' + esc(n) + '"></option>').join('');
+    } catch (e) { /* storage unavailable — suggestions simply stay empty */ }
+  }
+  function closeLoadModal() { $('loadModal').style.display = 'none'; }
+  function cancelLoadModal() {
+    closeLoadModal();
+    /* Opened from the start page (nothing loaded yet): Cancel closes the window / tab.
+       Opened from inside a session that has work in it: just close the dialog so nothing is lost. */
+    if (!loadModalOpenedFromApp || !state.processedBooks.length) closeWindowNow();
+  }
+  async function loadSavedByDetails() {
+    const l = $('lmLicensee').value.trim(), f = $('lmFy').value.trim(), q = $('lmQuarter').value;
+    if (!l || !f || !q) { lmMsg('Enter the Licensee Name, Financial Year and Quarter.'); return; }
+    if (typeof XLSX === 'undefined') { lmMsg('Spreadsheet engine failed to load. Check your connection to jsDelivr.'); return; }
+    if (restoring) return;
+    const key = sessKey(l, f, q);
+    let prog = null, fl = null;
+    try {
+      [prog, fl] = await Promise.all([idbGet('sess:' + key), idbGet('sessfiles:' + key)]);
+      if (!prog || !fl || !fl.files || !fl.files.length) {   // work saved before quarters existed: match on name + year
+        const [p2, f2] = await Promise.all([idbGet('progress'), idbGet('files')]);
+        const b = (p2 && p2.basic) || {};
+        if (p2 && f2 && f2.files && f2.files.length && normName(b.licensee) === normName(l) && normFy(b.fy) === normFy(f) &&
+            (!b.quarter || String(b.quarter).toUpperCase() === q.toUpperCase())) { prog = p2; fl = f2; }
+        else { prog = null; fl = null; }
+      }
+    } catch (e) { lmMsg('Could not read saved work in this browser: ' + (e && e.message ? e.message : e)); return; }
+    if (!prog || !fl) {
+      lmMsg('No saved work found in this browser for ' + l + ' · ' + f + ' · ' + q + '. If you saved a DVR file to your PC, use Browse… below.');
+      return;
+    }
+    if (state.processedBooks.length && unsavedToPC &&
+        !confirm('Loading this work will replace your current work, which is not saved to your PC. Continue?')) return;
+    closeLoadModal();
+    await applyRestore(fl.files.map(o => (o.blob instanceof File)
+      ? o.blob
+      : new File([o.blob], o.name, { type: o.type || '', lastModified: o.lastModified || Date.now() })), prog);
+    pcHandle = null; pcFileName = '';
+    unsavedToPC = countMarked(state.rowStatus) > 0;
+    updatePcStamp(); hideResumeBanner();
+    log('Loaded saved work for ' + l + ' · ' + f + ' · ' + q + '.', 'ok');
+  }
+  ['lmLicensee', 'lmFy'].forEach(id => $(id).addEventListener('input', () => { lmMsg(''); lmUpdateBtn(); }));
+  $('lmQuarter').addEventListener('change', () => { lmMsg(''); lmUpdateBtn(); });
+  [$('lmLicensee'), $('lmFy'), $('lmQuarter')].forEach(el => el.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !$('lmLoadBtn').disabled) { e.preventDefault(); loadSavedByDetails(); }
+  }));
+  $('lmLoadBtn').addEventListener('click', loadSavedByDetails);
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
       if (state.processedBooks.length) { e.preventDefault(); saveToPC(); }
@@ -4239,7 +4984,7 @@
   function relocateModals() {
     const fs = document.fullscreenElement || document.webkitFullscreenElement;
     const host = (fs && fs === els.previewPanel) ? els.previewPanel : document.body;
-    ['sectionModal', 'exitModal', 'loadModal'].forEach(id => {
+    ['sectionModal', 'exitModal', 'loadModal', 'remarksModal'].forEach(id => {
       const m = $(id);
       if (m && m.parentElement !== host) host.appendChild(m);
     });
@@ -4260,7 +5005,7 @@
   resetAnalyticsCards();
   log('Ready. Add workbooks, pick a destination, then press “Process Files”.', 'ok');
   if (/[?&]load=1\b/.test(location.search)) {
-    $('loadModal').style.display = 'flex';   // opened from "Load DVR" on the index page
+    openLoadModal(false);   // opened from "Load DVR" on the index page
   } else {
     checkSavedSession();
   }
