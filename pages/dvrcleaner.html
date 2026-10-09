@@ -13,9 +13,9 @@
     --green:#2E7D32; --orange:#B45309; --orange-soft:#FBD9A8; --shared-blue:#00008B;
     --st-ok:#92D050; --st-bad:#E57373; --st-later:#FFB74D; --st-part:#81D4FA; --st-ink:#000;
     --read-row:#FFE98A; --read-cell:#A8E6A1;
-    --font-sans:"Aptos Display",-apple-system,"Segoe UI",sans-serif;
-    --font-serif:"Aptos Display",-apple-system,"Segoe UI",sans-serif;
-    --font-mono:"Aptos Display",-apple-system,"Segoe UI",sans-serif;
+    --font-sans:"Aptos Serif",-apple-system,"Segoe UI",sans-serif;
+    --font-serif:"Aptos Serif",-apple-system,"Segoe UI",sans-serif;
+    --font-mono:"Aptos Serif",-apple-system,"Segoe UI",sans-serif;
     --radius:4px; --shadow-card:0 1px 3px rgba(0,0,0,0.03);
     --transition:background .2s ease,border-color .2s ease,color .2s ease;
     padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -167,7 +167,7 @@
   .stat .l{font-size:11px;color:var(--ink-soft);margin-top:2px}
   .stat.ok .n{color:var(--green)} .stat.warn .n{color:var(--orange)} .stat.err .n{color:var(--red)}
   .log{height:180px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:#0f1511;color:#d9e3d6;
-    font:12px/1.55 "Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;padding:11px}
+    font:12px/1.55 "Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;padding:11px}
   .log .ok{color:#8ee0b2} .log .warn{color:#ffd27b} .log .err{color:#ff9c92}
   .status{font-size:12px;color:var(--ink-soft)}
 
@@ -400,7 +400,7 @@
   .rm-ribbon button.rb.sub1{font-size:12px}
   .rm-editor-wrap{flex:1 1 auto;min-height:0;overflow:auto;background:#fff;color:#000;padding:18px 22px;margin:10px 12px 0;border:1px solid var(--line);border-radius:3px}
   :root[data-theme="dark"] .rm-editor-wrap{background:#fff;color:#000}
-  .rm-editor{outline:none;min-height:100%;font-family:"Aptos Display",-apple-system,"Segoe UI",sans-serif;font-size:8pt;line-height:1.35;overflow-wrap:anywhere;word-break:break-word;zoom:1.5}
+  .rm-editor{outline:none;min-height:100%;font-family:"Aptos Serif",-apple-system,"Segoe UI",sans-serif;font-size:8pt;line-height:1.35;overflow-wrap:anywhere;word-break:break-word;zoom:1.5}
   .rm-editor ul,.rm-editor ol{margin:2px 0;padding-left:22px}
   .rm-editor blockquote{margin:0 0 0 40px;padding:0;border:none}
   .rm-editor.rm-marks div::after,.rm-editor.rm-marks p::after,.rm-editor.rm-marks li::after{content:"\00b6";color:#4a78c8;opacity:.75;margin-left:2px}
@@ -470,23 +470,23 @@
   /* =====================================================================
      PRINT SHEET — "Deduction Verification Report" template
      ===================================================================== */
-  #printSheet{display:none;font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif}
+  #printSheet{display:none;font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif}
   #printSheet *{font-family:inherit}
   @page { size: A4 portrait; margin: 10mm 9mm; }
 
-  .ps-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:15pt;font-weight:700;
+  .ps-title{font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;font-size:15pt;font-weight:700;
     text-transform:uppercase;margin:0 0 12px;padding-bottom:5px;border-bottom:1.2px solid #222;line-height:1.2;letter-spacing:.02em}
 
   .ps-details-row{display:flex;margin-bottom:14px;break-inside:avoid;page-break-inside:avoid}
   .ps-details{width:max-content;min-width:230px;max-width:100%;border:.75px solid #555;border-radius:4px;padding:9px 13px 12px}
-  .ps-details-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10.5pt;font-weight:700;
+  .ps-details-title{font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10.5pt;font-weight:700;
     text-transform:uppercase;padding-bottom:5px;border-bottom:.75px solid #555;margin-bottom:6px;letter-spacing:.03em}
   .ps-detail-line{display:flex;justify-content:space-between;align-items:baseline;gap:28px;white-space:nowrap;
-    font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10pt;padding:2.5px 0}
+    font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;font-size:10pt;padding:2.5px 0}
   .ps-detail-line .k{font-weight:400}
   .ps-detail-line .v{font-weight:700;text-align:right;white-space:nowrap}
 
-  .ps-heading{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:8.5pt;font-weight:700;
+  .ps-heading{font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;font-size:8.5pt;font-weight:700;
     text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px 2px;break-after:avoid;page-break-after:avoid}
 
   .ps-cards-wrap{break-inside:avoid;page-break-inside:avoid;margin-bottom:12px}
@@ -496,15 +496,15 @@
   .ps-card{border:.75px solid #555;border-radius:4px;padding:8px 9px 7px;display:flex;flex-direction:column;justify-content:space-between;
     gap:8px;min-width:0;min-height:62px;background:#fff}
   .ps-cards.three .ps-card{padding:9px 11px;min-height:56px}
-  .ps-card-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:6.8pt;font-weight:600;
+  .ps-card-title{font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;font-size:6.8pt;font-weight:600;
     text-align:left;line-height:1.2;overflow-wrap:break-word;border-bottom:.5px solid #999;padding-bottom:3px}
   .ps-cards.three .ps-card-title{font-size:8pt;border-bottom:none;padding-bottom:0}
-  .ps-card-value{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:13pt;font-weight:700;
+  .ps-card-value{font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;font-size:13pt;font-weight:700;
     text-align:right;line-height:1.15;white-space:nowrap}
 
   .ps-section{margin-bottom:12px;break-inside:auto;page-break-inside:auto}
   .ps-box{border:.75px solid #555;border-radius:4px;padding:9px 11px 11px;min-height:60px}
-  .ps-box-title{font-family:"Aptos Display",-apple-system,"Segoe UI",Arial,sans-serif;font-size:8.5pt;font-weight:700;
+  .ps-box-title{font-family:"Aptos Serif",-apple-system,"Segoe UI",Arial,sans-serif;font-size:8.5pt;font-weight:700;
     text-transform:uppercase;letter-spacing:.04em;padding-bottom:4px;border-bottom:.5px solid #999;margin:0 0 8px;break-after:avoid;page-break-after:avoid}
   .ps-empty{font-size:8pt;padding:4px 0}
 
@@ -4113,8 +4113,8 @@
   /* ---------- The editor window ---------- */
   (function remarksEditor() {
     const modal = $('remarksModal'), box = $('rmBox'), editor = $('rmEditor'), pop = $('rmPop'), status = $('rmStatus');
-    const DEFAULT_FONT = 'Aptos Display', DEFAULT_PT = 8;
-    const FONTS = ['Aptos Display','Aptos','Arial','Calibri','Cambria','Candara','Consolas','Courier New','Georgia','Segoe UI','Tahoma','Times New Roman','Trebuchet MS','Verdana'];
+    const DEFAULT_FONT = 'Aptos Serif', DEFAULT_PT = 8;
+    const FONTS = ['Aptos Serif','Aptos','Arial','Calibri','Cambria','Candara','Consolas','Courier New','Georgia','Segoe UI','Tahoma','Times New Roman','Trebuchet MS','Verdana'];
     const SIZES = [6,7,8,9,10,10.5,11,12,14,16,18,20,22,24,26,28,36,48,72];
     const PALETTE = ['#000000','#434343','#7F7F7F','#BFBFBF','#FFFFFF','#FF0000','#FF9900','#FFFF00','#00FF00','#00FFFF',
       '#0000FF','#9900FF','#FF00FF','#C00000','#ED7D31','#FFD966','#70AD47','#5B9BD5','#2F5597','#7030A0',
