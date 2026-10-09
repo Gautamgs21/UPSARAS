@@ -23,9 +23,9 @@
       --red: #9C3B31;
       --red-soft: #F3DEDA;
       --green: #2E7D32;
-      --font-sans: "Aptos Display", -apple-system, "Segoe UI", sans-serif;
-      --font-serif: "Aptos Display", -apple-system, "Segoe UI", sans-serif;
-      --font-mono: "Aptos Display", -apple-system, "Segoe UI", sans-serif;
+      --font-sans: "Aptos Serif", -apple-system, "Segoe UI", sans-serif;
+      --font-serif: "Aptos Serif", -apple-system, "Segoe UI", sans-serif;
+      --font-mono: "Aptos Serif", -apple-system, "Segoe UI", sans-serif;
       --radius: 4px;
       --shadow-card: 0 1px 3px rgba(0,0,0,0.03);
       --transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
@@ -708,7 +708,7 @@
   .rm-ribbon button.rb.sub1{font-size:12px}
   .rm-editor-wrap{flex:1 1 auto;min-height:0;overflow:auto;background:#fff;color:#000;padding:18px 22px;margin:10px 12px 0;border:1px solid var(--line);border-radius:3px}
   :root[data-theme="dark"] .rm-editor-wrap{background:#fff;color:#000}
-  .rm-editor{outline:none;min-height:100%;font-family:"Aptos Display",-apple-system,"Segoe UI",sans-serif;font-size:8pt;line-height:1.35;overflow-wrap:anywhere;word-break:break-word;zoom:1.5}
+  .rm-editor{outline:none;min-height:100%;font-family:"Aptos Serif",-apple-system,"Segoe UI",sans-serif;font-size:8pt;line-height:1.35;overflow-wrap:anywhere;word-break:break-word;zoom:1.5}
   .rm-editor ul,.rm-editor ol{margin:2px 0;padding-left:22px}
   .rm-editor blockquote{margin:0 0 0 40px;padding:0;border:none}
   .rm-editor.rm-marks div::after,.rm-editor.rm-marks p::after,.rm-editor.rm-marks li::after{content:"\00b6";color:#4a78c8;opacity:.75;margin-left:2px}
@@ -1252,8 +1252,8 @@
       $('remarksPenalty').addEventListener('input', () => { refreshRemarksUI(); saveState(); });
   (function remarksEditor() {
       const modal = $('remarksModal'), box = $('rmBox'), editor = $('rmEditor'), pop = $('rmPop'), status = $('rmStatus');
-      const DEFAULT_FONT = 'Aptos Display', DEFAULT_PT = 8;
-      const FONTS = ['Aptos Display','Aptos','Arial','Calibri','Cambria','Candara','Consolas','Courier New','Georgia','Segoe UI','Tahoma','Times New Roman','Trebuchet MS','Verdana'];
+      const DEFAULT_FONT = 'Aptos Serif', DEFAULT_PT = 8;
+      const FONTS = ['Aptos Serif','Aptos','Arial','Calibri','Cambria','Candara','Consolas','Courier New','Georgia','Segoe UI','Tahoma','Times New Roman','Trebuchet MS','Verdana'];
       const SIZES = [6,7,8,9,10,10.5,11,12,14,16,18,20,22,24,26,28,36,48,72];
       const PALETTE = ['#000000','#434343','#7F7F7F','#BFBFBF','#FFFFFF','#FF0000','#FF9900','#FFFF00','#00FF00','#00FFFF',
         '#0000FF','#9900FF','#FF00FF','#C00000','#ED7D31','#FFD966','#70AD47','#5B9BD5','#2F5597','#7030A0',
