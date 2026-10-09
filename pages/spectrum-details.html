@@ -74,8 +74,9 @@
       transition: var(--transition);
     }
 
-    .wrap { max-width: 1600px; margin: 0 auto; padding: 28px 32px 70px; transition: var(--transition); }
-    @media (max-width: 1200px) { .wrap { padding: 24px 22px 60px; } }
+    .wrap { max-width: 2400px; margin: 0 auto; padding: 22px 26px 70px; transition: var(--transition); }
+    @media (min-width: 1800px) { .wrap { padding: 22px 32px 70px; } }
+    @media (max-width: 1200px) { .wrap { padding: 20px 18px 60px; } }
     @media (max-width: 760px) { .wrap { padding: 16px 14px 50px; } }
 
     header.masthead {
@@ -129,6 +130,92 @@
     .theme-toggle button.active { background: var(--ink); color: var(--paper-raised); }
     .theme-toggle button:hover:not(.active) { color: var(--ink); }
 
+    /* ============================================================
+       TAB BAR — one tab per Spectrum assessment
+       ============================================================ */
+    .tabbar {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      margin: 0 0 18px;
+      padding: 0 0 0 1px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+    }
+    .tabbar::-webkit-scrollbar { height: 5px; }
+    .tabbar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px 9px 14px;
+      background: var(--paper);
+      border: 1.5px solid var(--ink);
+      border-bottom: 1.5px solid var(--ink);
+      border-radius: 5px 5px 0 0;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      flex-shrink: 0;
+      transition: var(--transition);
+      margin-bottom: -1.5px;
+    }
+    .tab:hover { color: var(--ink); background: var(--paper-raised); }
+    .tab.active {
+      background: var(--paper-raised);
+      color: var(--ink);
+      border-bottom-color: var(--paper-raised);
+      position: relative;
+      z-index: 1;
+    }
+    .tab .tab-close {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1;
+      color: var(--ink-soft);
+      text-transform: none;
+    }
+    .tab .tab-close:hover { background: var(--red-soft); color: var(--red); }
+
+    .tab-add {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin-bottom: -1.5px;
+      border: 1.5px solid var(--ink);
+      border-radius: 5px 5px 0 0;
+      background: var(--paper);
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .tab-add:hover { border-color: var(--brass); color: var(--brass); background: var(--paper-raised); }
+
+    @media (max-width: 760px) {
+      .tabbar { margin-bottom: 14px; }
+      .tab { padding: 8px 10px 8px 12px; font-size: 11px; }
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 340px minmax(0, 1fr);
@@ -137,6 +224,9 @@
       transition: gap 0.3s ease;
     }
     .grid > * { min-width: 0; align-self: start; }
+    @media (min-width: 1800px) {
+      .grid { grid-template-columns: 400px minmax(0, 1fr); gap: 28px; }
+    }
     #output { min-width: 0; width: 100%; }
 
     #sidebar { min-width: 0; display: flex; flex-direction: column; gap: 24px; overflow: hidden; }
@@ -947,6 +1037,7 @@
       .no-print,
       .wrap > .grid,
       .wrap > header.masthead,
+      .wrap > .tabbar,
       details.notes,
       .wrap > footer {
         display: none !important;
@@ -987,6 +1078,8 @@
         </div>
       </div>
     </header>
+
+    <div class="tabbar no-print" id="tabBar" role="tablist" aria-label="Spectrum tabs"></div>
 
     <div class="grid">
 
@@ -1075,7 +1168,8 @@
         <li><b>B. Weighted Average of SUC Rate for the Quarter.</b> Auto-computed as <code>ROUNDUP(Σ(Quantum2016 × Qn) / Σ(Quantum2016), 4)</code> — only counting active rows. Every From / To cell is checked against its quarter's FY-derived range; inconsistent dates are shown <b>bold red</b>.</li>
         <li><b>II. Calculation of SUC Rate for GSM MWA/MWB Spectrum.</b> For each period enter the total active <b>Quantum of Spectrum (MHz)</b> and pick the <b>Order Applicable</b> (2002 or 2006). The SUC Rate is auto-computed: 2002 order = base slab + 0.05 % per 28 MHz or part (MWA base = 112 MHz @ 0.25 %; MWB base = 56 MHz @ 0.10 %); 2006 order = cumulative table per 56 MHz carrier (up to 6 carriers). Every From / To cell is checked against its quarter's FY range; inconsistent dates are shown <b>bold red</b>.</li>
         <li><b>III. Summary.</b> MAIN column mirrors Table B's Weighted Average; each backbone column mirrors the corresponding type's Weighted Average.</li>
-        <li><b>Persistence.</b> Everything is remembered in your browser. <b>RESET ALL</b> wipes the saved cache and returns a blank form.</li>
+        <li><b>Tabs.</b> The tab bar above the form holds one independent assessment per tab — each with its own Basic Details, Spectrum Types, holdings, Q1–Q4 periods, backbone tables and remarks. Use <b>+</b> to add a tab, <b>×</b> on a tab to close it. The active tab is remembered when you reload.</li>
+        <li><b>Persistence.</b> Everything (every tab) is remembered in your browser. <b>RESET ALL</b> wipes the saved cache and returns a blank single-tab form.</li>
       </ul>
     </details>
 
@@ -1735,6 +1829,8 @@
     var STORE_KEY   = 'pvii_spec_v1_state';
     var PANEL_KEY   = 'pvii_spec_panels_v1';
     var SIDEBAR_KEY = 'pvii_spec_sidebar_v1';
+    var TABS_KEY       = 'pvii_spec_tabs_v1';
+    var ACTIVE_TAB_KEY = 'pvii_spec_active_tab_v1';
 
     function blankSpectrumRow() {
       return {
@@ -1931,6 +2027,17 @@
     }
 
     var state = blankState();
+
+    /* ============================================================
+       TABS — every tab is an independent copy of the whole state
+       (basic details, spectrum flags, holdings, quarters, backbone,
+       remarks). Switching tabs swaps the state and re-renders.
+       ============================================================ */
+    var tabs = [];
+    var activeTabIndex = 0;
+    var tabSeq = 0;
+    function newTabId() { return 't' + (++tabSeq) + '_' + Date.now().toString(36); }
+    function makeTab(stateObj) { return { id: newTabId(), state: stateObj }; }
 
     /* ============================================================
        DERIVED VALUES
@@ -3082,14 +3189,149 @@
     function saveState() {
       try {
         collectState();
-        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        if (tabs && tabs.length) {
+          tabs[activeTabIndex].state = state;
+          saveTabs();
+        } else {
+          localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        }
       } catch (e) { /* ignore */ }
     }
+
+    function saveTabs() {
+      try {
+        localStorage.setItem(TABS_KEY, JSON.stringify(tabs));
+        localStorage.setItem(ACTIVE_TAB_KEY, String(activeTabIndex));
+      } catch (e) { /* ignore */ }
+    }
+
     function loadState() {
       try {
         var raw = localStorage.getItem(STORE_KEY);
         return raw ? JSON.parse(raw) : null;
       } catch (e) { return null; }
+    }
+
+    /* ============================================================
+       TABS — bootstrap, render, switch, add, close
+       ============================================================ */
+    function bootstrapTabs() {
+      var loaded = null;
+      try {
+        var raw = localStorage.getItem(TABS_KEY);
+        loaded = raw ? JSON.parse(raw) : null;
+      } catch (e) { loaded = null; }
+
+      if (loaded && loaded.length) {
+        tabs = loaded.map(function (t) {
+          return { id: t.id || newTabId(), state: normalizeState(t.state || blankState()) };
+        });
+        var savedActive = 0;
+        try { savedActive = parseInt(localStorage.getItem(ACTIVE_TAB_KEY), 10) || 0; } catch (e) {}
+        activeTabIndex = Math.min(Math.max(savedActive, 0), tabs.length - 1);
+      } else {
+        /* first run, or upgrading from the pre-tabs version — carry the
+           legacy single-state save (or blank) into "Spectrum 1" */
+        var legacy = loadState();
+        tabs = [ makeTab(normalizeState(legacy || blankState())) ];
+        activeTabIndex = 0;
+      }
+      state = tabs[activeTabIndex].state;
+    }
+
+    function renderTabBar() {
+      var bar = document.getElementById('tabBar');
+      if (!bar) return;
+      bar.innerHTML = '';
+      tabs.forEach(function (t, i) {
+        var el = document.createElement('div');
+        el.className = 'tab' + (i === activeTabIndex ? ' active' : '');
+        el.setAttribute('role', 'tab');
+        el.setAttribute('aria-selected', String(i === activeTabIndex));
+
+        var name = document.createElement('span');
+        name.className = 'tab-name';
+        name.textContent = 'Assessment ' + (i + 1);
+        el.appendChild(name);
+
+        if (tabs.length > 1) {
+          var close = document.createElement('span');
+          close.className = 'tab-close';
+          close.title = 'Close this tab';
+          close.textContent = '×';
+          close.addEventListener('click', function (e) {
+            e.stopPropagation();
+            closeTab(i);
+          });
+          el.appendChild(close);
+        }
+
+        el.addEventListener('click', function () { switchTab(i); });
+        bar.appendChild(el);
+      });
+
+      var addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'tab-add';
+      addBtn.title = 'New tab';
+      addBtn.setAttribute('aria-label', 'Add new spectrum tab');
+      addBtn.textContent = '+';
+      addBtn.addEventListener('click', addTab);
+      bar.appendChild(addBtn);
+    }
+
+    function applyStateToForm() {
+      document.getElementById('asOnDate').value = state.asOn || '';
+      document.getElementById('licenseeName').value = state.licensee || '';
+      document.getElementById('fyLabel').value = state.fyLabel || '';
+    }
+
+    function switchTab(i) {
+      if (i === activeTabIndex || i < 0 || i >= tabs.length) return;
+      collectState();
+      tabs[activeTabIndex].state = state;
+      saveTabs();
+      activeTabIndex = i;
+      state = tabs[activeTabIndex].state;
+      applyStateToForm();
+      ensureBackboneTypeGroups();
+      refreshAutoDates();
+      render();
+      renderTabBar();
+    }
+
+    function addTab() {
+      collectState();
+      tabs[activeTabIndex].state = state;
+      var fresh = blankState();
+      tabs.push(makeTab(fresh));
+      activeTabIndex = tabs.length - 1;
+      state = fresh;
+      applyStateToForm();
+      ensureBackboneTypeGroups();
+      refreshAutoDates();
+      render();
+      renderTabBar();
+      saveTabs();
+    }
+
+    function closeTab(i) {
+      if (tabs.length <= 1) return;
+      if (!confirm('Close "Assessment ' + (i + 1) + '"? Its data will be discarded.')) return;
+      var closingActive = (i === activeTabIndex);
+      tabs.splice(i, 1);
+      if (closingActive) {
+        if (activeTabIndex >= tabs.length) activeTabIndex = tabs.length - 1;
+        state = tabs[activeTabIndex].state;
+        applyStateToForm();
+        ensureBackboneTypeGroups();
+        refreshAutoDates();
+        render();
+      } else {
+        if (i < activeTabIndex) activeTabIndex -= 1;
+        saveTabs();
+      }
+      renderTabBar();
     }
 
     /* ============================================================
@@ -3542,13 +3784,17 @@
        FRESH START / CLEAR
        ============================================================ */
     function freshStart() {
-      if (!confirm('Delete all saved data in this browser and start with a blank form?')) return;
+      if (!confirm('Delete all saved data in this browser (every tab) and start with a single blank form?')) return;
       try {
         localStorage.removeItem(STORE_KEY);
         localStorage.removeItem(PANEL_KEY);
         localStorage.removeItem(SIDEBAR_KEY);
+        localStorage.removeItem(TABS_KEY);
+        localStorage.removeItem(ACTIVE_TAB_KEY);
       } catch (e) {}
       state = blankState();
+      tabs = [ makeTab(state) ];
+      activeTabIndex = 0;
       document.getElementById('asOnDate').value = state.asOn;
       document.getElementById('licenseeName').value = '';
       document.getElementById('fyLabel').value = '';
@@ -3564,6 +3810,7 @@
       if (window.__applySidebarState) window.__applySidebarState(false);
       ensureBackboneTypeGroups();
       render();
+      renderTabBar();
       saveState();
     }
 
@@ -3615,11 +3862,9 @@
       setupSidebar();
       setupCollapsiblePanels();
 
-      var saved = loadState();
-      state = normalizeState(saved || blankState());
-      document.getElementById('asOnDate').value = state.asOn || '';
-      document.getElementById('licenseeName').value = state.licensee || '';
-      document.getElementById('fyLabel').value = state.fyLabel || '';
+      bootstrapTabs();
+      applyStateToForm();
+      renderTabBar();
 
       ensureBackboneTypeGroups();
 
