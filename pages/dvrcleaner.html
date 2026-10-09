@@ -2296,7 +2296,7 @@
       html += buildPrintSection('Deduction Claim Allowed', cats.allowed, ws, printCols, undefined, 'allowed');
     }
     if (sections.disallowed) {
-      html += buildPrintSection('Deduction Claim Disallowed', cats.disallowed,
+      html += buildPrintSection('Deduction Claim Disallowed/Partially Disallowed', cats.disallowed,
         ws, getDisallowedPrintColumns(headers),
         remarksFor(state.activePreview, state.activeSheet).disallowed, 'disallowed');
     }
