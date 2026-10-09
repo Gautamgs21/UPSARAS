@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -62,9 +62,17 @@
       -webkit-font-smoothing: antialiased; transition: var(--transition);
     }
 
-    .wrap { max-width: 1600px; margin: 0 auto; padding: 28px 32px 70px; transition: var(--transition); }
+    /* full-bleed layout: use all available screen width */
+    .wrap {
+      width: 100%; max-width: none; margin: 0 auto;
+      padding: 28px 32px 70px; transition: var(--transition);
+    }
     @media (max-width: 1200px) { .wrap { padding: 24px 22px 60px; } }
     @media (max-width: 760px) { .wrap { padding: 16px 14px 50px; } }
+    @media (min-width: 1800px) {
+      .wrap { padding: 30px 44px 84px; }
+      .grid { grid-template-columns: 440px minmax(0, 1fr); gap: 30px; }
+    }
 
     header.masthead {
       border-bottom: 2px solid var(--ink); padding-bottom: 18px; margin-bottom: 28px;
@@ -141,6 +149,7 @@
       align-items: start; transition: grid-template-columns 0.3s ease, gap 0.3s ease;
     }
     .grid > * { min-width: 0; align-self: start; }
+    #outCol { min-width: 0; width: 100%; }
     #output { min-width: 0; width: 100%; }
 
     #sidebar { min-width: 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
@@ -173,7 +182,7 @@
     @media (max-width: 760px) {
       .grid { display: block; }
       .grid > * { width: 100%; }
-      .grid > #output { margin-top: 16px; }
+      .grid > #outCol { margin-top: 16px; }
       #sidebar { margin-bottom: 16px; }
       body.sidebar-collapsed .grid { display: block; }
       body.sidebar-collapsed #inputCol { display: none; }
@@ -448,7 +457,7 @@
         margin: 0;
       }
       #printSheet { display: block !important; }
-      #printSheet * {
+      #printSheet *:not(.ps-remarks-text *) {
         color: #000 !important;
         background: transparent !important;
         box-shadow: none !important;
@@ -492,7 +501,7 @@
     /* --- rows of boxes --- */
     .ps-row3 {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.45fr);
       gap: 6px;
       margin-bottom: 6px;
     }
@@ -608,6 +617,9 @@
       border-top: 1px solid #000;
       border-bottom: 1px solid #000;
     }
+    /* Payment Register: keep every row on a single line */
+    table.ps-pay th, table.ps-pay td { white-space: nowrap; word-wrap: normal; padding: 2px 3px; }
+    table.ps-pay td:last-child, table.ps-pay th:last-child { overflow: visible; }
     table.ps-mini td.k-cell { width: 55%; }
     table.ps-mini td.v-cell { width: 45%; text-align: right; font-weight: 700; }
 
@@ -656,6 +668,84 @@
       text-align: right;
     }
     .ps-empty-note { font-size: 7.5pt; color: #000; font-style: italic; }
+    .remarks-wrap{margin-top:8px}
+  button.remarks-toggle{display:flex;align-items:center;gap:6px;width:100%;height:auto;padding:4px 2px;border:none;background:transparent;
+    font-size:10px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;text-align:left;cursor:pointer}
+  button.remarks-toggle:hover{color:var(--ink)}
+  .remarks-toggle .rt-chev{display:inline-block;transition:transform .15s ease;font-size:9px}
+  .remarks-wrap:not(.closed) .rt-chev{transform:rotate(90deg)}
+  .remarks-toggle .rt-dot{margin-left:auto;font-size:10px;font-weight:600;color:var(--brass);text-transform:none;letter-spacing:0}
+  /* ===== Remarks rich-text editor (pop-up window) ===== */
+  .remarks-input{display:none !important}
+  .rm-backdrop{z-index:2100}
+  .rm-box{position:relative;display:flex;flex-direction:column;width:min(940px,96vw);height:min(600px,88vh);background:var(--paper-raised);
+    color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:hidden}
+  .rm-box.max{width:100vw;height:100vh;border-radius:0;border:none}
+  .rm-backdrop.max{padding:0}
+  .rm-titlebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;background:var(--ink);color:var(--paper-raised);user-select:none;flex:0 0 auto}
+  .rm-titlebar .rm-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rm-wbtns{display:flex;gap:4px;flex:0 0 auto}
+  .rm-wbtns button{height:26px;min-width:34px;padding:0 8px;border:none;border-radius:3px;background:transparent;color:inherit;font-size:14px;line-height:1}
+  .rm-wbtns button:hover{background:rgba(255,255,255,.18);color:inherit}
+  .rm-wbtns button.rm-close:hover{background:#c0392b;color:#fff}
+  .rm-ribbon{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;padding:6px 8px 0;background:var(--paper);border-bottom:1px solid var(--line);flex:0 0 auto}
+  .rm-group{display:flex;flex-direction:column;padding:0 8px 0 0;margin-right:8px;border-right:1px solid var(--line-soft)}
+  .rm-group:last-child{border-right:none;margin-right:0}
+  .rm-rows{display:flex;flex-direction:column;gap:3px;padding-bottom:2px}
+  .rm-row{display:flex;align-items:center;gap:2px;flex-wrap:nowrap}
+  .rm-glabel{text-align:center;font-size:11px;color:var(--ink-soft);padding:1px 0 3px}
+  .rm-ribbon button.rb{position:relative;height:26px;min-width:26px;padding:0 5px;border:1px solid transparent;border-radius:3px;background:transparent;color:var(--ink);
+    font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:2px}
+  .rm-ribbon button.rb:hover{background:var(--brass-soft);border-color:var(--line);color:var(--ink)}
+  .rm-ribbon button.rb.on{background:var(--brass-soft);border-color:var(--brass)}
+  .rm-ribbon button.rb.arrow{min-width:14px;width:14px;padding:0;font-size:8px;margin-left:-3px}
+  .rm-ribbon button.rb svg{display:block}
+  .rm-ribbon button.rb .bar{position:absolute;left:5px;right:5px;bottom:2px;height:3px;background:var(--c,#000);border-radius:1px}
+  .rm-ribbon button.rb.tcol{flex-direction:column;justify-content:flex-start;padding-top:2px}
+  .rm-ribbon button.rb.wide{padding:0 9px}
+  .rm-ribbon select{height:26px;padding:0 4px;font-size:12.5px;border-radius:3px}
+  #rmFont{width:138px} #rmSize{width:58px}
+  .rm-ribbon button.rb.sub1{font-size:12px}
+  .rm-editor-wrap{flex:1 1 auto;min-height:0;overflow:auto;background:#fff;color:#000;padding:18px 22px;margin:10px 12px 0;border:1px solid var(--line);border-radius:3px}
+  :root[data-theme="dark"] .rm-editor-wrap{background:#fff;color:#000}
+  .rm-editor{outline:none;min-height:100%;font-family:"Aptos Display",-apple-system,"Segoe UI",sans-serif;font-size:8pt;line-height:1.35;overflow-wrap:anywhere;word-break:break-word;zoom:1.5}
+  .rm-editor ul,.rm-editor ol{margin:2px 0;padding-left:22px}
+  .rm-editor blockquote{margin:0 0 0 40px;padding:0;border:none}
+  .rm-editor.rm-marks div::after,.rm-editor.rm-marks p::after,.rm-editor.rm-marks li::after{content:"\00b6";color:#4a78c8;opacity:.75;margin-left:2px}
+  .rm-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;flex:0 0 auto;font-size:12px;color:var(--ink-soft)}
+  .rm-foot .rm-status{flex:1 1 auto;min-width:0}
+  .rm-foot select{height:26px;width:84px;font-size:12px}
+  .rm-pop{position:absolute;z-index:30;background:var(--paper-raised);border:1px solid var(--line);border-radius:4px;box-shadow:0 10px 28px rgba(0,0,0,.3);padding:6px;display:none;color:var(--ink)}
+  .rm-pop.show{display:block}
+  .rm-pal{display:grid;grid-template-columns:repeat(10,20px);gap:3px}
+  .rm-pal .sw{width:20px;height:20px;border:1px solid rgba(0,0,0,.25);border-radius:2px;padding:0;cursor:pointer}
+  .rm-pal .sw:hover{outline:2px solid var(--brass)}
+  .rm-pop .rm-pal-row{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:12px}
+  .rm-pop .rm-pal-row button{height:24px;font-size:12px;padding:0 8px}
+  .rm-pop .rm-pal-row input[type=color]{width:34px;height:24px;padding:0;border:1px solid var(--line);background:transparent}
+  .rm-menu{display:flex;flex-direction:column;min-width:190px}
+  .rm-menu button{height:28px;justify-content:flex-start;text-align:left;border:none;border-radius:3px;padding:0 10px;font-size:12.5px;color:var(--ink);background:transparent}
+  .rm-menu button:hover{background:var(--brass-soft);color:var(--ink)}
+  .rm-menu .sep{height:1px;background:var(--line-soft);margin:3px 0}
+  .rm-menu .hd{font-size:11px;color:var(--ink-soft);padding:3px 10px}
+  @media(max-width:700px){.rm-group{border-right:none;margin-right:0}}
+  .ps-remarks-text ul,.ps-remarks-text ol{margin:2px 0;padding-left:18px}
+  .ps-remarks-text blockquote{margin:0 0 0 24px}
+  .ps-remarks-text *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+
+    /* ===== Remarks (rich-text editor ported from DVR module) ===== */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(10,14,10,.55);display:flex;align-items:center;justify-content:center;z-index:2000;padding:20px}
+    .remarks-input{display:none !important}
+    .remarks-card{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow-card)}
+    .remarks-card .remarks-wrap{margin-top:0}
+    .remarks-preview{margin-top:8px;padding:8px 10px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.4;overflow-wrap:anywhere}
+    .remarks-preview:empty{display:none}
+    .remarks-preview ul,.remarks-preview ol{margin:2px 0;padding-left:20px}
+    .remarks-preview blockquote{margin:0 0 0 24px}
+    .ps-remarks{margin-top:9px;border:.5px solid #888;border-radius:3px;padding:5px 8px 6px;min-height:46px;break-inside:avoid;page-break-inside:avoid}
+    .ps-remarks-label{font-size:7.5pt;font-weight:700;margin-bottom:2px}
+    .ps-remarks-text{font-size:8pt;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
   </style>
 </head>
 <body>
@@ -713,7 +803,6 @@
 
           <div class="panel">
             <h2>A. Total payments</h2>
-            <div class="hint" style="margin:-2px 0 10px;">Used only to work out the penalty (shortfall). Not adjusted against the penalty itself.</div>
             <table class="pay-table">
               <thead><tr><th style="width:30px;">#</th><th>Date</th><th class="amt-col">Amount (₹)</th><th class="rm-col"></th></tr></thead>
               <tbody id="tableARows"></tbody>
@@ -741,7 +830,7 @@
               <label for="penaltyRule">Penalty applicable from</label>
               <select id="penaltyRule">
                 <option value="auditSign" selected>15 days from signing of Audit Report</option>
-                <option value="auditedSoR">15 days from submission of Audited Statement of Revenue</option>
+                <option value="auditedSoR">15 days from the issuance of first Demand Notice</option>
                 <option value="custom">Custom date</option>
               </select>
             </div>
@@ -765,7 +854,6 @@
 
           <div class="panel">
             <h2>B. Payment available for adjustment of penalty</h2>
-            <div class="hint" style="margin:-2px 0 10px;">Only these payments reduce the penalty and its accrued interest.</div>
             <table class="pay-table">
               <thead><tr><th style="width:30px;">#</th><th>Date</th><th class="amt-col">Amount (₹)</th><th class="rm-col"></th></tr></thead>
               <tbody id="tableBRows"></tbody>
@@ -824,26 +912,96 @@
         </div>
       </aside>
 
-      <div id="output">
-        <div class="empty-state">Enter the revenue share due, payments, and dates, then choose Calculate.</div>
+      <div id="outCol">
+        <div id="output">
+          <div class="empty-state">Enter the revenue share due, payments, and dates, then choose Calculate.</div>
+        </div>
+        <div id="remarksSection" class="no-print">
+          <div class="section-title">Remarks<div class="line"></div></div>
+          <div class="remarks-card">
+            <div class="remarks-wrap closed" data-for="remarksPenalty">
+              <button type="button" class="remarks-toggle" aria-expanded="false"><span class="rt-chev">▶</span><span>Remarks (printed in PDF)</span><span class="rt-dot" hidden>● added</span></button>
+              <textarea class="remarks-input" id="remarksPenalty" tabindex="-1" aria-hidden="true"></textarea>
+            </div>
+            <div class="remarks-preview" id="remarksPreview"></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div id="printSheet"></div>
 
-    <details class="notes no-print">
-      <summary>How this engine works &amp; assumptions worth checking</summary>
-      <ul>
-        <li><b>Two payment tables, two jobs.</b> Table A (Total payments) is used only to work out the shortfall. Table B (Payment available for adjustment of penalty) is the only pool applied against the penalty and its accrued interest.</li>
-        <li><b>Shortfall &amp; penalty.</b> Amount paid up to the cut-off = sum of Table A payments on/before that date. Shortfall = Revenue Share Due − that amount. Penalty = your chosen % of the shortfall.</li>
-        <li><b>Penalty-applicable date.</b> 15 days from the Audit Report signing date, or 15 days from submission of the Audited Statement of Revenue, or a custom date.</li>
-        <li><b>Interest on penalty — same engine as the main calculator.</b> Interest accrues from the day after the penalty-applicable date, using inclusive month counting and monthly/annual compounding.</li>
-        <li><b>Interest becomes new principal.</b> Unpaid interest becomes its own liability and starts accruing further interest from the 1st of the <b>next</b> month.</li>
-        <li><b>Rate / method schedule &amp; moratorium</b> work as in the main calculator.</li>
-        <li><b>Payment waterfall.</b> Table B payments apply first to penalty principal, then to interest liabilities in FIFO order. Surplus is reported.</li>
-        <li><b>Print layout</b> matches the SUC Assessment reference — three header boxes, a rate schedule box, four rounded stat cards, and two full-width blocks (Calculation of Penalty, Calculation of Interest on Penalty) that never split awkwardly across pages.</li>
-      </ul>
-    </details>
+<div id="remarksModal" class="modal-backdrop rm-backdrop" style="display:none">
+  <div class="rm-box" id="rmBox" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+    <div class="rm-titlebar">
+      <span class="rm-title" id="rmTitle">Remarks (printed in PDF)</span>
+      <div class="rm-wbtns">
+        <button type="button" id="rmMax" title="Maximise" aria-label="Maximise">▢</button>
+        <button type="button" id="rmClose" class="rm-close" title="Close" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="rm-ribbon" id="rmRibbon">
+      <div class="rm-group">
+        <div class="rm-rows">
+          <div class="rm-row">
+            <select id="rmFont" title="Font"></select>
+            <select id="rmSize" title="Font size"></select>
+            <button type="button" class="rb" data-act="grow" title="Increase font size">A<span style="font-size:9px">▲</span></button>
+            <button type="button" class="rb" data-act="shrink" title="Decrease font size"><span style="font-size:11px">A</span><span style="font-size:9px">▼</span></button>
+            <button type="button" class="rb" data-pop="case" title="Change case">Aa<span style="font-size:8px">▼</span></button>
+            <button type="button" class="rb" data-act="clear" title="Clear all formatting" data-icon="eraser"></button>
+          </div>
+          <div class="rm-row">
+            <button type="button" class="rb" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+            <button type="button" class="rb" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+            <button type="button" class="rb" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+            <button type="button" class="rb" data-cmd="strikeThrough" title="Strikethrough"><s>ab</s></button>
+            <button type="button" class="rb sub1" data-cmd="subscript" title="Subscript">x<sub>2</sub></button>
+            <button type="button" class="rb sub1" data-cmd="superscript" title="Superscript">x<sup>2</sup></button>
+            <button type="button" class="rb" data-act="effect" title="Text effect (glow)"><span style="font-weight:700;color:#2e75b6;text-shadow:0 0 4px #7fb3e8">A</span></button>
+            <button type="button" class="rb tcol" data-act="hilite" title="Text highlight colour" id="rmHiBtn" style="--c:#FFFF00"><span style="font-size:13px">&#9998;</span><span class="bar"></span></button>
+            <button type="button" class="rb arrow" data-pop="hilite" title="Highlight colours">▼</button>
+            <button type="button" class="rb tcol" data-act="fcolor" title="Font colour" id="rmFcBtn" style="--c:#FF0000"><span style="font-weight:700;font-size:13px">A</span><span class="bar"></span></button>
+            <button type="button" class="rb arrow" data-pop="fcolor" title="Font colours">▼</button>
+          </div>
+        </div>
+        <div class="rm-glabel">Font</div>
+      </div>
+      <div class="rm-group">
+        <div class="rm-rows">
+          <div class="rm-row">
+            <button type="button" class="rb" data-cmd="insertUnorderedList" title="Bullets" data-icon="ul"></button>
+            <button type="button" class="rb" data-cmd="insertOrderedList" title="Numbering" data-icon="ol"></button>
+            <button type="button" class="rb" data-pop="liststyle" title="List style" data-icon="ml"></button>
+            <button type="button" class="rb" data-cmd="outdent" title="Decrease indent" data-icon="outdent"></button>
+            <button type="button" class="rb" data-cmd="indent" title="Increase indent" data-icon="indent"></button>
+            <button type="button" class="rb" data-act="sort" title="Sort selected lines A–Z (click again for Z–A)" data-icon="sort"></button>
+            <button type="button" class="rb" data-act="marks" title="Show / hide paragraph marks" id="rmMarksBtn">¶</button>
+          </div>
+          <div class="rm-row">
+            <button type="button" class="rb" data-cmd="justifyLeft" title="Align left" data-icon="al"></button>
+            <button type="button" class="rb" data-cmd="justifyCenter" title="Centre" data-icon="ac"></button>
+            <button type="button" class="rb" data-cmd="justifyRight" title="Align right" data-icon="ar"></button>
+            <button type="button" class="rb" data-cmd="justifyFull" title="Justify" data-icon="aj"></button>
+            <button type="button" class="rb" data-pop="spacing" title="Line spacing" data-icon="ls"></button>
+            <button type="button" class="rb tcol" data-act="shade" title="Shading (paragraph background)" id="rmShBtn" style="--c:#FFF2CC" data-icon="shade"></button>
+            <button type="button" class="rb arrow" data-pop="shade" title="Shading colours">▼</button>
+            <button type="button" class="rb" data-pop="border" title="Borders" data-icon="border"></button>
+          </div>
+        </div>
+        <div class="rm-glabel">Paragraph</div>
+      </div>
+    </div>
+    <div class="rm-editor-wrap" id="rmWrap"><div class="rm-editor" id="rmEditor" contenteditable="true" spellcheck="true"></div></div>
+    <div class="rm-foot">
+      <span class="rm-status" id="rmStatus">Changes are saved automatically and printed in the PDF.</span>
+      <label style="margin:0;display:flex;align-items:center;gap:6px">Zoom
+        <select id="rmZoom"><option value="1">100%</option><option value="1.25">125%</option><option value="1.5" selected>150%</option><option value="2">200%</option></select>
+      </label>
+    </div>
+    <div class="rm-pop" id="rmPop"></div>
+  </div>
+</div>
 
     <footer>Figures are rounded to the nearest rupee for display; calculations use full precision internally.</footer>
   </div>
@@ -853,21 +1011,17 @@
     (function() {
 
       /* ============================================================
-         THEME TOGGLE
+         THEME TOGGLE — default theme is LIGHT
          ============================================================ */
       (function themeInit() {
         var root = document.documentElement;
         var toggle = document.getElementById('themeToggle');
-      
+
         function applyTheme(theme) {
-          if (theme === 'dark') {
-            root.setAttribute('data-theme', 'dark');
-          } else {
-            root.setAttribute('data-theme', 'light');
-          }
-      
+          root.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+
           var btns = toggle.querySelectorAll('button[data-theme-value]');
-      
+
           for (var i = 0; i < btns.length; i++) {
             btns[i].classList.toggle(
               'active',
@@ -875,26 +1029,27 @@
             );
           }
         }
-      
+
         var saved = null;
-      
+
         try {
           saved = localStorage.getItem('iop_theme');
         } catch (e) {}
-      
-        var startTheme = 'light';
-      
+
+        /* Default is Light. A previously saved explicit choice is honoured. */
+        var startTheme = (saved === 'dark' || saved === 'light') ? saved : 'light';
+
         applyTheme(startTheme);
-      
+
         toggle.addEventListener('click', function(e) {
           var btn = e.target.closest('button[data-theme-value]');
-      
+
           if (!btn) return;
-      
+
           var theme = btn.getAttribute('data-theme-value');
-      
+
           applyTheme(theme);
-      
+
           try {
             localStorage.setItem('iop_theme', theme);
           } catch (err) {}
@@ -1021,6 +1176,406 @@
           ? segmentedInterest(balance, from, to, defaultRate, defaultMethod, schedule)
           : chainLockedInterest(balance, from, to, defaultRate, defaultMethod, schedule, rootDate);
       }
+
+
+      /* ============================================================
+         REMARKS — rich-text (WordPad-like) editor, ported from the DVR module
+         ============================================================ */
+      const $ = id => document.getElementById(id);
+      const esc = escHtml;
+  const RM_TAG = '<!--rmhtml-->';
+  const RM_TAGS = new Set(['B','STRONG','I','EM','U','S','STRIKE','DEL','SUB','SUP','SPAN','FONT','DIV','P','BR','UL','OL','LI','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','MARK']);
+  const RM_STYLES = new Set(['font-family','font-size','font-weight','font-style','text-decoration','text-decoration-line','color','background-color','background',
+    'text-align','line-height','margin','margin-left','margin-right','margin-top','margin-bottom','padding','padding-left','padding-right','padding-top','padding-bottom',
+    'text-indent','border','border-top','border-bottom','border-left','border-right','border-color','border-style','border-width','text-shadow','list-style-type','vertical-align']);
+  function rmCleanStyle(css) {
+    return String(css || '').split(';').map(s => s.trim()).filter(s => {
+      const i = s.indexOf(':'); if (i < 1) return false;
+      const p = s.slice(0, i).trim().toLowerCase(), v = s.slice(i + 1).toLowerCase();
+      return RM_STYLES.has(p) && !/url\s*\(|expression|javascript|@import|[<>]/.test(v);
+    }).join('; ');
+  }
+  function sanitizeRemarkHtml(html) {
+    const doc = new DOMParser().parseFromString('<body>' + String(html || '') + '</body>', 'text/html');
+    (function walk(node) {
+      Array.from(node.childNodes).forEach(ch => {
+        if (ch.nodeType === 3) return;
+        if (ch.nodeType !== 1) { ch.remove(); return; }
+        if (/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|LINK|META|TEMPLATE|NOSCRIPT)$/.test(ch.tagName)) { ch.remove(); return; }
+        if (!RM_TAGS.has(ch.tagName)) {
+          walk(ch);
+          while (ch.firstChild) ch.parentNode.insertBefore(ch.firstChild, ch);
+          ch.remove(); return;
+        }
+        Array.from(ch.attributes).forEach(a => {
+          const n = a.name.toLowerCase();
+          if (n === 'style') { const c = rmCleanStyle(a.value); if (c) ch.setAttribute('style', c); else ch.removeAttribute('style'); }
+          else if (ch.tagName === 'FONT' && n === 'face') { ch.style.fontFamily = a.value.replace(/[<>;"]/g, ''); ch.removeAttribute('face'); }
+          else if (ch.tagName === 'FONT' && n === 'color') { if (/^[#a-z0-9(),.\s%]+$/i.test(a.value)) ch.style.color = a.value; ch.removeAttribute('color'); }
+          else ch.removeAttribute(a.name);
+        });
+        walk(ch);
+      });
+    })(doc.body);
+    return doc.body.innerHTML;
+  }
+  function rmPlainToHtml(text) {
+    return String(text || '').split(/\r?\n/).map(l => '<div>' + (l.trim() === '' ? '<br>' : esc(l)) + '</div>').join('');
+  }
+  /* any stored value -> safe HTML for the editor / the printed report */
+  function remarkToHtml(v) {
+    v = String(v == null ? '' : v);
+    if (!v.trim()) return '';
+    if (v.indexOf(RM_TAG) === 0) return sanitizeRemarkHtml(v.slice(RM_TAG.length));
+    return rmPlainToHtml(v);
+  }
+  function remarksHasText(v) {
+    v = String(v == null ? '' : v);
+    if (v.indexOf(RM_TAG) !== 0) return !!v.trim();
+    const d = document.createElement('div'); d.innerHTML = sanitizeRemarkHtml(v.slice(RM_TAG.length));
+    return !!d.textContent.replace(/[\s\u200B\u00A0]+/g, '');
+  }
+
+
+      function remarksToPlain(v) {
+        const d = document.createElement('div'); d.innerHTML = remarkToHtml(v);
+        d.querySelectorAll('br').forEach(b => b.replaceWith('\n'));
+        d.querySelectorAll('div,p,li,h1,h2,h3,h4,h5,h6,blockquote').forEach(b => b.insertAdjacentText('beforeend', '\n'));
+        return d.textContent.replace(/\u00A0/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+      }
+      function refreshRemarksUI() {
+        const ta = $('remarksPenalty'); if (!ta) return;
+        const has = remarksHasText(ta.value);
+        const dot = document.querySelector('#remarksSection .rt-dot'); if (dot) dot.hidden = !has;
+        $('remarksPreview').innerHTML = has ? remarkToHtml(ta.value) : '';
+      }
+      $('remarksPenalty').addEventListener('input', () => { refreshRemarksUI(); saveState(); });
+  (function remarksEditor() {
+      const modal = $('remarksModal'), box = $('rmBox'), editor = $('rmEditor'), pop = $('rmPop'), status = $('rmStatus');
+      const DEFAULT_FONT = 'Aptos Display', DEFAULT_PT = 8;
+      const FONTS = ['Aptos Display','Aptos','Arial','Calibri','Cambria','Candara','Consolas','Courier New','Georgia','Segoe UI','Tahoma','Times New Roman','Trebuchet MS','Verdana'];
+      const SIZES = [6,7,8,9,10,10.5,11,12,14,16,18,20,22,24,26,28,36,48,72];
+      const PALETTE = ['#000000','#434343','#7F7F7F','#BFBFBF','#FFFFFF','#FF0000','#FF9900','#FFFF00','#00FF00','#00FFFF',
+        '#0000FF','#9900FF','#FF00FF','#C00000','#ED7D31','#FFD966','#70AD47','#5B9BD5','#2F5597','#7030A0',
+        '#F4CCCC','#FCE5CD','#FFF2CC','#D9EAD3','#D0E0E3','#CFE2F3','#D9D2E9','#EAD1DC','#E6B8AF','#DDDDDD'];
+      const ICON = (function () {
+        const s = (b, inner) => '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+        const dots = '<circle cx="2.5" cy="3.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.5" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.5" cy="12.5" r="1.1" fill="currentColor" stroke="none"/>';
+        return {
+          ul: s(0, dots + '<path d="M6 3.5h8M6 8h8M6 12.5h8"/>'),
+          ol: s(0, '<text x="0.5" y="5" font-size="5" fill="currentColor" stroke="none">1</text><text x="0.5" y="9.5" font-size="5" fill="currentColor" stroke="none">2</text><text x="0.5" y="14" font-size="5" fill="currentColor" stroke="none">3</text><path d="M6 3.5h8M6 8h8M6 12.5h8"/>'),
+          ml: s(0, '<path d="M2 3h2M5 3h9M4 8h2M7 8h7M6 13h2M9 13h5"/>'),
+          outdent: s(0, '<path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M5 6l-3 2 3 2z"/>'),
+          indent: s(0, '<path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M2 6l3 2-3 2z"/>'),
+          sort: s(0, '<path d="M4 2v10M2 10l2 2 2-2M9 3h5M9 6h3M9 9h5M9 12h3"/>'),
+          al: s(0, '<path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8"/>'),
+          ac: s(0, '<path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8"/>'),
+          ar: s(0, '<path d="M2 3h12M6 6.5h8M2 10h12M6 13.5h8"/>'),
+          aj: s(0, '<path d="M2 3h12M2 6.5h12M2 10h12M2 13.5h12"/>'),
+          ls: s(0, '<path d="M8 3h6M8 8h6M8 13h6M4 2v12M2 4l2-2 2 2M2 12l2 2 2-2"/>'),
+          shade: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M3 8l5-5 5 5-4 4H7z"/><path d="M13 11c1 1.2 1 2 0 2.4-1 0-1-1.2 0-2.4z" fill="currentColor"/></svg><span class="bar"></span>',
+          border: s(0, '<rect x="2.5" y="2.5" width="11" height="11" stroke-dasharray="1.5 1.5"/><path d="M2.5 13.5h11"/>'),
+          eraser: s(0, '<path d="M3 11l6-7 4 3.5-5 6H5z"/><path d="M8 13.5h6"/>')
+        };
+      })();
+      document.querySelectorAll('#rmRibbon [data-icon]').forEach(b => { b.insertAdjacentHTML('afterbegin', ICON[b.dataset.icon] || ''); });
+
+      /* font & size drop-downs */
+      $('rmFont').innerHTML = FONTS.map(f => '<option value="' + f + '" style="font-family:\'' + f + '\'">' + f + '</option>').join('');
+      $('rmSize').innerHTML = SIZES.map(z => '<option value="' + z + '">' + z + '</option>').join('');
+      $('rmFont').value = DEFAULT_FONT; $('rmSize').value = String(DEFAULT_PT);
+
+      let cur = null;            // { ta, btn, kind }
+      let savedRange = null;     // selection inside the editor, kept while a drop-down has the focus
+      let pendingFont = null;    // style for the next typed text when nothing was selected
+      let sortDir = 1, hiColor = '#FFFF00', fcColor = '#FF0000', shColor = '#FFF2CC';
+
+      const sel = () => window.getSelection();
+      const inEditor = n => !!n && editor.contains(n.nodeType === 3 ? n.parentNode : n);
+      document.addEventListener('selectionchange', () => {
+        if (modal.style.display === 'none') return;
+        const s = sel();
+        if (s.rangeCount && inEditor(s.anchorNode) && inEditor(s.focusNode)) { savedRange = s.getRangeAt(0).cloneRange(); updateState(); }
+      });
+      function restoreSel() {
+        editor.focus();
+        if (savedRange && inEditor(savedRange.startContainer)) { const s = sel(); s.removeAllRanges(); s.addRange(savedRange); }
+      }
+      function say(msg, ms) { status.textContent = msg; clearTimeout(say.t); if (ms) say.t = setTimeout(() => { status.textContent = 'Changes are saved automatically and printed in the PDF.'; }, ms); }
+
+      /* editor -> hidden textarea (existing save / print code reads that) */
+      function fixMarkerFonts() {
+        editor.querySelectorAll('font[size]').forEach(f => {
+          const st = pendingFont || {};
+          Object.keys(st).forEach(k => { f.style[k] = st[k]; });
+          f.removeAttribute('size');
+          if (st.fontSize) f.querySelectorAll('[style*="font-size"]').forEach(d => { d.style.fontSize = ''; if (!d.getAttribute('style')) d.removeAttribute('style'); });
+        });
+      }
+      function sync() {
+        if (!cur) return;
+        fixMarkerFonts();
+        const html = sanitizeRemarkHtml(editor.innerHTML);
+        const probe = document.createElement('div'); probe.innerHTML = html;
+        const val = probe.textContent.replace(/[\s\u200B\u00A0]+/g, '') ? RM_TAG + html : '';
+        if (cur.ta.value !== val) { cur.ta.value = val; cur.ta.dispatchEvent(new Event('input')); }
+      }
+      editor.addEventListener('input', sync);
+
+      /* ---- generic command helpers ---- */
+      function cmd(name, val, css) {
+        restoreSel();
+        document.execCommand('styleWithCSS', false, css !== false);
+        document.execCommand(name, false, val);
+        sync(); updateState();
+      }
+      function applyFontStyle(styleObj) {         // arbitrary inline style on the selection (size, shadow…)
+        restoreSel();
+        const s = sel(); const collapsed = !s.rangeCount || s.isCollapsed;
+        pendingFont = styleObj;
+        document.execCommand('styleWithCSS', false, false);
+        document.execCommand('fontSize', false, '7');
+        document.execCommand('styleWithCSS', false, true);
+        if (!collapsed) fixMarkerFonts();
+        sync(); updateState();
+      }
+      function curElement() {
+        const s = sel(); let n = s.rangeCount ? s.getRangeAt(0).startContainer : null;
+        if (n && n.nodeType === 3) n = n.parentNode;
+        return n && inEditor(n) ? n : editor;
+      }
+      function curSizePt() {
+        for (let n = curElement(); n && n !== editor.parentNode; n = n.parentNode) {
+          const f = n.style && n.style.fontSize;
+          if (f) { const v = parseFloat(f); if (/pt/.test(f)) return v; if (/px/.test(f)) return Math.round(v * 0.75 * 2) / 2; }
+          if (n === editor) break;
+        }
+        return DEFAULT_PT;
+      }
+      function curFont() {
+        for (let n = curElement(); n; n = n.parentNode) {
+          const f = n.style && n.style.fontFamily;
+          if (f) return f.split(',')[0].replace(/["']/g, '').trim();
+          if (n === editor) break;
+        }
+        return DEFAULT_FONT;
+      }
+      function setSize(pt) { applyFontStyle({ fontSize: pt + 'pt' }); }
+      function step(dir) {
+        const c = curSizePt();
+        let next = dir > 0 ? SIZES.find(z => z > c + 0.01) : SIZES.slice().reverse().find(z => z < c - 0.01);
+        if (next == null) next = dir > 0 ? c + 2 : Math.max(1, c - 1);
+        setSize(next);
+      }
+
+      /* ---- block helpers ---- */
+      const BLOCK = 'div,p,li,h1,h2,h3,h4,h5,h6,blockquote';
+      function selectedBlocks() {
+        restoreSel();
+        const s = sel(); if (!s.rangeCount) return [];
+        const r = s.getRangeAt(0);
+        let all = Array.from(editor.querySelectorAll(BLOCK)).filter(b => !b.querySelector(BLOCK) && r.intersectsNode(b));
+        if (!all.length) { document.execCommand('formatBlock', false, 'div'); all = Array.from(editor.querySelectorAll(BLOCK)).filter(b => !b.querySelector(BLOCK) && sel().rangeCount && sel().getRangeAt(0).intersectsNode(b)); }
+        return all;
+      }
+      function eachBlock(fn) { const b = selectedBlocks(); if (b.length) { b.forEach(fn); sync(); } }
+
+      function transformSelection(fn) {
+        restoreSel();
+        const s = sel(); if (!s.rangeCount || s.isCollapsed) { say('Select some text first.', 2500); return; }
+        const r = s.getRangeAt(0), sc = r.startContainer, so = r.startOffset, ec = r.endContainer, eo = r.endOffset;
+        const root = r.commonAncestorContainer.nodeType === 3 ? r.commonAncestorContainer.parentNode : r.commonAncestorContainer;
+        const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [];
+        while (w.nextNode()) if (r.intersectsNode(w.currentNode)) nodes.push(w.currentNode);
+        const ctx = { cap: true };
+        nodes.forEach(n => {
+          const a = n === sc ? so : 0, b = n === ec ? eo : n.nodeValue.length;
+          n.replaceData(a, b - a, fn(n.nodeValue.slice(a, b), ctx));
+        });
+        try { const nr = document.createRange(); nr.setStart(sc, Math.min(so, sc.nodeType === 3 ? sc.length : so)); nr.setEnd(ec, Math.min(eo, ec.nodeType === 3 ? ec.length : eo)); s.removeAllRanges(); s.addRange(nr); } catch (e) {}
+        sync();
+      }
+      const CASES = {
+        sentence: (t, c) => t.toLowerCase().replace(/(^|[.!?]\s+)([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/^([a-z])/, (m, b) => c.cap ? b.toUpperCase() : b),
+        lower: t => t.toLowerCase(),
+        upper: t => t.toUpperCase(),
+        title: t => t.toLowerCase().replace(/(^|[\s(\-\/])([a-z])/g, (m, a, b) => a + b.toUpperCase()),
+        toggle: t => t.replace(/[a-zA-Z]/g, ch => ch === ch.toUpperCase() ? ch.toLowerCase() : ch.toUpperCase())
+      };
+
+      function sortLines() {
+        const blocks = selectedBlocks();
+        let group = blocks.length > 1 ? blocks : null;
+        if (!group) { const b = blocks[0]; if (b && b.parentNode) group = Array.from(b.parentNode.children).filter(x => x.matches(BLOCK)); }
+        if (!group || group.length < 2) { say('Select two or more lines to sort.', 2500); return; }
+        const parent = group[0].parentNode; if (!group.every(g => g.parentNode === parent)) { say('Select lines that sit at the same level.', 2500); return; }
+        const key = el => el.textContent.trim().toLowerCase();
+        const sorted = group.slice().sort((a, b) => sortDir * key(a).localeCompare(key(b), undefined, { numeric: true }));
+        const marker = document.createComment('s'); parent.insertBefore(marker, group[0]);
+        sorted.forEach(el => parent.insertBefore(el, marker)); marker.remove();
+        say(sortDir > 0 ? 'Sorted A → Z (click again for Z → A).' : 'Sorted Z → A.', 2500);
+        sortDir = -sortDir; sync();
+      }
+      function clearFormatting() {
+        restoreSel();
+        document.execCommand('removeFormat'); document.execCommand('unlink');
+        selectedBlocks().forEach(b => { b.removeAttribute('style'); });
+        editor.querySelectorAll('font,span').forEach(e => { if (!e.getAttribute('style') && !e.attributes.length) { while (e.firstChild) e.parentNode.insertBefore(e.firstChild, e); e.remove(); } });
+        sync(); updateState();
+      }
+      function setBorder(kind) {
+        eachBlock(b => {
+          ['border','borderTop','borderBottom','borderLeft','borderRight','padding'].forEach(p => { b.style[p] = ''; });
+          if (kind === 'box') { b.style.border = '1px solid #444'; b.style.padding = '2px 4px'; }
+          else if (kind === 'bottom') b.style.borderBottom = '1px solid #444';
+          else if (kind === 'top') b.style.borderTop = '1px solid #444';
+          if (!b.getAttribute('style')) b.removeAttribute('style');
+        });
+      }
+      function listStyle(type) {
+        restoreSel();
+        let el = curElement().closest('ol,ul');
+        if (!el) { document.execCommand('insertOrderedList'); el = curElement().closest('ol,ul'); }
+        if (el) { el.style.listStyleType = type; }
+        sync();
+      }
+      function setSpacing(v) { eachBlock(b => { b.style.lineHeight = v; }); }
+      function shade(color) { eachBlock(b => { if (color) b.style.backgroundColor = color; else b.style.backgroundColor = ''; if (!b.getAttribute('style')) b.removeAttribute('style'); }); }
+
+      /* ---- pop-ups (palettes & menus) ---- */
+      function closePop() { pop.classList.remove('show'); pop.innerHTML = ''; }
+      function placePop(anchor) {
+        const br = box.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
+        pop.style.left = '0px'; pop.style.top = '0px'; pop.classList.add('show');
+        let left = ar.left - br.left, top = ar.bottom - br.top + 3;
+        left = Math.max(4, Math.min(left, br.width - pop.offsetWidth - 4));
+        pop.style.left = left + 'px'; pop.style.top = top + 'px';
+      }
+      function palette(anchor, onPick, noneLabel) {
+        pop.innerHTML = '<div class="rm-pal">' + PALETTE.map(c => '<button type="button" class="sw" data-c="' + c + '" style="background:' + c + '" title="' + c + '"></button>').join('') + '</div>' +
+          '<div class="rm-pal-row"><button type="button" data-none="1">' + noneLabel + '</button><span>More:</span><input type="color" id="rmMoreColor" value="#336699"></div>';
+        pop.onclick = e => {
+          const sw = e.target.closest('.sw'), no = e.target.closest('[data-none]');
+          if (sw) { onPick(sw.dataset.c); closePop(); } else if (no) { onPick(''); closePop(); }
+        };
+        pop.querySelector('#rmMoreColor').addEventListener('change', e => { onPick(e.target.value); closePop(); });
+        placePop(anchor);
+      }
+      function menu(anchor, items) {
+        pop.innerHTML = '<div class="rm-menu">' + items.map((it, i) => it === '-' ? '<div class="sep"></div>' : (it.head ? '<div class="hd">' + it.head + '</div>' : '<button type="button" data-i="' + i + '">' + it.label + '</button>')).join('') + '</div>';
+        pop.onclick = e => { const b = e.target.closest('button[data-i]'); if (!b) return; const it = items[Number(b.dataset.i)]; closePop(); it.fn(); };
+        placePop(anchor);
+      }
+      function applyHilite(c) { hiColor = c || hiColor; $('rmHiBtn').style.setProperty('--c', hiColor); cmd('hiliteColor', c || 'transparent'); }
+      function applyFcolor(c) { if (c) { fcColor = c; $('rmFcBtn').style.setProperty('--c', c); } cmd('foreColor', c || '#000000'); }
+      function applyShade(c) { if (c) { shColor = c; $('rmShBtn').style.setProperty('--c', c); } shade(c); }
+
+      /* ---- ribbon wiring ---- */
+      $('rmRibbon').addEventListener('mousedown', e => { if (!e.target.closest('select,input')) e.preventDefault(); });   // keep the text selection
+      $('rmRibbon').addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        const wasOpen = pop.classList.contains('show'); closePop();
+        if (b.dataset.cmd) { cmd(b.dataset.cmd); return; }
+        if (b.dataset.act) {
+          ({ grow: () => step(1), shrink: () => step(-1), clear: clearFormatting, sort: sortLines,
+             hilite: () => applyHilite(hiColor), fcolor: () => applyFcolor(fcColor), shade: () => applyShade(shColor),
+             effect: () => { const on = /\S/.test((curElement().style && curElement().style.textShadow) || ''); applyFontStyle({ textShadow: on ? 'none' : '0 0 3px #7fb3e8, 0 0 1px #2e75b6' }); },
+             marks: () => { const on = editor.classList.toggle('rm-marks'); b.classList.toggle('on', on); } }[b.dataset.act] || (() => {}))();
+          return;
+        }
+        if (b.dataset.pop) {
+          if (wasOpen && pop.dataset.for === b.dataset.pop) { pop.dataset.for = ''; return; }
+          pop.dataset.for = b.dataset.pop;
+          restoreSel();
+          const m = {
+            hilite: () => palette(b, applyHilite, 'No colour'),
+            fcolor: () => palette(b, applyFcolor, 'Automatic'),
+            shade: () => palette(b, applyShade, 'No shading'),
+            case: () => menu(b, [
+              { label: 'Sentence case', fn: () => transformSelection(CASES.sentence) }, { label: 'lowercase', fn: () => transformSelection(CASES.lower) },
+              { label: 'UPPERCASE', fn: () => transformSelection(CASES.upper) }, { label: 'Capitalize Each Word', fn: () => transformSelection(CASES.title) },
+              { label: 'tOGGLE cASE', fn: () => transformSelection(CASES.toggle) }]),
+            liststyle: () => menu(b, [{ head: 'List style' },
+              { label: '1.  2.  3.', fn: () => listStyle('decimal') }, { label: 'a.  b.  c.', fn: () => listStyle('lower-alpha') }, { label: 'A.  B.  C.', fn: () => listStyle('upper-alpha') },
+              { label: 'i.  ii.  iii.', fn: () => listStyle('lower-roman') }, { label: 'I.  II.  III.', fn: () => listStyle('upper-roman') },
+              '-', { label: '●  Disc', fn: () => { restoreSel(); const l = curElement().closest('ul'); if (l) { l.style.listStyleType = 'disc'; sync(); } else cmd('insertUnorderedList'); } },
+              { label: '○  Circle', fn: () => { restoreSel(); let l = curElement().closest('ul'); if (!l) { document.execCommand('insertUnorderedList'); l = curElement().closest('ul'); } if (l) { l.style.listStyleType = 'circle'; sync(); } } }]),
+            spacing: () => menu(b, [{ head: 'Line spacing' }, ...['1.0', '1.15', '1.5', '2.0', '2.5'].map(v => ({ label: v, fn: () => setSpacing(v) }))]),
+            border: () => menu(b, [{ label: 'Box border', fn: () => setBorder('box') }, { label: 'Bottom border', fn: () => setBorder('bottom') },
+              { label: 'Top border', fn: () => setBorder('top') }, { label: 'No border', fn: () => setBorder('none') }])
+          }[b.dataset.pop];
+          if (m) m();
+        }
+      });
+      document.addEventListener('mousedown', e => { if (pop.classList.contains('show') && !e.target.closest('#rmPop') && !e.target.closest('[data-pop]')) { closePop(); pop.dataset.for = ''; } });
+      pop.addEventListener('mousedown', e => { if (!e.target.closest('input')) e.preventDefault(); });
+      $('rmFont').addEventListener('change', e => { cmd('fontName', e.target.value); });
+      $('rmSize').addEventListener('change', e => { setSize(parseFloat(e.target.value)); });
+      $('rmZoom').addEventListener('change', e => { editor.style.zoom = e.target.value; });
+
+      function updateState() {
+        ['bold','italic','underline','strikeThrough','subscript','superscript','insertUnorderedList','insertOrderedList','justifyLeft','justifyCenter','justifyRight','justifyFull'].forEach(c => {
+          const b = $('rmRibbon').querySelector('[data-cmd="' + c + '"]'); if (!b) return;
+          let on = false; try { on = document.queryCommandState(c); } catch (e) {}
+          b.classList.toggle('on', !!on);
+        });
+        const f = curFont(), z = curSizePt();
+        if (!Array.from($('rmFont').options).some(o => o.value === f)) $('rmFont').add(new Option(f, f));
+        $('rmFont').value = f;
+        if (!Array.from($('rmSize').options).some(o => Number(o.value) === z)) { $('rmSize').add(new Option(String(z), String(z))); }
+        $('rmSize').value = String(z);
+      }
+
+      /* ---- keyboard & paste ---- */
+      editor.addEventListener('keydown', e => {
+        if (e.key === 'Tab') { e.preventDefault(); cmd(e.shiftKey ? 'outdent' : 'indent'); }
+      });
+      editor.addEventListener('paste', e => {
+        const cd = e.clipboardData; if (!cd) return;
+        e.preventDefault();
+        const html = cd.getData('text/html'), text = cd.getData('text/plain');
+        document.execCommand('styleWithCSS', false, true);
+        if (html) document.execCommand('insertHTML', false, sanitizeRemarkHtml(html.replace(/<!--[\s\S]*?-->/g, '')));
+        else document.execCommand('insertHTML', false, rmPlainToHtml(text).replace(/^<div>|<\/div>$/g, '').replace(/<\/div><div>/g, '<br>'));
+        sync();
+      });
+      modal.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); if (pop.classList.contains('show')) closePop(); else closeEditor(); }
+      });
+
+      /* ---- open / close / maximise ---- */
+      function setMax(on) {
+        box.classList.toggle('max', on); modal.classList.toggle('max', on);
+        $('rmMax').textContent = on ? '❐' : '▢';
+        $('rmMax').title = on ? 'Restore' : 'Maximise'; $('rmMax').setAttribute('aria-label', on ? 'Restore' : 'Maximise');
+      }
+      $('rmMax').addEventListener('click', () => setMax(!box.classList.contains('max')));
+      function openEditor(w) {
+        const ta = w.querySelector('textarea'), btn = w.querySelector('.remarks-toggle');
+        cur = { ta, btn };
+        $('rmTitle').textContent = 'Remarks (printed in PDF) — Interest on Penalty';
+        editor.innerHTML = remarkToHtml(ta.value) || '<div><br></div>';
+        editor.classList.remove('rm-marks'); $('rmMarksBtn').classList.remove('on');
+        setMax(false); closePop(); say('Changes are saved automatically and printed in the PDF.');
+        modal.style.display = 'flex';
+        editor.focus();
+        const r = document.createRange(); r.selectNodeContents(editor); r.collapse(false);
+        const s = sel(); s.removeAllRanges(); s.addRange(r); savedRange = r.cloneRange();
+        updateState();
+        btn.setAttribute('aria-expanded', 'true');
+      }
+      function closeEditor() {
+        if (modal.style.display === 'none') return;
+        sync(); closePop();
+        modal.style.display = 'none';
+        if (cur && cur.btn) { cur.btn.setAttribute('aria-expanded', 'false'); try { cur.btn.focus(); } catch (e) {} }
+        cur = null; refreshRemarksUI();
+      }
+      $('rmClose').addEventListener('click', closeEditor);
+      document.querySelectorAll('.remarks-wrap').forEach(w => {
+        w.querySelector('.remarks-toggle').addEventListener('click', () => openEditor(w));
+      });
+    })();
 
       /* ============================================================
          STORAGE — v2 keys
@@ -1206,7 +1761,7 @@
       }
       function getAuditBaseLabel() {
         const rule = document.getElementById('penaltyRule').value;
-        if (rule === 'auditedSoR') return 'Date of submission of Audited Statement of Revenue';
+        if (rule === 'auditedSoR') return 'Date of issuance of first Demand Notice';
         if (rule === 'custom') return 'Custom penalty date';
         return 'Date of signing of Audit Report';
       }
@@ -1225,7 +1780,7 @@
           delayWrap.style.display = 'block';
           customWrap.style.display = 'none';
           label.textContent = (rule === 'auditedSoR')
-            ? 'Date of submission of Audited Statement of Revenue'
+            ? 'Date of issuance of first Demand Notice'
             : 'Date of signing of Audit Report';
         }
         refreshPenaltyDateLabel();
@@ -1253,7 +1808,8 @@
             method: tr.querySelector('.method-change').value
           })),
           moratorium: document.getElementById('moratoriumCheck').checked,
-          asOnDate: document.getElementById('asOnDate').value
+          asOnDate: document.getElementById('asOnDate').value,
+          remarks: document.getElementById('remarksPenalty').value
         };
       }
       function applyRawInputs(state) {
@@ -1278,6 +1834,8 @@
         (state.rateSchedule || []).forEach(x => addRateChangeRow(x.from, x.rate, x.method));
         document.getElementById('moratoriumCheck').checked = !!state.moratorium;
         document.getElementById('asOnDate').value = state.asOnDate || toInputVal(new Date());
+        document.getElementById('remarksPenalty').value = state.remarks || '';
+        refreshRemarksUI();
         updatePenaltyRuleUI();
         return true;
       }
@@ -1290,7 +1848,7 @@
           penaltyRule: 'auditSign', auditDate: '', penaltyDelayDays: '15', penaltyCustomDate: '',
           tableB: [{ date: '', amount: '' }],
           ratePct: '12.55', method: 'monthly', rateSchedule: [],
-          moratorium: false, asOnDate: toInputVal(new Date())
+          moratorium: false, asOnDate: toInputVal(new Date()), remarks: ''
         };
       }
       function exampleState() {
@@ -1308,7 +1866,7 @@
           penaltyRule: 'auditSign', auditDate: '2020-06-30', penaltyDelayDays: '15', penaltyCustomDate: '',
           tableB: [{ date: '2022-02-01', amount: '205413' }],
           ratePct: '12.55', method: 'monthly', rateSchedule: [],
-          moratorium: false, asOnDate: '2025-07-31'
+          moratorium: false, asOnDate: '2025-07-31', remarks: ''
         };
       }
 
@@ -1324,9 +1882,15 @@
           : 0;
         const shortfall = Math.max(0, revenueShareDue - paidUpTo);
         const shortfallPct = revenueShareDue > 0 ? (shortfall / revenueShareDue) * 100 : 0;
-        const penalty = Math.round(shortfall * (penaltyPct / 100));
+        /* Shortfall below 10% of revenue share due -> no penalty; 10% or more -> normal penalty */
+        const penaltyWaived = revenueShareDue > 0 && shortfall > 0 && (shortfall * 100 < revenueShareDue * 10 - 1e-6);
+        const penalty = penaltyWaived ? 0 : Math.round(shortfall * (penaltyPct / 100));
         const penaltyDate = computePenaltyDate();
-        return { revenueShareDue, cutoff, penaltyPct, baseDate, totalTableA, paidUpTo, shortfall, shortfallPct, penalty, penaltyDate };
+        return { revenueShareDue, cutoff, penaltyPct, baseDate, totalTableA, paidUpTo, shortfall, shortfallPct, penalty, penaltyWaived, penaltyDate };
+      }
+
+      function penaltyLabel(basis) {
+        return basis.penaltyWaived ? 'Penalty (Nil — shortfall below 10%)' : `Penalty (${basis.penaltyPct}% of shortfall)`;
       }
 
       function computePenaltyLedger(penaltyAmount, penaltyDate, ratePct, method, rateSchedule, asOnDate, payments, moratorium) {
@@ -1421,12 +1985,15 @@
         let html = '';
 
         html += `<div class="summary-grid">
-          <div class="stat"><div class="label">Penalty (${basis.penaltyPct}% of shortfall)</div><div class="value">${fmtINR(result.penaltyAmount)}</div></div>
+          <div class="stat"><div class="label">${penaltyLabel(basis)}</div><div class="value">${fmtINR(result.penaltyAmount)}</div></div>
           <div class="stat"><div class="label">Payment adjusted (Table B)</div><div class="value">${fmtINR(result.totalPaidAdjustment)}</div></div>
           <div class="stat accent"><div class="label">Total interest on penalty</div><div class="value">${fmtINR(result.totalInterest)}</div></div>
           <div class="stat result due"><div class="label">Penalty + Interest on Penalty</div><div class="value">${fmtINR(result.grandTotal)}</div></div>
         </div>`;
 
+        if (basis.penaltyWaived) {
+          html += `<div class="surplus-note">Shortfall is ${basis.shortfallPct.toFixed(2)}% of the revenue share due (below 10%), so no penalty is levied.</div>`;
+        }
         if (result.outstandingPrincipalBal > 0.5 || result.outstandingInterestBal > 0.5) {
           html += `<div class="surplus-note">Outstanding as on ${fmtDate(asOnDate)}: ${fmtINR(result.outstandingPrincipalBal)} unpaid penalty, ${fmtINR(result.outstandingInterestBal)} unpaid interest liability (shown in the ledger below in red).</div>`;
         }
@@ -1441,7 +2008,7 @@
         html += calcRow('Total amount paid (Table A)', fmtINR(basis.totalTableA));
         html += calcRow('Shortfall on ' + (basis.cutoff ? fmtDate(basis.cutoff) : '—'), fmtINR(basis.shortfall), 'strong');
         html += calcRow('Percentage of shortfall', basis.revenueShareDue > 0 ? basis.shortfallPct.toFixed(2) + '%' : '—');
-        html += calcRow(`Penalty (${basis.penaltyPct}% of shortfall)`, fmtINR(basis.penalty), 'accent');
+        html += calcRow(penaltyLabel(basis), fmtINR(basis.penalty), 'accent');
         html += calcRow(getAuditBaseLabel(), basis.baseDate ? fmtDate(basis.baseDate) : '—');
         html += calcRow('Date from which penalty is applicable', basis.penaltyDate ? fmtDate(basis.penaltyDate) : '—', 'strong');
         html += calcRow('Rate applicable', ratePctAtDate(basis.penaltyDate) + '%', 'period');
@@ -1685,7 +2252,7 @@
         if (!tableA.length) {
           html += `<div class="ps-empty-note">No payments recorded.</div>`;
         } else {
-          html += `<table class="ps-mini"><thead><tr><th>#</th><th>Date</th><th class="num">Amount</th></tr></thead><tbody>`;
+          html += `<table class="ps-mini ps-pay"><colgroup><col style="width:11%"><col style="width:33%"><col style="width:56%"></colgroup><thead><tr><th>#</th><th>Date</th><th class="num">Amount</th></tr></thead><tbody>`;
           tableA.forEach((p, i) => {
             html += `<tr><td>${i + 1}</td><td>${fmtDate(p.date)}</td><td class="num">${fmtINR(p.amount)}</td></tr>`;
           });
@@ -1715,7 +2282,7 @@
 
         /* ---------- Row 3: four rounded stat cards ---------- */
         html += `<div class="ps-row-stats">`;
-        html += `<div class="ps-stat-card"><div class="label">Penalty (${basis.penaltyPct}% of shortfall)</div><div class="value">${fmtINR(result.penaltyAmount)}</div></div>`;
+        html += `<div class="ps-stat-card"><div class="label">${penaltyLabel(basis)}</div><div class="value">${fmtINR(result.penaltyAmount)}</div></div>`;
         html += `<div class="ps-stat-card"><div class="label">Payment adjusted</div><div class="value">${fmtINR(result.totalPaidAdjustment)}</div></div>`;
         html += `<div class="ps-stat-card"><div class="label">Total interest on penalty</div><div class="value">${fmtINR(result.totalInterest)}</div></div>`;
         html += `<div class="ps-stat-card"><div class="label">Penalty + Interest on Penalty</div><div class="value">${fmtINR(result.grandTotal)}</div></div>`;
@@ -1729,7 +2296,7 @@
         html += `<tr><td class="k-cell">Total amount paid (Table A)</td><td class="v-cell">${fmtINR(basis.totalTableA)}</td></tr>`;
         html += `<tr class="ps-highlight"><td class="k-cell">Shortfall</td><td class="v-cell">${fmtINR(basis.shortfall)}</td></tr>`;
         html += `<tr><td class="k-cell">Percentage of shortfall</td><td class="v-cell">${basis.revenueShareDue > 0 ? basis.shortfallPct.toFixed(2) + '%' : '—'}</td></tr>`;
-        html += `<tr class="ps-highlight"><td class="k-cell">Penalty (${basis.penaltyPct}% of shortfall)</td><td class="v-cell">${fmtINR(basis.penalty)}</td></tr>`;
+        html += `<tr class="ps-highlight"><td class="k-cell">${penaltyLabel(basis)}</td><td class="v-cell">${fmtINR(basis.penalty)}</td></tr>`;
         html += `<tr><td class="k-cell">${getAuditBaseLabel()}</td><td class="v-cell">${basis.baseDate ? fmtDate(basis.baseDate) : '—'}</td></tr>`;
         html += `<tr><td class="k-cell">Date from which penalty is applicable</td><td class="v-cell">${basis.penaltyDate ? fmtDate(basis.penaltyDate) : '—'}</td></tr>`;
         html += `<tr><td class="k-cell">Rate applicable</td><td class="v-cell">${ratePctAtDate(basis.penaltyDate)}%</td></tr>`;
@@ -1742,6 +2309,10 @@
         html += `<div class="ps-block ps-block-ledger"><div class="ps-block-title">Calculation of interest on penalty</div>`;
         html += buildPrintLedgerTable(result);
         html += `</div>`;
+
+        if (remarksHasText($('remarksPenalty').value)) {
+          html += `<div class="ps-remarks"><div class="ps-remarks-label">Remarks:</div><div class="ps-remarks-text">${remarkToHtml($('remarksPenalty').value)}</div></div>`;
+        }
 
         html += `<div class="ps-footer">Generated ${fmtDate(new Date())} — Interest on Penalty Calculator</div>`;
 
@@ -1806,7 +2377,7 @@
         kv('Total Amount Paid (Table A)', basis.totalTableA);
         kv('Shortfall', basis.shortfall);
         kv('Percentage of Shortfall', Number(basis.shortfallPct.toFixed(2)));
-        kv('Penalty (' + basis.penaltyPct + '% of Shortfall)', basis.penalty);
+        kv(basis.penaltyWaived ? 'Penalty (Nil — Shortfall below 10%)' : 'Penalty (' + basis.penaltyPct + '% of Shortfall)', basis.penalty);
         kv(getAuditBaseLabel(), basis.baseDate, true);
         kv('Date from which Penalty is applicable', basis.penaltyDate, true);
         kv('Rate Applicable', ratePctAtDate(basis.penaltyDate));
@@ -1864,6 +2435,13 @@
         const totalRow = r;
         set(totalRow, 1, 'Penalty + Interest on Penalty');
         set(totalRow, 12, result.grandTotal);
+
+        const remarksTxt = remarksToPlain(document.getElementById('remarksPenalty').value);
+        if (remarksTxt) {
+          let rr = totalRow + 2;
+          set(rr, 1, 'REMARKS'); rr += 1;
+          remarksTxt.split('\n').forEach(line => { set(rr, 1, line); rr += 1; });
+        }
 
         const ws = XLSX.utils.aoa_to_sheet(grid);
         dateAddrs.forEach(a => { if (ws[a]) ws[a].z = 'dd-mm-yyyy'; });
