@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Part I : Calculation of AGR for SUC</title>
+<style>
+:root{--ink:#182233;--ink-soft:#4b5768;--paper:#ECEEEA;--raised:#F7F8F5;--line:#CBD0C7;--line-soft:#DDE0D9;--brass:#9C7327;--brass-soft:#EFE3C8;--teal:#2C6357;--teal-soft:#DEEAE5;--red:#9C3B31;--green-in:#DCEFD2;--yellow:#FFF176;--green-line:#8DB87A;--font:"Aptos Serif",-apple-system,"Segoe UI",sans-serif;color-scheme:light;
+padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);box-sizing:border-box}
+:root[data-theme=dark]{--ink:#E9ECE6;--ink-soft:#AEB6A8;--paper:#161B15;--raised:#1E241C;--line:#333B30;--line-soft:#2A3128;--brass:#D4A94B;--brass-soft:#332A16;--teal:#7FBDA9;--teal-soft:#1B2C26;--red:#D98A7C;--green-in:#24401F;--yellow:#6b5d12;--green-line:#4f7a43;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45;transition:background .2s,color .2s}
+.wrap{padding:24px 18px 60px;width:100%}
+header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.eyebrow{font-size:11.5px;letter-spacing:.04em;color:var(--brass);text-transform:uppercase}
+h1{margin:4px 0 0;font-size:clamp(20px,2.4vw,28px);font-weight:600}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font-family:var(--font);cursor:pointer}
+.btn{padding:9px 14px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);border-radius:3px;font-size:12.5px}
+.btn:hover{border-color:var(--brass);color:var(--brass)}
+.btn.pri{background:var(--ink);color:var(--raised);border-color:var(--ink);font-weight:600}
+.btn.pri:hover{background:var(--brass);border-color:var(--brass);color:#1a1200}
+.tg{display:flex;background:var(--raised);border:1px solid var(--line);border-radius:40px;padding:3px}
+.tg button{border:0;background:transparent;color:var(--ink-soft);padding:5px 13px;border-radius:40px;font-size:11.5px}
+.tg button.on{background:var(--ink);color:var(--raised)}
+.card{background:var(--raised);border:1px solid var(--line);border-radius:4px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card>h2{margin:0;padding:10px 14px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.card>h2 .ch{width:22px;height:22px;border:1px solid var(--line);border-radius:3px;display:grid;place-items:center;font-size:11px;color:var(--ink-soft);flex:none}
+.card>h2 .n{color:var(--brass);min-width:18px}
+.card.hid>.body{display:none}
+.body{padding:0 14px 14px;overflow-x:auto}
+.t1{font-size:17px;font-weight:600;margin:20px 0 10px;display:flex;gap:10px;align-items:center}
+.t1:after{content:"";flex:1;height:1px;background:var(--line)}
+table{border-collapse:collapse;width:100%}
+th{text-align:right;font-size:12px;padding:8px 8px;border-bottom:1px solid var(--ink);white-space:nowrap}
+th small{display:block;font-weight:400;color:var(--ink-soft);font-size:10.5px}
+th:first-child,td:first-child{text-align:left}
+td{padding:6px 8px;border-bottom:1px solid var(--line-soft);font-size:13px}
+td.v{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;min-width:118px}
+tr.tot td{font-weight:700;background:var(--paper)}
+tr.fin td{font-weight:700;background:var(--ink);color:var(--raised)}
+td.lbl{min-width:300px}td.lbl i{display:inline-block;min-width:44px;color:var(--ink-soft);font-style:normal;margin-right:6px}
+input,select{font-family:var(--font);font-size:13px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:6px 8px;width:100%}
+input:focus,select:focus{outline:2px solid var(--brass);border-color:var(--brass)}
+td.g{background:var(--green-in);padding:3px}td.g input{background:transparent;border-color:var(--green-line);text-align:right}
+.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.info label,.mh label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:3px}
+.note{font-size:12px;color:var(--ink-soft);margin:8px 0 0}
+.bd{position:fixed;inset:0;background:rgba(10,14,10,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
+.bd.on{display:flex}
+.md{background:var(--raised);border:1px solid var(--line);border-radius:6px;width:min(1180px,96vw);height:min(88vh,96vh);min-width:640px;min-height:360px;max-width:100vw;max-height:100vh;display:flex;flex-direction:column;overflow:hidden;resize:both}
+.md.max,.md:fullscreen{width:100vw!important;height:100vh!important;border-radius:0;border:0;resize:none}.bd.max{padding:0}
+.mt{background:var(--ink);color:var(--raised);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mt b{font-size:14px}.mt .btn{color:var(--raised);border-color:rgba(255,255,255,.35);padding:6px 10px}
+.mh{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.mb{flex:1;overflow:auto;padding:0 14px 10px}
+.mb th{position:sticky;top:0;background:var(--raised);z-index:2}
+.mb tr.sec td{background:var(--brass-soft);font-weight:700;cursor:pointer;user-select:none}
+.mb tr.sub td{background:var(--teal-soft);font-weight:600}
+.mb td.v input{text-align:right;min-width:110px}
+.mb tr.calc td.v{font-weight:700;background:var(--paper)}
+.rn{color:var(--ink-soft);font-size:10px;opacity:.7;margin-left:4px}
+.mb{padding:0 14px 14px}.mb table{table-layout:fixed;min-width:1080px}
+table.hdr{position:sticky;top:0;z-index:3;background:var(--raised)}
+.cont{border:1px solid var(--line);border-radius:5px;margin:10px 0;overflow:hidden;background:var(--raised)}
+.cont.col tr:not(:first-child){display:none}
+.mb td.sn{text-align:center;font-weight:600;color:var(--brass);padding:6px 2px;white-space:nowrap}
+.mb td.pt{cursor:default}.mb td.pt .t{display:inline-block;padding:1px 0}
+.cv{cursor:pointer;margin-right:6px;color:var(--ink-soft);user-select:none}
+.mb tr.h1 td{background:var(--brass-soft);font-weight:700}.mb tr.h2 td{background:var(--teal-soft);font-weight:600}.mb tr.h3 td{font-weight:600}
+.mb tr.calc td{font-weight:700;background:var(--paper)}
+.mb tr.hidr td{opacity:.45}.mb tr.hidr .t{text-decoration:line-through}
+.pe{width:100%;padding:3px 6px}
+.msg{color:var(--brass);font-weight:600}
+#ctx{position:fixed;display:none;z-index:99;background:var(--raised);border:1px solid var(--line);border-radius:5px;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:4px;min-width:170px}
+#ctx button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:7px 10px;font-size:12.5px;border-radius:3px}
+#ctx button:hover:not(:disabled){background:var(--brass-soft)}#ctx button:disabled{opacity:.4;cursor:not-allowed}
+.mf{border-top:1px solid var(--line);padding:8px 14px;display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;align-items:center}
+.mf .btn{margin-left:auto}
+.wb{display:flex;gap:4px}.wb button{background:transparent;border:0;color:var(--raised);width:34px;height:28px;font-size:14px;border-radius:3px}.wb button:hover{background:rgba(255,255,255,.2)}.wb .x:hover{background:#c0392b}
+.tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line)}
+.tb .btn{padding:7px 12px;cursor:pointer}
+.dd{position:relative}.ddm{display:none;position:absolute;top:100%;left:0;margin-top:3px;background:var(--raised);border:1px solid var(--line);border-radius:4px;z-index:20;min-width:110px;box-shadow:0 6px 18px rgba(0,0,0,.3)}.ddm.on{display:block}
+.ddm button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:7px 12px;font-size:12.5px}.ddm button:hover{background:var(--brass-soft)}
+input[type=checkbox]{width:auto;padding:0}
+.ck{display:inline-flex!important;align-items:center;gap:5px;margin:0 14px 4px 0!important;color:var(--ink)!important;font-size:12.5px!important;cursor:pointer}
+.info .svc{grid-column:1/-1}.mh .svc{grid-column:span 2}
+.mb tr.main td{background:var(--paper);font-weight:700;color:var(--ink)}
+.mb .mn{margin-right:10px}.mb td.mainc{padding:7px 10px}
+.mb td.sn{overflow:visible;text-overflow:clip}
+.mb .ctot{color:var(--brass);font-weight:700;margin-left:10px}
+.cont.yl{background:var(--paper)}
+.mb td.mainc .ttl{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;min-width:0}
+.mb td.mainc .ttl>*{flex:none}
+.mb td.mainc .ttl .t{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mb td.mainc .ttl .ctot{flex:none;margin-left:auto}
+#app tr.zr{display:none}
+#app tr.bbh td{font-weight:700;background:var(--brass-soft)}
+#sorPrint{display:none}
+@media print{
+ @page{size:landscape;margin:8mm}
+ body.sp>*:not(#sorPrint){display:none!important}
+ body.sp{background:#fff!important}
+ body.sp #sorPrint{display:block;color:#000;background:#fff;font-family:Arial,sans-serif}
+ /* ---- PDF header block ---- */
+ #sorPrint .ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px;gap:20px}
+ #sorPrint .pey{font-size:8pt;font-weight:bold;letter-spacing:.5px;margin-bottom:2px;text-transform:uppercase}
+ #sorPrint .ptt{font-size:13pt;font-weight:bold}
+ #sorPrint .psub{font-size:8.5pt;font-style:italic;margin-top:1px}
+ #sorPrint .pr{text-align:right;white-space:nowrap}
+ #sorPrint .pdc{font-size:8pt}
+ #sorPrint .pdd{font-size:10pt;font-weight:bold}
+ /* ---- Basic Details block ---- */
+ #sorPrint .psec{font-size:10pt;font-weight:bold;border-bottom:1px solid #000;padding:2px 0;margin:6px 0 4px}
+ #sorPrint .pbt{width:100%;border-collapse:collapse;font-size:8.5pt;margin-bottom:8px}
+ #sorPrint .pbt td{padding:2px 4px;border:0;vertical-align:top}
+ #sorPrint .pbt .pl{width:50%;text-align:left}
+ #sorPrint .pbt .pv{text-align:right;font-weight:bold}
+ /* ---- Main table ---- */
+ #sorPrint table{width:100%;border-collapse:collapse;font-size:7.5pt}
+ #sorPrint th,#sorPrint td{border:.5px solid #777;padding:2px 4px}
+ #sorPrint th{background:#ddd;text-align:center;vertical-align:middle}
+ #sorPrint .qh{font-weight:bold;font-size:7.5pt}
+ #sorPrint .qs{font-size:6.5pt;font-weight:normal}
+ #sorPrint td.r{text-align:right;white-space:nowrap}
+ #sorPrint tr{break-inside:avoid}#sorPrint thead{display:table-header-group}
+ #sorPrint tr.m td{background:#e8e8e8!important;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #sorPrint tr.c td{font-weight:700}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <div><div class="eyebrow">SUC Assessment</div><h1>Part I : Calculation of AGR for SUC</h1></div>
+ <div class="tools">
+  <button class="btn pri" id="sorBtn">Add SoR Data</button>
+  <button class="btn" id="mainPdf">Download / Print PDF</button>
+  <button class="btn" id="hideAll">Hide all sections</button>
+  <button class="btn" id="showAll">Show all sections</button>
+  <button class="btn" id="resetBtn">RESET ALL</button>
+  <div class="tg"><button data-t="light" class="on">Light</button><button data-t="dark">Dark</button></div>
+ </div>
+</header>
+<div id="app"></div>
+<p class="note">Green cells are the only fillable cells on this page. Everything else is calculated from the Audited Statement of Revenue (<b>Add SoR Data</b>). Amounts in ₹.</p>
+</div>
+
+<div class="bd" id="bd"><div class="md" id="md">
+ <div class="mt"><b>01. Audited Statement of Revenue</b><div class="wb"><button id="mMax" title="Maximise / Restore">▢</button><button id="mX" class="x" title="Close">✕</button></div></div>
+ <div class="tb"><label class="btn" title="Columns: Row or Particulars, then Q1 Q2 Q3 Q4">Upload CSV<input type="file" id="mCsv" accept=".csv,text/csv" hidden></label><div class="dd"><button class="btn" id="mDl">Download ▾</button><div class="ddm" id="mDlM"><button id="dlPdf">PDF</button><button id="dlCsv">CSV</button></div></div><button class="btn" id="mShowH">Show hidden rows</button><button class="btn" id="mHide">Collapse all</button><button class="btn" id="mShow">Expand all</button><button class="btn" id="mFull">Full Screen</button><button class="btn" id="mClose">Close</button></div>
+ <div class="mh" id="mh"></div>
+ <div class="mb" id="mb"></div>
+ <div class="mf" id="mf"></div>
+</div></div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id), KEY='agr_v1';
+const rg=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
+const fmt=n=>{n=Math.round(n||0);return (n<0?'−':'')+Math.abs(n).toLocaleString('en-IN')};
+const num=x=>{const n=parseFloat(x);return isFinite(n)?n:0};
+const dv=(a,b)=>b?a/b:0;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- state ---------- */
+const MODE_OPTS=['SUC Assessment - PROVISIONAL','SUC Assessment - FINAL','SUC Assessment - REVISION','SUC Assessment - INTEREST UPDATION'];
+const SOR_TYPE_OPTS=['Quarterly Un-Audited','Annual Audited'];
+const SOR_QTR_DATES=['Date of Signing of Quarterly SoR','Date of Submission of Quarterly SoR'];
+const SOR_AUD_DATES=['Date Signing of Audited SoR','Date of Submission of Audited SoR'];
+const sorDateNames=()=>((S.info.sorType||'Quarterly Un-Audited')==='Annual Audited')?SOR_AUD_DATES:SOR_QTR_DATES;
+const blank=()=>({info:{svc:[],lic:'',fy:'2024-25',type:'',area:'',lsa:'',no:'',mode:'SUC Assessment - PROVISIONAL',date:'',sorType:'Quarterly Un-Audited',sorDateName:'Date of Signing of Quarterly SoR',sorDate:'',subtitle:'Deduction on Cash Basis',agrApp:true},sor:{},dot:{},hid:{},model:null,uid:0,showHid:false});
+let S=blank();
+try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(blank(),o);S.info=Object.assign(blank().info,S.info||{})}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+/* ---------- Sheet 01 model ---------- */
+const DEF=[{"id":"11","l":"Revenue from services","lv":1,"st":"n","t":"head"},{"id":"12","l":"From Wire-Line Subscribers:","lv":2,"st":"A","t":"head"},{"id":"13","l":"Rentals","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"14","l":"Call Revenue within Service Area","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"15","l":"National Long Distance Call Revenue","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"16","l":"International Long Distance Call Revenue","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"17","l":"Pass through Revenue For Usage Of Other Networks (Give Operator-Wise Details)","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"18","l":"Service Tax","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"19","l":"Service Charges","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"20","l":"Charges on Account of Any other Value Added Services, Supplementary Services Etc.","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"21","l":"Any Other Income / Miscellaneous Receipt From Wireline Subscribers.","lv":3,"st":"i","t":"in","s":"22","aa":true},{"id":"22","l":"Subtotal","lv":3,"st":null,"t":"calc"},{"id":"23","l":"From Wll Subscribers : (Fixed)","lv":2,"st":"A","t":"head"},{"id":"24","l":"Rentals","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"25","l":"Call Revenue within Service Area","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"26","l":"National Long Distance Call Revenue","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"27","l":"International Long Distance Call Revenue","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"28","l":"Pass through Revenue For Usage Of Other Networks (Give Operator-Wise Details)","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"29","l":"Service Tax","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"30","l":"Service Charges","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"31","l":"Charges on Account of Any other Value Added Services, Supplementary Services Etc.","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"32","l":"Any Other Income / Miscellaneous Receipt From WLL Subscribers.","lv":3,"st":"i","t":"in","s":"33","aa":true},{"id":"33","l":"Subtotal","lv":3,"st":null,"t":"calc"},{"id":"34","l":"From Wll Subscribers : (Handheld)","lv":2,"st":"A","t":"head"},{"id":"35","l":"Rentals","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"36","l":"Call Revenue within Service Area","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"37","l":"National Long Distance Call Revenue","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"38","l":"International Long Distance Call Revenue","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"39","l":"Pass through Revenue For Usage Of Other Networks (Give Operator-Wise Details)","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"40","l":"Service Tax","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"41","l":"Service Charges","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"42","l":"Charges on Account of Any other Value Added Services, Supplementary Services Etc.","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"43","l":"Any Other Income / Miscellaneous Receipt From WLL Subscribers.","lv":3,"st":"i","t":"in","s":"44","aa":true},{"id":"44","l":"Subtotal","lv":3,"st":null,"t":"calc"},{"id":"45","l":"Revenue From Mobile Services:","lv":2,"st":"A","t":"head"},{"id":"47","l":"Revenue From Gsm And 3G Spectrum Based Mobile Services:","lv":3,"st":"a","t":"head"},{"id":"49","l":"Post Paid Options:","lv":4,"st":"N","t":"head"},{"id":"50","l":"Rentals","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"51","l":"Activation Charges","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"52","l":"Airtime Revenue","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"53","l":"Pass Through Charges (Provide Operator-Wise Details)","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"54","l":"Service Tax","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"55","l":"Roaming Charges","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"56","l":"Service Charges","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"57","l":"Charges on Account of Any other Value Added Services. Supplementary Services Etc.","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"58","l":"Any other Income/ Miscellaneous Receipt From Post Paid Options.","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"59","l":"Prepaid Options","lv":4,"st":"N","t":"head"},{"id":"60","l":"Rentals","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"61","l":"Activation Charges","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"62","l":"Airtime Revenue","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"63","l":"Pass Through Charges (Provide Operator-Wise Details)","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"64","l":"Service Tax","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"65","l":"Roaming Charges","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"66","l":"Service Charges","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"67","l":"Charges on Account of Any other Value Added Services. Supplementary Services Etc.","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"68","l":"Any other Income/ Miscellaneous Receipt From Pre Paid Options.","lv":5,"st":"i","t":"in","s":"73","aa":true},{"id":"69","l":"Revenue From Mobile Community Phone Service Including Full Value Of All Components Charged Therein.","lv":4,"st":"N","t":"head"},{"id":"72","l":"Any Other Income/ Miscellaneous Receipt From Mobile Community Phone Service.","lv":5,"st":"i","t":"in","s":"73","n":"not added into AA in the sheet"},{"id":"73","l":"Subtotal","lv":3,"st":null,"t":"calc"},{"id":"74","l":"Revenue from CDMA Based Mobile Services:","lv":3,"st":"a","t":"head"},{"id":"75","l":"Post Paid Options:","lv":4,"st":"N","t":"head"},{"id":"76","l":"Rentals","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"77","l":"Activation Charges","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"78","l":"Airtime Revenue","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"79","l":"Pass Through Charges (Provide Operator-Wise Details)","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"80","l":"Service Tax","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"81","l":"Roaming Charges","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"82","l":"Service Charges","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"83","l":"Charges on Account of Any other Value Added Services. Supplementary Services Etc.","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"84","l":"Any other Income/ Miscellaneous Receipt From Post Paid Options.","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"85","l":"Pre Paid Options:","lv":4,"st":"N","t":"head"},{"id":"86","l":"Sale of Pre-Paid Sim Cards Including Full Value Of All Components Charged Therein.","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"87","l":"Activation Charges","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"88","l":"Airtime Revenue","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"89","l":"Pass Through Charges (Provide Operator wise Details)","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"90","l":"Goods and Service Tax (GST)","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"91","l":"Roaming Charges","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"92","l":"Service Charges","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"93","l":"Charges on Account of any other value added services. Supplementary Services Etc.","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"94","l":"Any other Income/ Miscellaneous Receipt From Pre-Paid Options.","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"95","l":"Revenue From Mobile Community Phone Service Including Full Value Of All Components Charged Therein.","lv":4,"st":"N","t":"head"},{"id":"96","l":"Any other Income/ Miscellaneous Receipt From Mobile Community Phone Service.","lv":5,"st":"i","t":"in","s":"97","aa":true},{"id":"97","l":"Total Revenue from CDMA Based Mobile Services.","lv":4,"st":"N","t":"calc"},{"id":"98","l":"Revenue From BWA Services:","lv":3,"st":"a","t":"head"},{"id":"99","l":"Post Paid Options:","lv":4,"st":"N","t":"head"},{"id":"100","l":"Rentals","lv":5,"st":"i","t":"in","aa":true},{"id":"101","l":"Activation Charges","lv":5,"st":"i","t":"in","aa":true},{"id":"102","l":"Airtime Revenue","lv":5,"st":"i","t":"in","aa":true},{"id":"103","l":"Pass Through Charges (Provide Operator wise Details)","lv":5,"st":"i","t":"in","aa":true},{"id":"104","l":"Goods and Service Tax (GST)","lv":5,"st":"i","t":"in","aa":true},{"id":"105","l":"Roaming Charges","lv":5,"st":"i","t":"in","aa":true},{"id":"106","l":"Service Charges","lv":5,"st":"i","t":"in","aa":true},{"id":"107","l":"Charges on Account of any other value added services. Supplementary Services Etc.","lv":5,"st":"i","t":"in","aa":true},{"id":"108","l":"Any other Income/ Miscellaneous Receipt From Post-Paid Options.","lv":5,"st":"i","t":"in","aa":true},{"id":"109","l":"Pre-paid Options:","lv":4,"st":"N","t":"head"},{"id":"110","l":"Sale of Pre-Paid Sim Cards Including Full Value Of All Components Charged Therein.","lv":5,"st":"i","t":"in","aa":true},{"id":"111","l":"Activation Charges","lv":5,"st":"i","t":"in","aa":true},{"id":"112","l":"Airtime Revenue","lv":5,"st":"i","t":"in","aa":true},{"id":"113","l":"Pass Through Charges (Provide Operator wise Details)","lv":5,"st":"i","t":"in","aa":true},{"id":"114","l":"Goods and Service Tax (GST)","lv":5,"st":"i","t":"in","aa":true},{"id":"115","l":"Roaming Charges","lv":5,"st":"i","t":"in","aa":true},{"id":"116","l":"Service Charges","lv":5,"st":"i","t":"in","aa":true},{"id":"117","l":"Charges on Account of any other value added services. Supplementary Services Etc.","lv":5,"st":"i","t":"in","aa":true},{"id":"118","l":"Any other Income/ Miscellaneous Receipt From Pre-Paid Options.","lv":5,"st":"i","t":"in","aa":true},{"id":"119","l":"Revenue from Mobile Community Phone Service Including Full Value Of All Components Charged Therein.","lv":4,"st":"N","t":"head"},{"id":"120","l":"Any Other Income/ Miscellaneous Receipt From Mobile Community Phone Service.","lv":5,"st":"i","t":"in","aa":true},{"id":"121","l":"Revenue From Voice Mail/Any Other Value Added Service","lv":2,"st":"A","t":"in","aa":true},{"id":"123","l":"Income from Trading Activity (All Including Of Sales Tax)","lv":1,"st":"n","t":"head"},{"id":"124","l":"Sale of Handsets (Excluding Sales Tax)","lv":2,"st":"i","t":"in","aa":true},{"id":"125","l":"Sale of Accessories Etc. (Excluding Sales Tax)","lv":2,"st":"i","t":"in","aa":true},{"id":"126","l":"Any Other Income/ Miscellaneous Receipt From Trading Activity. (Excluding Sales Tax)","lv":2,"st":"i","t":"in","aa":true},{"id":"127","l":"Goods and Service Tax (GST)","lv":2,"st":"i","t":"in","aa":true},{"id":"128","l":"Revenue from Roaming.","lv":1,"st":"n","t":"head"},{"id":"129","l":"Roaming facility Revenue From Own Subscribers.","lv":2,"st":"i","t":"in","s":"135","aa":true},{"id":"130","l":"Roaming revenue from own Subscriber Visiting Other Networks Including Std/Isd/Pass Thru Charges For Transmission Of Incoming Call During Roaming.","lv":2,"st":"i","t":"in","s":"135","aa":true},{"id":"131","l":"Roaming Commission Earned.","lv":2,"st":"i","t":"in","s":"135","aa":true},{"id":"132","l":"Roaming Revenue On Account Of Visiting Subscribers From Other Networks (Provide Operator-Wise Details).","lv":2,"st":"i","t":"in","s":"135","aa":true},{"id":"133","l":"Goods and Services Tax (If Not Included)","lv":2,"st":"i","t":"in","s":"135","aa":true},{"id":"134","l":"Any other income/Miscellaneous Receipt From Roaming.","lv":2,"st":"i","t":"in","s":"135","aa":true},{"id":"135","l":"Subtotal","lv":2,"st":null,"t":"calc"},{"id":"136","l":"Income from Investments","lv":1,"st":"n","t":"head"},{"id":"137","l":"Interest Income","lv":2,"st":"i","t":"in","aa":true},{"id":"138","l":"Dividend Income","lv":2,"st":"i","t":"in","aa":true},{"id":"139","l":"Any other Miscellaneous Receipt From Investments.","lv":2,"st":"i","t":"in","aa":true},{"id":"h140","l":"Non Refundable Deposits From Subscribers","lv":1,"st":"n","t":"head"},{"id":"140","l":"Non Refundable Deposits from Subscribers","lv":2,"st":"i","t":"in","aa":true},{"id":"h141","l":"Revenue from Franchisees/Resellers Including All Commissions And Discounts Etc. Excluding The Revenues Already Included In IA & IB","lv":1,"st":"n","t":"head"},{"id":"141","l":"Revenue from Franchisees/Resellers Including All Commissions And Discounts Etc. Excluding The Revenues Already Included In IA & IB","lv":2,"st":"i","t":"in","aa":true},{"id":"h142","l":"Revenue From Sharing/ Leasing Of Infrastructure","lv":1,"st":"n","t":"head"},{"id":"142","l":"Revenue From Sharing/ Leasing Of Infrastructure","lv":2,"st":"i","t":"in","aa":true},{"id":"h143","l":"Revenue from Sale/ Lease Of Bandwidth, Links, R&G Cases, Turnkey Projects Etc.","lv":1,"st":"n","t":"head"},{"id":"143","l":"Revenue from Sale/ Lease Of Bandwidth, Links, R&G Cases, Turnkey Projects Etc.","lv":2,"st":"i","t":"in","aa":true},{"id":"h144","l":"Revenue from Other Operators On Account Of Pass Through Call Charges (Provide Operator-Wise Details).","lv":1,"st":"n","t":"head"},{"id":"144","l":"Revenue from Other Operators On Account Of Pass Through Call Charges (Provide Operator-Wise Details).","lv":2,"st":"i","t":"in","aa":true},{"id":"h145","l":"Revenue from Other Operators On Account Of Provisioning Of Interconnection (Provide Operator-Wise Details)","lv":1,"st":"n","t":"head"},{"id":"145","l":"Revenue from Other Operators On Account Of Provisioning Of Interconnection (Provide Operator-Wise Details)","lv":2,"st":"i","t":"in","aa":true},{"id":"146","l":"Revenue from other activities","lv":1,"st":"n","t":"head"},{"id":"147","l":"Revenue from operations/ activities other than Telecom Operations/Activities.","lv":2,"st":"a","t":"in","aa":true},{"id":"148","l":"Any other","lv":3,"st":null,"t":"in","aa":true},{"id":"149","l":"Revenue from operations/ activities under a license from Ministry of Information and Broadcasting.","lv":2,"st":"a","t":"in","aa":true},{"id":"150","l":"Any other","lv":3,"st":null,"t":"in","aa":true},{"id":"151","l":"Receipts from USO Fund and Miscellaneous Revenue","lv":1,"st":"n","t":"head"},{"id":"152","l":"Receipts from USO Fund","lv":2,"st":"a","t":"in"},{"id":"153","l":"Miscellaneous Revenue","lv":2,"st":"a","t":"head"},{"id":"154","l":"Income from Dividend","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"155","l":"Income from Interest","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"156","l":"Capital gains on account of profit sale of fixed assets and securitites.","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"157","l":"Gains from foreign exchange rates fluctuations","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"158","l":"Income from property rent.","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"159","l":"Insurance Claims","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"160","l":"Bad debts recovered","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"161","l":"Excess provisions written back.","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"162","l":"Any other","lv":3,"st":"i","t":"in","s":"163","aa":true},{"id":"163","l":"Subtotal of 12(a) & 12 (b)","lv":2,"st":null,"t":"calc"},{"id":"165","l":"Gross Revenue of the licensee Company: (Add 1-11)","lv":1,"st":"fx","t":"calc","fx":"AA"},{"id":"167","l":"Less:","lv":1,"st":"fx","t":"head","fx":"BB"},{"id":"168","l":"Revenue from operations other than telecom activities/operations.","lv":2,"st":"N","t":"in","s":"181"},{"id":"169","l":"Revenue from activities under a license from Ministry of Information and broadcasting.","lv":2,"st":"N","t":"in","s":"181"},{"id":"170","l":"Receipt from USO Fund.","lv":2,"st":"N","t":"in","s":"181"},{"id":"171","l":"Items of 'Other Income' as listed in Annexure-VIII","lv":2,"st":"N","t":"head","s":"181"},{"id":"172","l":"Income from Dividend","lv":3,"st":"i","t":"in","s":"181"},{"id":"173","l":"Income from Interest","lv":3,"st":"i","t":"lnk","f":"155","s":"181"},{"id":"174","l":"Capital gains on account of profit sale of fixed assets and securitites.","lv":3,"st":"i","t":"lnk","f":"156","s":"181"},{"id":"175","l":"Gains from foreign exchange rates fluctuations","lv":3,"st":"i","t":"lnk","f":"157","s":"181"},{"id":"176","l":"Income from property rent.","lv":3,"st":"i","t":"lnk","f":"158","s":"181"},{"id":"177","l":"Insurance Claims","lv":3,"st":"i","t":"in","s":"181"},{"id":"178","l":"Bad debts recovered","lv":3,"st":"i","t":"lnk","f":"160","s":"181"},{"id":"179","l":"Excess provisions written back.","lv":3,"st":"i","t":"lnk","f":"161","s":"181"},{"id":"181","l":"Deductible Revenue (1+2+3+4)","lv":2,"st":null,"t":"calc"},{"id":"183","l":"Applicable Gross Revenue (ApGR) (AA-BB)","lv":1,"st":"fx","t":"calc","fx":"CC"},{"id":"185","l":"Deduct:","lv":1,"st":"fx","t":"head","fx":"DD"},{"id":"186","l":"PSTN/PLMN/GMPCS related call charges (Access Charges) paid to other eligible/entitled Telecommunication service providers within India","lv":2,"st":"N","t":"in","s":"190"},{"id":"187","l":"Roaming revenue passed on to other eligible/entitled telecommunication service providers and CMSPs and GMPCS service providers (Operator-wise)","lv":2,"st":"N","t":"in","s":"190"},{"id":"188","l":"Goods and Service Tax (GST) paid to the Government.","lv":2,"st":"N","t":"in","s":"190"},{"id":"190","l":"Total Deductible Revenue (1+2+3)","lv":2,"st":null,"t":"calc"},{"id":"192","l":"Adjusted Gross Revenue (CC-DD)","lv":1,"st":"fx","t":"calc","fx":"EE"},{"id":"193","l":"Revenue Share @ 8% of Adjusted Gross Revenue","lv":2,"st":null,"t":"calc"}];
+const M=()=>S.model||(S.model=JSON.parse(JSON.stringify(DEF)));
+let byId={};const idx=()=>{byId={};M().forEach(m=>byId[m.id]=m)};
+const SUB=new Set(['22','33','44','73','97','135','163','181','190']);
+const FXSUM=new Set(['AA','BB','CC','DD','EE']);
+function V(id,q){
+ id=String(id);const m=byId[id];if(!m)return 0;
+ if(m.t==='calc'){
+  if(SUB.has(id))return M().reduce((s,x)=>x.s===id?s+V(x.id,q):s,0);
+  if(id==='165')return M().reduce((s,x)=>x.aa?s+V(x.id,q):s,0);
+  if(id==='183')return V(165,q)-V(181,q);
+  if(id==='192')return V(183,q)-V(190,q);
+  if(id==='193')return Math.round(V(192,q)*0.08);
+  return 0}
+ if(m.t==='lnk')return V(m.f,q);
+ if(m.t==='head')return 0;
+ return num((S.sor[id]||[])[q]);
+}
+/* ---------- Sheet 04 model ---------- */
+let sheet04=[];
+const BASE=[
+ ['sec','1','Revenue from Services'],
+ [17,'GR of wireline as per audited statement of revenue',q=>V(22,q)],
+ [18,'GR of WLL as per audited statement of revenue',q=>V(33,q)+V(44,q)],
+ [19,'GR of CDMA as per audited statement of revenue',q=>V(97,q)],
+ [20,'GR of CDMA + WLL',(q,R)=>R(18,q)+R(19,q)],
+ [21,'GR of GSM as per audited statement of revenue',q=>V(73,q)],
+ [22,'Total Revenue from Services',(q,R)=>[17,18,19,20,21].reduce((s,x)=>s+R(x,q),0),'tot'],
+ ['sec','2','Revenue from Roaming'],
+ ['dyn','roam'],
+ ['sec','3','Miscellaneous Revenue (Revenue other than Service & Roaming)'],
+ ['dyn','misc'],
+ ['sec','5','GR, Deductions and AGR as per audited AGR'],
+ [42,'Gross revenue as per audited Statement of Revenue (AA)',(q,R)=>R(22,q)+R(26,q)+R(40,q),'tot'],
+ [44,'BB Less (i) Income from interest',q=>V(173,q)],
+ [45,'BB Less (ii) Capital gains on profit sale of fixed assets and securities',q=>V(174,q)],
+ [46,'BB Less (iii) Bad debts recovered',q=>V(178,q)],
+ [47,'BB Less (iv) Excess provisions written back',q=>V(179,q)],
+ [48,'Total Non Telecom Revenue (BB)',(q,R)=>[44,45,46,47].reduce((s,x)=>s+R(x,q),0),'tot'],
+ [49,'Applicable Gross Revenue (AA − BB)',(q,R)=>R(42,q)-R(48,q),'tot'],
+ [50,'Deductions as per Audited AGR – PSTN',q=>V(186,q)],
+ [51,'Deductions – Roaming',q=>V(187,q)],
+ [52,'Deductions – GST to Govt',q=>V(188,q)],
+ [53,'Total Deductions',(q,R)=>R(50,q)+R(51,q)+R(52,q),'tot'],
+ [54,'AGR as per audited Statement of Revenue',(q,R)=>R(49,q)-R(53,q),'fin'],
+ ['sec','6','Additions and Deductions by DoT'],
+ [59,'Additions by DoT – DoT','in'],[60,'Additions by DoT – Special Audit','in'],[61,'Additions by DoT – CAG','in'],
+ [62,'Total Addbacks',(q,R)=>R(59,q)+R(60,q)+R(61,q),'tot'],
+ [63,'Deductions Disallowed – PSTN','in'],[64,'Deductions Disallowed – Roaming','in'],[65,'Deductions Disallowed – Bad Debts','in'],
+ [66,'Total Deductions Disallowed',(q,R)=>R(63,q)+R(64,q)+R(65,q),'tot'],
+ ['dyn','bb'],
+ ['sec','7','Gross Revenue, Applicable Gross Revenue and AGR as per DoT'],
+ [69,'Gross Revenue as per DoT',(q,R)=>R(42,q)+R(62,q)],
+ [70,'Applicable Gross Revenue as per DoT',(q,R)=>R(49,q)+R(62,q)],
+ [71,'Total Deductions as per DoT',(q,R)=>R(53,q)-R(66,q)],
+ [72,'AGR as per DoT',(q,R)=>R(70,q)-R(71,q),'fin'],
+ ['sec','T1.2-1','Table 1.2 – Gross Revenue of GSM'],
+ [79,'Gross Revenue of GSM as per Audited Statement of Revenue',(q,R)=>R(21,q)],
+ [80,'Roaming Revenue apportioned to GSM',(q,R)=>R(26,q)*dv(R(21,q),R(20,q)+R(21,q))],
+ [81,'Miscellaneous income apportioned to GSM',(q,R)=>R(40,q)*dv(R(79,q)+R(80,q),R(42,q)-R(40,q)-R(62,q))],
+ [82,'Add by DoT, SA & CAG apportioned to GSM',(q,R)=>R(62,q)*dv(R(79,q)+R(80,q)+R(81,q),R(42,q)-R(62,q))],
+ [83,'GR of GSM after add backs',(q,R)=>R(79,q)+R(80,q)+R(81,q)+R(82,q),'tot'],
+ [84,'Non Telecom Revenue apportioned to GSM',(q,R)=>R(48,q)*dv(R(83,q),R(69,q))],
+ [85,'Applicable GR of GSM after add backs',(q,R)=>R(83,q)-R(84,q),'tot'],
+ ['sec','T1.2-2','Table 1.2 – Gross Revenue of Wireline'],
+ [90,'Gross revenue of wireline as per Audited Statement of Revenue',(q,R)=>R(17,q)],
+ [91,'Miscellaneous income apportioned to wireline',(q,R)=>R(40,q)*dv(R(90,q),R(42,q)-R(40,q)-R(62,q))],
+ [92,'Add by DoT, SA & CAG apportioned to wireline',(q,R)=>R(62,q)*dv(R(90,q)+R(91,q),R(42,q)-R(62,q))],
+ [93,'GR of wireline after addbacks',(q,R)=>R(90,q)+R(91,q)+R(92,q),'tot'],
+ [94,'Non Telecom Revenue apportioned to Wireline',(q,R)=>R(48,q)*dv(R(93,q),R(69,q))],
+ [95,'Applicable GR of Wireline after add backs',(q,R)=>R(93,q)-R(94,q),'tot'],
+ ['sec','T1.3','Table 1.3 – Apportioning of Deductions to GSM / Wireline'],
+ [100,'Pro-rata deductions for GSM',(q,R)=>R(50,q)*dv(R(79,q)+R(80,q),R(22,q)+R(26,q))+R(51,q)],
+ [101,'Deductions Disallowed by DoT',(q,R)=>R(66,q)],
+ [102,'Net AGR for SUC for GSM',(q,R)=>R(85,q)-(R(100,q)-R(101,q)),'fin'],
+ [103,'Pro-rata deduction for wireline',(q,R)=>R(50,q)*dv(R(93,q),R(69,q))],
+ [104,'Net AGR for Wireline',(q,R)=>R(95,q)-R(103,q),'fin'],
+ ['sec','T1.4','Table 1.4 – Summary'],
+ [109,'GR as per DoT',(q,R)=>R(49,q)],
+ [110,'GR as per Apportionment',(q,R)=>R(85,q)+R(95,q)],
+ [111,'Deductions as per DoT',(q,R)=>R(71,q)],
+ [112,'Deductions as per Apportionment',(q,R)=>R(100,q)+R(103,q)-R(101,q)],
+ [113,'AGR as per DoT',(q,R)=>R(72,q),'fin'],
+ [114,'AGR as per Apportionment',(q,R)=>R(102,q)+R(104,q),'fin']
+];
+const MISC_G=['123','136','h140','h141','h142','h143','h144','h145','146','151'];
+function dynRows(firsts){const res=[];let on=false;
+ M().forEach(m=>{if(m.lv===1)on=firsts.includes(m.id);if(on&&m.t==='in'&&m.aa)res.push(m)});return res}
+function bbRows(){const res=[];let on=false;
+ M().forEach(m=>{if(m.lv===1)on=(m.id==='167');if(on&&(m.t==='in'||m.t==='lnk'))res.push(m)});return res}
+function buildSheet(){
+ const rm=dynRows(['128']),ms=dynRows(MISC_G),out=[];
+ const mk=m=>['f'+m.id,m.l,q=>V(m.id,q)];
+ BASE.forEach(s=>{
+  if(s[0]!=='dyn'){out.push(s);return}
+  if(s[1]==='roam'){rm.forEach(m=>out.push(mk(m)));out.push([26,'Total Revenue from Roaming Services',(q,R)=>rm.reduce((a,m)=>a+R('f'+m.id,q),0),'tot'])}
+  else if(s[1]==='misc'){ms.forEach(m=>out.push(mk(m)));out.push([40,'Total Revenue to be apportioned',(q,R)=>ms.reduce((a,m)=>a+R('f'+m.id,q),0),'tot'])}
+  else if(s[1]==='bb'&&S.info.agrApp){
+   const bb=bbRows(),mb=m=>['b'+m.id,m.l,q=>V(m.id,q)];
+   out.push(['bbh','BB LESS',q=>bb.reduce((a,m)=>a+Math.abs(V(m.id,q)),0),'bbh']);
+   bb.forEach(m=>out.push(mb(m)));
+   out.push(['bbt','Total Non Telecom Revenue',(q,R)=>bb.reduce((a,m)=>a+R('b'+m.id,q),0),'tot']);
+   out.push(['bba','Applicable Gross Revenue (Gross Revenue as per DoT − BB LESS)',(q,R)=>R(42,q)+R(62,q)-R('bbt',q),'tot']);
+  }
+ });
+ return out}
+const isZero=a=>a.every(x=>fmt(x)==='0')&&fmt(a.reduce((x,y)=>x+y,0))==='0';
+const QH=['Q1','Q2','Q3','Q4'],QD=['01 Apr – 30 Jun','01 Jul – 30 Sep','01 Oct – 31 Dec','01 Jan – 31 Mar'];
+const qhead='<th>Item</th>'+QH.map((q,i)=>`<th>${q}<small>${QD[i]}</small></th>`).join('')+'<th>Total</th>';
+
+function compute(){
+ const out={};const R=(r,q)=>out[r][q];
+ sheet04.forEach(s=>{
+  if(s[0]==='sec')return;
+  const r=s[0];
+  if(s[2]==='in'){out[r]=[0,1,2,3].map(q=>num((S.dot[r]||[])[q]))}
+  else out[r]=[0,1,2,3].map(q=>s[2](q,R));
+ });
+ return out;
+}
+const SVC=['GSM Access','GSM MWA','GSM MWB','E-BAND','OTHER'];
+const svcF=l=>`<div class="svc"><label>${l}</label>${SVC.map(o=>`<label class="ck"><input type="checkbox" data-svc="${o}"${(S.info.svc||[]).includes(o)?' checked':''}> ${o}</label>`).join('')}</div>`;
+const agrF=l=>`<div class="svc"><label class="ck"><input type="checkbox" data-agr="1"${S.info.agrApp?' checked':''}> ${l}</label></div>`;
+const fld=(k,l,type,opts)=>k==='agrApp'?agrF(l):k==='svc'?svcF(l):`<div><label>${l}</label>${opts?`<select data-i="${k}">${opts.map(o=>`<option ${S.info[k]===o?'selected':''}>${o}</option>`).join('')}</select>`:`<input type="${type||'text'}" data-i="${k}" value="${esc(S.info[k])}">`}</div>`;
+const INFO=[['lic','Licensee Name'],['fy','Financial Year'],['type','License Type / Authorization'],['svc','Service'],['area','Area of Operation'],['lsa','License Service Area'],['no','License No.'],['mode','Type of Assessment',0,MODE_OPTS],['date','Date of Assessment','date'],['subtitle','Sub-title (PDF)'],['agrApp','AGR for Spectrum Usage Charges is calculated on applicable AGR']];
+
+function render(){
+ idx();sheet04=buildSheet();const out=compute();let h='';
+ h+=cardOpen('info','','Basic Details')+`<div class="info">${INFO.map(a=>fld(a[0],a[1],a[2],a[3])).join('')}</div></div></div>`;
+ let open=false;
+ const rows=[];let cur=null;
+ sheet04.forEach(s=>{if(s[0]==='sec'){cur={id:s[1],t:s[2],rows:[]};rows.push(cur)}else cur.rows.push(s)});
+ rows.forEach(sc=>{
+  if(sc.id==='1')h+='<div class="t1">Table 1.1: AGR as per Audited Statement of Revenue</div>';
+  h+=cardOpen('s'+sc.id,/^T/.test(sc.id)?'':sc.id,sc.t);
+  h+=`<table><thead><tr>${qhead}</tr></thead><tbody>`;
+  sc.rows.forEach(s=>{
+   const r=s[0],isIn=s[2]==='in',cls=isIn?'':(s[3]||'');
+   const zr=!isIn&&isZero(out[r]);
+   h+=`<tr class="${cls}${zr?' zr':''}"${isIn?'':' data-r="'+r+'"'}><td class="lbl">${esc(s[1])}</td>`;
+   if(s[3]==='bbh')h+='<td></td>'.repeat(5);else{
+   for(let q=0;q<4;q++)h+=isIn?`<td class="g"><input type="number" step="any" data-d="${r}|${q}" value="${esc((S.dot[r]||[])[q]||'')}" placeholder="0"></td>`:`<td class="v" data-c="${r}|${q}">${fmt(out[r][q])}</td>`;
+   h+=`<td class="v" data-c="${r}|4">${fmt(out[r].reduce((a,b)=>a+b,0))}</td></tr>`;}
+   if(s[3]==='bbh')h+='</tr>';
+  });
+  h+='</tbody></table></div></div>';
+ });
+ $('app').innerHTML=h;
+}
+function cardOpen(id,n,t){return `<div class="card${S.hid[id]?' hid':''}" data-id="${id}"><h2><span class="ch">${S.hid[id]?'▸':'▾'}</span><span class="n">${n}</span>${esc(t)}</h2><div class="body">`}
+function refresh(){ // update calculated cells in place (keeps input focus)
+ const out=compute();
+ // Column-wise sum for collapsed containers
+ document.querySelectorAll('#mb .cont.col').forEach(cont=>{
+  const sumIds=(cont.dataset.sum||'').split(',').filter(Boolean);
+  if(!sumIds.length)return;
+  cont.querySelectorAll('tr:first-child td.v[data-cs]').forEach(td=>{
+   const q=+td.dataset.cs;
+   const v=q===4
+    ?[0,1,2,3].reduce((s,qq)=>s+sumIds.reduce((a,id)=>a+V(id,qq),0),0)
+    :sumIds.reduce((a,id)=>a+V(id,q),0);
+   td.textContent=fmt(v);
+  });
+ });
+ document.querySelectorAll('[data-c]').forEach(td=>{const p=td.dataset.c.split('|'),a=p[0],b=+p[1];if(!out[a])return;td.textContent=fmt(b===4?out[a].reduce((x,y)=>x+y,0):out[a][b])});
+ document.querySelectorAll('#app tr[data-r]').forEach(tr=>{if(out[tr.dataset.r])tr.classList.toggle('zr',isZero(out[tr.dataset.r]))});
+ const A=[];for(let q=0;q<4;q++)A.push(q);
+ document.querySelectorAll('[data-m]').forEach(td=>{const p=td.dataset.m.split('|'),r=p[0],q=+p[1];td.textContent=fmt(q===4?A.reduce((s,x)=>s+V(r,x),0):V(r,q))});
+ const f=r=>A.reduce((s,q)=>s+V(r,q),0);
+ if($('mf'))$('mf').querySelectorAll('[data-k]').forEach(e=>e.textContent=fmt(f(+e.dataset.k)));
+}
+/* ---------- modal (sheet 01 form) ---------- */
+let msg='';
+const ROM=n=>{let s='';[[10,'x'],[9,'ix'],[5,'v'],[4,'iv'],[1,'i']].forEach(a=>{while(n>=a[0]){s+=a[1];n-=a[0]}});return s};
+const LET=n=>String.fromCharCode(65+(n-1)%26);
+function serials(){const c=[0,0,0,0,0,0,0],o={};
+ M().forEach(m=>{if(m.h||!m.st)return;
+  for(let i=m.lv+1;i<7;i++)c[i]=0;
+  if(m.st==='fx'){o[m.id]=m.fx;return}
+  const n=++c[m.lv];o[m.id]={n:''+n,A:LET(n),a:'('+LET(n).toLowerCase()+')',i:'('+ROM(n)+')',N:''+n}[m.st]});
+ return o}
+function mRender(){
+ idx();const sc=$('mb').scrollTop;
+ const y=(S.info.fy||'').slice(0,4)||'YYYY',y2='20'+((S.info.fy||'').slice(-2)||'YY');
+ const H=['30-06-'+y,'30-09-'+y,'31-12-'+y,'31-03-'+y2];
+ $('mh').innerHTML=[
+  ['lic','Service Provider'],
+  ['area','Service Area'],
+  ['fy','Period (e.g. 2024-25)'],
+  ['svc','Service'],
+  ['no','License Number'],
+  ['sorType','Statement of Revenue Type',0,SOR_TYPE_OPTS],
+  ['sorDateName','Field Name',0,sorDateNames()],
+  ['sorDate','Date','date']
+ ].map(a=>fld(a[0],a[1],a[2],a[3])).join('');
+ const sr=serials(),cs=[],wl=[0,0,0,0,0,0];M().forEach(m=>{if(sr[m.id]&&m.lv>1)wl[Math.min(m.lv,5)]=Math.max(wl[Math.min(m.lv,5)],String(sr[m.id]).length)});
+ const cg='<colgroup><col style="width:14px">'+[2,3,4,5].map(k=>`<col style="width:${Math.max(24,wl[k]*8+10)}px">`).join('')+'<col>'+'<col style="width:126px">'.repeat(5)+'</colgroup>';
+ let h=`<table class="hdr">${cg}<thead><tr><th colspan="5" class="l">Sl No</th><th class="l">Particulars</th>${H.map(x=>`<th>Quarter ended<small>${x}</small></th>`).join('')}<th>Year ended<small>31-03-${y2}</small></th></tr></thead></table>`;
+ M().forEach(m=>{if(m.lv===1||!cs.length)cs.push([]);cs[cs.length-1].push(m)});
+ cs.forEach(rows=>{
+  const vis=rows.filter(m=>!m.h||S.showHid);if(!vis.length)return;
+  const key='mc'+rows[0].id,f0=rows[0];
+  const fxTot=!!(f0.fx&&FXSUM.has(f0.fx)),collapsible=f0.t==='head'||fxTot;
+  const col=S.hid[key]&&collapsible;
+  let sumIds='';
+  if(fxTot){const tr=rows.find(x=>x.t==='calc');if(tr)sumIds=tr.id}
+  else if(f0.t==='head'){sumIds=rows.filter(m=>m.t==='in'&&m.aa).map(m=>m.id).join(',')}
+  h+=`<div class="cont${col?' col':''}${f0.id==='165'?' yl':''}" data-k="${key}" data-sum="${sumIds}"><table>${cg}<tbody>`;
+  vis.forEach((m,ri)=>{
+   const inp=m.t==='in',cls=[m.t==='head'?'h'+Math.min(m.lv,3):'',m.t==='calc'?'calc':'',m.h?'hidr':''].join(' ');
+   const cv=ri===0&&collapsible?`<span class="cv" data-k="${key}">${col?'▸':'▾'}</span>`:'';
+   const nt=(m.n?` <small>(${m.n})</small>`:'')+(m.t==='lnk'?` <small>(auto = row ${m.f})</small>`:'');
+   h+=`<tr class="${cls}${m.lv===1?' main':''}" data-id="${m.id}">`;
+   if(m.lv===1)h+=`<td class="pt mainc" colspan="6"><div class="ttl">${cv}<b class="mn">${esc(sr[m.id]||'')}</b><span class="t">${esc(m.l)}</span>${nt}</div></td>`;
+   else if(m.id==='193')h+=`<td class="pt mainc" colspan="6"><div class="ttl"><b class="mn" style="visibility:hidden">${esc(f0.fx||'')}</b><span class="t">${esc(m.l)}</span>${nt}</div></td>`;
+   else{for(let i=1;i<=5;i++)h+=`<td class="sn">${m.lv===i?esc(sr[m.id]||''):''}</td>`;
+    h+=`<td class="pt">${cv}<span class="t">${esc(m.l)}</span>${nt}</td>`}
+   for(let q=0;q<5;q++){
+    if(m.t==='head'){
+     h+=(ri===0&&col&&sumIds)?`<td class="v" data-cs="${q}"></td>`:'<td></td>';
+    } else if(inp&&q<4){
+     h+=`<td class="v"><input type="number" step="any" data-s="${m.id}|${q}" value="${esc((S.sor[m.id]||[])[q]||'')}" placeholder="0"></td>`;
+    } else {
+     h+=`<td class="v" data-m="${m.id}|${q}"></td>`;
+    }
+   }
+   h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+ });
+ $('mb').innerHTML=h;$('mb').scrollTop=sc;
+ $('mf').innerHTML=[[165,'AA Gross Revenue'],[181,'BB Deductible'],[183,'CC ApGR'],[190,'DD Deductions'],[192,'EE AGR'],[193,'8% Revenue Share']].map(a=>`<span>${a[1]}: <b data-k="${a[0]}"></b></span>`).join('')+(msg?`<span class="msg">${esc(msg)}</span>`:'')+'<button class="btn pri" id="mSave">Save &amp; update AGR</button>';
+ $('mSave').onclick=closeM;$('mShowH').textContent=S.showHid?'Hide hidden rows':'Show hidden rows';refresh();
+}
+function openM(){mRender();$('bd').classList.add('on')}
+function closeM(){if(document.fullscreenElement)document.exitFullscreen();$('bd').classList.remove('on');$('ctx').style.display='none';render()}
+/* particulars edit */
+function edit(id){
+ const t=$('mb').querySelector(`tr[data-id="${id}"] .t`),m=byId[id];if(!t||!m)return;
+ const i=document.createElement('input');i.className='pe';i.value=m.l;t.replaceWith(i);i.focus();i.select();
+ const done=ok=>{if(!i.isConnected)return;if(ok&&i.value.trim())m.l=i.value.trim();save();mRender()};
+ i.onkeydown=e=>{if(e.key==='Enter')done(true);else if(e.key==='Escape'){e.stopPropagation();done(false)}};i.onblur=()=>done(true);
+}
+/* row actions */
+function act(a,id){
+ const L=M(),k=L.findIndex(x=>x.id===id),m=L[k];if(!m)return;let nr=null;
+ if(a==='edit')return edit(id);
+ if(a==='hide')m.h=!m.h;
+ else if(a==='del')L.splice(k,1);
+ else{
+  const below=a==='below',prev=L[k-1],next=L[k+1];let lv=m.lv,st=m.st,sib=null;
+  if(m.t==='head'){if(below){lv=Math.min(m.lv+1,5);st=m.st==='a'?'N':'i';sib=next}}
+  else if(m.t==='calc'){
+   if(below){st=m.st==='fx'?'n':'i';if(m.st==='fx')lv=1}
+   else if(prev&&(prev.t==='in'||prev.t==='lnk')){lv=prev.lv;st=prev.st;sib=prev}
+   else st='i'}
+  else sib=m;
+  nr={id:'u'+(++S.uid),l:'New particular',lv,st,t:'in'};
+  if(sib&&(sib.t==='in'||sib.t==='lnk')){if(sib.s)nr.s=sib.s;if(sib.t==='in'&&sib.aa)nr.aa=true}
+  L.splice(below?k+1:k,0,nr);
+ }
+ save();mRender();if(nr)edit(nr.id);
+}
+/* CSV */
+function parseCSV(t){const R=[];let r=[],c='',q=false;
+ for(let i=0;i<t.length;i++){const h=t[i];
+  if(q){if(h==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=h}
+  else if(h==='"')q=true;
+  else if(h===','||h===';'||h==='\t'){r.push(c);c=''}
+  else if(h==='\n'||h==='\r'){if(h==='\r'&&t[i+1]==='\n')i++;r.push(c);R.push(r);r=[];c=''}
+  else c+=h}
+ if(c||r.length){r.push(c);R.push(r)}return R.filter(r=>r.some(x=>x.trim()))}
+const cnum=x=>{x=String(x||'').trim().replace(/[₹\s,]/g,'').replace('−','-');if(!x||x==='-')return '';const n=/^\(.*\)$/.test(x)?-parseFloat(x.slice(1,-1)):parseFloat(x);return isFinite(n)?String(n):''};
+const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+function importCSV(text){
+ const R=parseCSV(text.replace(/^\uFEFF/,''));if(R.length<2){msg='CSV is empty.';return mRender()}
+ const hd=R[0].map(x=>x.trim().toLowerCase()),fc=re=>hd.findIndex(h=>re.test(h));
+ const ci=fc(/^(row|id|row ?no\.?|excel row)$/),cp=fc(/particular|description|item/),qs=[1,2,3,4].map(n=>fc(new RegExp('^q'+n)));
+ if(qs.some(x=>x<0)||(ci<0&&cp<0)){msg='CSV needs a header row with Q1, Q2, Q3, Q4 and Row or Particulars.';return mRender()}
+ const inp=M().filter(m=>m.t==='in'),used=new Set();let p=0,rows=0,cells=0,miss=[];
+ R.slice(1).forEach(r=>{
+  let m=null;const rid=ci>=0?String(r[ci]||'').trim().replace(/^r/i,''):'';
+  if(rid&&byId[rid]&&byId[rid].t==='in')m=byId[rid];
+  else if(cp>=0&&r[cp]){const n=norm(r[cp]);let k=inp.findIndex((x,j)=>j>=p&&!used.has(x.id)&&norm(x.l)===n);
+   if(k<0)k=inp.findIndex(x=>!used.has(x.id)&&norm(x.l)===n);if(k>=0){m=inp[k];p=k+1}}
+  if(!m){if((r[cp]||rid)&&qs.some(i=>cnum(r[i])!==''))miss.push(r[cp]||rid);return}
+  used.add(m.id);const v=qs.map(i=>cnum(r[i]));S.sor[m.id]=v;rows++;cells+=v.filter(x=>x!=='').length});
+ save();msg=`CSV: filled ${rows} rows (${cells} values)`+(miss.length?`; ${miss.length} not matched: ${miss.slice(0,3).join(', ')}${miss.length>3?'…':''}`:'.');mRender();
+}
+function exportCSV(){
+ const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+ let c='Row,Particulars,Q1,Q2,Q3,Q4\n';
+ M().filter(m=>m.t==='in').forEach(m=>{const v=S.sor[m.id]||[];c+=[m.id,q(m.l),...[0,1,2,3].map(i=>v[i]||'')].join(',')+'\n'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='Statement_of_Revenue_template.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+}
+/* ---------- events ---------- */
+document.addEventListener('input',e=>{
+ const t=e.target;
+ if(t.dataset.i!==undefined){S.info[t.dataset.i]=t.value;save();document.querySelectorAll(`[data-i="${t.dataset.i}"]`).forEach(x=>{if(x!==t)x.value=t.value});if(t.dataset.i==='fy'&&$('bd').classList.contains('on'))return}
+ else if(t.dataset.s){const[r,q]=t.dataset.s.split('|');(S.sor[r]=S.sor[r]||['','','',''])[q]=t.value;save();refresh()}
+ else if(t.dataset.d){const[r,q]=t.dataset.d.split('|');(S.dot[r]=S.dot[r]||['','','',''])[q]=t.value;save();refresh()}
+});
+document.addEventListener('change',e=>{
+ if(e.target.dataset&&e.target.dataset.agr!==undefined){S.info.agrApp=e.target.checked;save();render();return}
+ const o=e.target.dataset&&e.target.dataset.svc;
+ if(o){const a=new Set(S.info.svc||[]);e.target.checked?a.add(o):a.delete(o);S.info.svc=SVC.filter(x=>a.has(x));save();document.querySelectorAll(`[data-svc="${o}"]`).forEach(x=>x.checked=e.target.checked);return}
+ if(e.target.dataset.i!==undefined&&$('bd').classList.contains('on')){
+  if(e.target.dataset.i==='sorType'){
+   const names=sorDateNames();
+   if(!names.includes(S.info.sorDateName)){S.info.sorDateName=names[0];save()}
+   mRender();return;
+  }
+  if(e.target.dataset.i==='fy')mRender();
+ }
+});
+$('app').addEventListener('click',e=>{
+ const h=e.target.closest('.card>h2');if(!h)return;
+ const c=h.parentNode,id=c.dataset.id;S.hid[id]=!S.hid[id];c.classList.toggle('hid',S.hid[id]);h.querySelector('.ch').textContent=S.hid[id]?'▸':'▾';save();
+});
+$('mb').addEventListener('click',e=>{const c=e.target.closest('.cv');if(!c)return;S.hid[c.dataset.k]=!S.hid[c.dataset.k];save();mRender()});
+$('mb').addEventListener('dblclick',e=>{const t=e.target.closest('.pt .t');if(t)edit(t.closest('tr').dataset.id)});
+const ctx=document.createElement('div');ctx.id='ctx';$('md').appendChild(ctx);
+$('mb').addEventListener('contextmenu',e=>{
+ const tr=e.target.closest('tr[data-id]');if(!tr)return;e.preventDefault();const m=byId[tr.dataset.id];
+ const it=[['Edit Particular','edit'],['Insert Row Above','above'],['Insert Row Below','below'],['Delete Row','del',!(m.t==='in'||m.t==='head')],[m.h?'Unhide Row':'Hide Row','hide']];
+ ctx.innerHTML=it.map(a=>`<button data-a="${a[1]}" data-id="${m.id}"${a[2]?' disabled':''}>${a[0]}</button>`).join('');
+ ctx.style.display='block';ctx.style.left=Math.max(4,Math.min(e.clientX,innerWidth-ctx.offsetWidth-4))+'px';ctx.style.top=Math.max(4,Math.min(e.clientY,innerHeight-ctx.offsetHeight-4))+'px'});
+ctx.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;act(b.dataset.a,b.dataset.id)});
+document.addEventListener('click',()=>{ctx.style.display='none'});
+document.addEventListener('scroll',()=>{ctx.style.display='none'},true);
+const setAll=v=>{document.querySelectorAll('#app .card').forEach(c=>S.hid[c.dataset.id]=v);save();render()};
+$('hideAll').onclick=()=>setAll(true);$('showAll').onclick=()=>setAll(false);
+const setM=v=>{M().filter(m=>m.lv===1&&(m.t==='head'||(m.fx&&FXSUM.has(m.fx)))).forEach(m=>S.hid['mc'+m.id]=v);save();mRender()};
+$('mHide').onclick=()=>setM(true);$('mShow').onclick=()=>setM(false);
+$('mShowH').onclick=()=>{S.showHid=!S.showHid;save();mRender()};
+$('mCsv').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importCSV(String(r.result));r.readAsText(f);e.target.value=''};
+$('dlCsv').onclick=exportCSV;
+$('mDl').onclick=e=>{e.stopPropagation();$('mDlM').classList.toggle('on')};
+document.addEventListener('click',()=>$('mDlM').classList.remove('on'));
+const setMax=on=>{$('md').classList.toggle('max',on);$('bd').classList.toggle('max',on)};
+$('mMax').onclick=()=>setMax(!$('md').classList.contains('max'));
+$('mX').onclick=closeM;
+$('mFull').onclick=()=>{const el=$('md');if(document.fullscreenElement)document.exitFullscreen();else if(el.requestFullscreen)el.requestFullscreen().catch(()=>setMax(true));else setMax(true)};
+const sp=document.createElement('div');sp.id='sorPrint';document.body.appendChild(sp);
+window.addEventListener('afterprint',()=>document.body.classList.remove('sp'));
+$('dlPdf').onclick=()=>{
+ const sr=serials(),y=(S.info.fy||'').slice(0,4)||'YYYY',y2='20'+((S.info.fy||'').slice(-2)||'YY');
+ const H=['30-06-'+y,'30-09-'+y,'31-12-'+y,'31-03-'+y2],I=S.info;
+ const QD2=H.map(x=>x.replace(/-/g,'.'));
+ // Right-side label + date based on selected Statement-of-Revenue field
+ const rightLabel=I.sorDateName||'Date of Signing of Quarterly SoR';
+ let rightDateFmt='';
+ if(I.sorDate){const d=new Date(I.sorDate+'T00:00:00');if(!isNaN(d))rightDateFmt=d.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}
+ const subtitle=I.subtitle||'Deduction on Cash Basis';
+ const hdr=`<div class="ph"><div class="pl"><div class="pey">SUC Assessment</div><div class="ptt">Statement of Revenue &amp; Licensee Fee</div><div class="psub">${esc(subtitle)}</div></div><div class="pr"><div class="pdc">${esc(rightLabel)}</div><div class="pdd">${esc(rightDateFmt)}</div></div></div>`;
+ const bd=`<div class="psec">(I) BASIC DETAILS</div><table class="pbt"><tbody>`+
+  `<tr><td class="pl">Service Provider</td><td class="pv">${esc(I.lic||'')}</td></tr>`+
+  `<tr><td class="pl">License Service Area</td><td class="pv">${esc(I.lsa||I.area||'')}</td></tr>`+
+  `<tr><td class="pl">Period (FY)</td><td class="pv">${esc(I.fy||'')}</td></tr>`+
+  `<tr><td class="pl">License Type</td><td class="pv">${esc(I.type||'')}</td></tr>`+
+  `<tr><td class="pl">Date of Assessment</td><td class="pv">${esc(I.date||'')}</td></tr>`+
+  `<tr><td class="pl">License Number</td><td class="pv">${esc(I.no||'')}</td></tr>`+
+  `<tr><td class="pl">Statement of Revenue Type</td><td class="pv">${esc(I.sorType||'')}</td></tr>`+
+  `<tr><td class="pl">Technologies</td><td class="pv">${esc((I.svc||[]).join(', '))}</td></tr>`+
+  `</tbody></table>`;
+ let tbl=`<table><thead><tr><th style="width:60px">Sl No</th><th>Particulars</th>${QD2.map((x,i)=>`<th style="width:90px"><div class="qh">Q${i+1}</div><div class="qs">upto ${x}</div></th>`).join('')}<th style="width:100px"><div class="qh">Year ended</div><div class="qs">31.03.${y2}</div></th></tr></thead><tbody>`;
+ M().filter(m=>!m.h).forEach(m=>{
+  const v=m.t==='head'?null:[0,1,2,3].map(q=>V(m.id,q));
+  tbl+=`<tr class="${m.lv===1?'m':m.t==='calc'?'c':''}"><td style="padding-left:${4+(m.lv-1)*7}px">${esc(sr[m.id]||'')}</td><td>${esc(m.l)}</td>${v?v.map(x=>`<td class="r">${fmt(x)}</td>`).join('')+`<td class="r">${fmt(v.reduce((a,b)=>a+b,0))}</td>`:'<td></td>'.repeat(5)}</tr>`});
+ sp.innerHTML=hdr+bd+tbl+'</tbody></table>';
+ document.body.classList.add('sp');
+ window.print();
+};
+$('mainPdf').onclick=()=>{
+ idx();sheet04=buildSheet();
+ const out=compute(),I=S.info,y=(I.fy||'').slice(0,4)||'YYYY',y2='20'+((I.fy||'').slice(-2)||'YY');
+ let dt='';if(I.date){const d=new Date(I.date+'T00:00:00');if(!isNaN(d))dt=d.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}
+ const hdr=`<div class="ph"><div class="pl"><div class="pey">SUC Assessment</div><div class="ptt">Part I : Calculation of AGR for SUC</div><div class="psub">${esc(I.subtitle||'Deduction on Cash Basis')}</div></div><div class="pr"><div class="pdc">Date of Assessment</div><div class="pdd">${esc(dt)}</div></div></div>`;
+ const bd=`<div class="psec">(I) BASIC DETAILS</div><table class="pbt"><tbody>`+
+  `<tr><td class="pl">Service Provider</td><td class="pv">${esc(I.lic||'')}</td></tr>`+
+  `<tr><td class="pl">License Service Area</td><td class="pv">${esc(I.lsa||I.area||'')}</td></tr>`+
+  `<tr><td class="pl">Period (FY)</td><td class="pv">${esc(I.fy||'')}</td></tr>`+
+  `<tr><td class="pl">License Type</td><td class="pv">${esc(I.type||'')}</td></tr>`+
+  `<tr><td class="pl">Date of Assessment</td><td class="pv">${esc(I.date||'')}</td></tr>`+
+  `<tr><td class="pl">License Number</td><td class="pv">${esc(I.no||'')}</td></tr>`+
+  `<tr><td class="pl">Type of Assessment</td><td class="pv">${esc(I.mode||'')}</td></tr>`+
+  `<tr><td class="pl">Technologies</td><td class="pv">${esc((I.svc||[]).join(', '))}</td></tr>`+
+  `</tbody></table>`;
+ let tbl=`<table><thead><tr><th style="width:60px">Sl No</th><th>Particulars</th>${QD.map((x,i)=>`<th style="width:90px"><div class="qh">Q${i+1}</div><div class="qs">${x}</div></th>`).join('')}<th style="width:100px"><div class="qh">Total</div><div class="qs">FY ${esc(I.fy||'')}</div></th></tr></thead><tbody>`;
+ const secs=[];let cur=null;
+ sheet04.forEach(r=>{if(r[0]==='sec'){cur={id:r[1],t:r[2],rows:[]};secs.push(cur)}else cur.rows.push(r)});
+ secs.forEach(sc=>{
+  const rw=sc.rows.filter(r=>!isZero(out[r[0]]));if(!rw.length)return;
+  tbl+=`<tr class="m"><td>${/^T/.test(sc.id)?'':esc(sc.id)}</td><td colspan="6">${esc(sc.t)}</td></tr>`;
+  rw.forEach(r=>{const v=out[r[0]];if(r[3]==='bbh'){tbl+=`<tr class="c"><td></td><td>${esc(r[1])}</td>${'<td></td>'.repeat(5)}</tr>`;return}tbl+=`<tr class="${r[3]?'c':''}"><td></td><td>${esc(r[1])}</td>${v.map(x=>`<td class="r">${fmt(x)}</td>`).join('')}<td class="r">${fmt(v.reduce((a,b)=>a+b,0))}</td></tr>`});
+ });
+ sp.innerHTML=hdr+bd+tbl+'</tbody></table>';
+ document.body.classList.add('sp');
+ window.print();
+};
+$('mClose').onclick=closeM;$('sorBtn').onclick=openM;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('bd').classList.contains('on'))closeM()});
+$('resetBtn').onclick=()=>{if(!confirm('Delete all saved data in this browser and start blank?'))return;S=blank();save();idx();render()};
+document.querySelectorAll('.tg button').forEach(b=>b.onclick=()=>{document.documentElement.dataset.theme=b.dataset.t;document.querySelectorAll('.tg button').forEach(x=>x.classList.toggle('on',x===b))});
+(function(){const m=S.model&&S.model.find(x=>x.id==='73');if(m&&m.l==='Total Revenue from GSM Based Mobile Services.'){m.l='Subtotal';m.lv=3;m.st=null}})();
+idx();render();
+})();
+</script>
+</body>
+</html>
