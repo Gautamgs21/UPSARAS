@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Payment Details and Revenue Share Due</title>
+<style>
+:root{--ink:#182233;--ink-soft:#4b5768;--paper:#ECEEEA;--paper-raised:#F7F8F5;--line:#CBD0C7;--line-soft:#DDE0D9;--brass:#9C7327;--brass-soft:#EFE3C8;--teal:#2C6357;--teal-soft:#DEEAE5;--red:#9C3B31;--red-soft:#F3DEDA;--green:#2E7D32;
+--font-sans:"Aptos Serif",serif;--font-serif:"Aptos Serif",serif;--font-mono:"Aptos Serif",serif;
+--radius:4px;--shadow-card:0 1px 3px rgba(0,0,0,.03);--transition:background .2s ease,border-color .2s ease,color .2s ease;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{--ink:#E9ECE6;--ink-soft:#AEB6A8;--paper:#161B15;--paper-raised:#1E241C;--line:#333B30;--line-soft:#2A3128;--brass:#D4A94B;--brass-soft:#332A16;--teal:#7FBDA9;--teal-soft:#1B2C26;--red:#D98A7C;--red-soft:#3A211D;--green:#6FCF77;--shadow-card:0 1px 3px rgba(0,0,0,.4)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="dark"]){--ink:#E9ECE6;--ink-soft:#AEB6A8;--paper:#161B15;--paper-raised:#1E241C;--line:#333B30;--line-soft:#2A3128;--brass:#D4A94B;--brass-soft:#332A16;--teal:#7FBDA9;--teal-soft:#1B2C26;--red:#D98A7C;--red-soft:#3A211D;--green:#6FCF77}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--font-sans);-webkit-font-smoothing:antialiased;transition:var(--transition)}
+.wrap{width:100%;padding:28px 32px 70px}
+@media(max-width:760px){.wrap{padding:16px 14px 50px}}
+.masthead{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.eyebrow{font-size:11.5px;letter-spacing:.04em;color:var(--brass);margin-bottom:8px;text-transform:uppercase}
+h1{font-family:var(--font-serif);font-weight:600;font-size:28px;margin:0 0 6px;line-height:1.15}
+.mh-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.theme-toggle{display:flex;gap:4px;background:var(--paper-raised);border:1px solid var(--line);border-radius:40px;padding:3px}
+.theme-toggle button{font:500 11.5px var(--font-sans);padding:6px 14px;border-radius:40px;border:none;background:transparent;color:var(--ink-soft);cursor:pointer;transition:var(--transition)}
+.theme-toggle button.active{background:var(--ink);color:var(--paper-raised)}
+.grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:24px;align-items:start;transition:grid-template-columns .3s ease,gap .3s ease}
+.grid>*{min-width:0}
+#sidebar{display:flex;flex-direction:column;gap:12px}
+.sidebar-toggle{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 10px;background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);cursor:pointer;font:500 11.5px var(--font-sans);min-height:36px;transition:var(--transition)}
+.sidebar-toggle:hover{border-color:var(--brass);color:var(--brass)}
+.sidebar-toggle .chev{font-size:15px;line-height:1}
+body.sc .grid{grid-template-columns:48px minmax(0,1fr);gap:14px}
+body.sc #inputCol{display:none}
+body.sc .sidebar-toggle{flex-direction:column;gap:10px;padding:12px 4px}
+body.sc .sidebar-toggle .label{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+@media(max-width:1000px){.grid{grid-template-columns:320px minmax(0,1fr)}body.sc .grid{grid-template-columns:48px minmax(0,1fr)}}
+@media(max-width:760px){.grid,body.sc .grid{display:block}.grid>#outCol{margin-top:16px}#sidebar{margin-bottom:16px}body.sc .sidebar-toggle{flex-direction:row;padding:9px 12px}body.sc .sidebar-toggle .label{writing-mode:horizontal-tb;transform:none;text-transform:none;letter-spacing:.02em;font-size:12px}}
+#inputCol{display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 18px;box-shadow:var(--shadow-card);transition:var(--transition)}
+.panel h2{font-family:var(--font-serif);font-size:16px;font-weight:600;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.panel h2 small{font:500 11.5px var(--font-sans);color:var(--ink-soft)}
+.pt{width:24px;height:24px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);border-radius:3px;cursor:pointer;font-size:11px;padding:0}
+.pt:hover{border-color:var(--brass);color:var(--brass)}
+.panel.col>.pb{display:none}.panel.col h2{margin-bottom:0}
+label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:500}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--ink);font:13.5px var(--font-sans);transition:var(--transition)}
+input[type=number]{text-align:right;font-family:var(--font-mono)}
+textarea{min-height:76px;resize:vertical;line-height:1.45}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass)}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+.techs{display:flex;flex-direction:column;gap:6px}
+.chk{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);font-weight:500;cursor:pointer;margin:0;padding:7px 9px;border:1px solid var(--line);border-radius:3px;background:var(--paper)}
+.chk:has(input:checked){border-color:var(--brass);background:var(--brass-soft)}
+.chk input{width:16px;height:16px;accent-color:var(--brass);margin:0}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button.primary{flex:1;padding:11px 14px;background:var(--ink);color:var(--paper-raised);border:none;border-radius:3px;font:600 13.5px var(--font-sans);cursor:pointer;transition:var(--transition)}
+button.primary:hover{background:var(--brass);color:#1a1200}
+button.ghost{padding:9px 14px;background:transparent;color:var(--ink-soft);border:1px solid var(--line);border-radius:3px;font:13px var(--font-sans);cursor:pointer;transition:var(--transition)}
+button.ghost:hover{border-color:var(--ink);color:var(--ink)}
+button.ghost.warn:hover{border-color:var(--red);color:var(--red)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12.5px;font-weight:700;letter-spacing:.02em;padding:11px 10px;border-bottom:1px solid var(--ink);white-space:nowrap;background:var(--paper-raised)}
+th.r{text-align:right}
+td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+td.sl{width:48px;text-align:center;color:var(--ink-soft);font:12.5px var(--font-mono)}
+td.num{padding:9px 10px;font:13px var(--font-mono);text-align:right;white-space:nowrap}
+td input,td select{padding:6px 7px;font-size:12.5px;min-width:110px}
+tbody tr:hover{background:var(--paper-raised)}
+tr.total td{font-weight:700;border-top:1px solid var(--ink);border-bottom:none;background:var(--paper-raised)}
+tr.qhead td{background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:12.5px;padding:8px 10px}
+tr.derived td.num{color:var(--brass);font-weight:600}
+tr.grand td{background:var(--ink);color:var(--paper-raised);font-weight:700;border:none}
+.rm-btn{width:26px;height:26px;border:1px solid var(--line);background:var(--paper);color:var(--red);border-radius:2px;cursor:pointer;font-size:14px;line-height:1}
+.rm-btn:hover{background:var(--red-soft)}
+.ad-btn{color:var(--teal);margin-right:4px}
+td.ra{white-space:nowrap;width:72px}
+.add-row-btn{margin-top:10px;width:100%;padding:9px;border:1px dashed var(--line);background:transparent;color:var(--ink-soft);border-radius:2px;cursor:pointer;font:12.5px var(--font-sans)}
+.add-row-btn:hover{border-color:var(--brass);color:var(--brass)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:620px){.row2{grid-template-columns:1fr}}
+.calc{border:1px solid var(--line);border-radius:var(--radius);padding:2px 14px;margin-top:14px;background:var(--paper)}
+.cr{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+.cr:last-child{border:none}.cr .k{color:var(--ink-soft)}.cr .v{font:600 13px var(--font-mono);white-space:nowrap}
+.cr.strong .k,.cr.strong .v{color:var(--ink);font-weight:700}
+.note{margin-top:14px}
+.hint{padding:10px 14px;border:1px solid var(--brass);border-radius:var(--radius);background:var(--brass-soft);font-size:12.5px;margin-top:12px}
+.sub{border-top:1px dashed var(--line);margin-top:16px;padding-top:14px}
+[hidden]{display:none!important}
+.tabbar{display:flex;align-items:flex-end;gap:4px;margin:0 0 18px;padding:0 0 0 1px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.tab{display:flex;align-items:center;gap:8px;padding:9px 12px 9px 14px;background:var(--paper);border:1.5px solid var(--ink);border-radius:5px 5px 0 0;font:600 12px var(--font-sans);letter-spacing:.02em;text-transform:uppercase;color:var(--ink-soft);cursor:pointer;white-space:nowrap;user-select:none;flex-shrink:0;transition:var(--transition);margin-bottom:-1.5px}
+.tab:hover{color:var(--ink);background:var(--paper-raised)}
+.tab.active{background:var(--paper-raised);color:var(--ink);border-bottom-color:var(--paper-raised);position:relative;z-index:1}
+.tab-close{width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:400;line-height:1;color:var(--ink-soft);text-transform:none}
+.tab-close:hover{background:var(--red-soft);color:var(--red)}
+.tab-add{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin-bottom:-1.5px;border:1.5px solid var(--ink);border-radius:5px 5px 0 0;background:var(--paper);color:var(--ink-soft);cursor:pointer;font-size:16px;font-weight:600;flex-shrink:0;transition:var(--transition)}
+.tab-add:hover{border-color:var(--brass);color:var(--brass);background:var(--paper-raised)}
+@media(max-width:760px){.tab{padding:8px 10px 8px 12px;font-size:11px}}
+#printSheet{display:none}
+@page{size:A4 portrait;margin:10mm 9mm}
+@media print{
+ html,body{background:#fff!important;color:#000!important}
+ .wrap>.masthead,.wrap>.grid,.wrap>.tabbar{display:none!important}
+ .wrap{padding:0}
+ #printSheet{display:block!important;font-size:8.5pt;color:#000}
+ #printSheet *{color:#000!important;background:transparent!important}
+}
+.ps-h{border-bottom:2.5px solid #000;padding-bottom:4px;margin-bottom:8px}
+.ps-h b{font-size:8.5pt}.ps-h h1{font-size:13pt;margin:0}
+.ps-box{border:2px solid #000;padding:5px 8px 7px;margin-bottom:8px;break-inside:avoid}
+.ps-box h3{font-size:8.5pt;text-transform:uppercase;margin:0 0 5px;border-bottom:1.5px solid #000;padding-bottom:3px}
+.ps-box table{font-size:8pt;table-layout:auto}
+.ps-box th{padding:3px 5px;border-bottom:1px solid #000;font-size:8pt}
+.ps-box td{padding:2px 5px;border-bottom:.4px solid #999}
+.ps-box .r{text-align:right}
+.ps-box tr.tt td{font-weight:700;border-top:1px solid #000}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="masthead">
+  <div><div class="eyebrow">SUC Assessment</div><h1>Part IV: Payment Details and Revenue Share Due</h1></div>
+  <div class="mh-r">
+    <button class="ghost" id="printTop">Print / save PDF</button>
+    <div class="theme-toggle" id="themeToggle" role="group" aria-label="Theme"><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div>
+  </div>
+</header>
+<div class="tabbar" id="tabBar" role="tablist" aria-label="Assessment tabs"></div>
+
+<div class="grid">
+<aside id="sidebar">
+  <button type="button" class="sidebar-toggle" id="sbToggle" aria-expanded="true"><span class="chev">‹</span><span class="label">Hide inputs</span></button>
+  <div id="inputCol">
+    <div class="panel">
+      <h2>Basic Details</h2>
+      <div class="pb">
+        <div class="field"><label for="lic">Licensee name</label><input type="text" id="lic" placeholder="Enter licensee name"></div>
+        <div class="field"><label for="fy">Financial year</label><input type="text" id="fy" placeholder="e.g. 2025-26"></div>
+        <div class="field"><label>Technology</label>
+          <div class="techs" id="techBox"></div>
+          <div id="otherWrap" hidden style="margin-top:8px"><label for="otherName">Name of the other technology</label><input type="text" id="otherName" placeholder="Type the technology name"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Actions</h2>
+      <div class="pb"><div class="btns"><button class="primary" id="printBtn">Print / save PDF</button><button class="ghost warn" id="resetBtn">Reset this tab</button></div></div>
+    </div>
+  </div>
+</aside>
+
+<div id="outCol"><div class="stack">
+
+<section class="panel">
+  <h2>Table 1: Payment details <small>Amounts in ₹</small></h2>
+  <div class="tbl-wrap"><table><thead id="t1Head"></thead><tbody id="t1Body"></tbody><tfoot id="t1Foot"></tfoot></table></div>
+  
+  <div class="field note"><label for="notes">Notes</label><textarea id="notes" placeholder="Notes on Table 1, for example * 12-11-2020 payment details is after adjustment of ₹5 from MWB to MWA"></textarea></div>
+</section>
+
+<section class="panel">
+  <label class="chk" style="border:none;background:none;padding:0"><input type="checkbox" id="sOn"> Add Surplus Adjustment Details</label>
+  <div id="sBox" hidden><div class="sub"><h2>Table 2: Details of surplus adjustment</h2>
+    <div class="row2">
+      <div class="field"><label for="sType">Type of transfer adjustment</label><select id="sType"></select></div>
+      <div class="field" id="sOtherWrap" hidden><label for="sOther">Specify the type</label><input type="text" id="sOther" placeholder="Type the adjustment type"></div>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th>Sl No</th><th>Date of payment</th><th>From technology</th><th class="r">Payment (₹)</th><th>To technology</th><th class="r">Payment (₹)</th><th></th></tr></thead><tbody id="sBody"></tbody></table></div>
+    
+  </div></div>
+  <div class="calc" id="afterBox"></div>
+</section>
+
+<section class="panel">
+  <h2><span id="t2Title">Table 2: Revenue share due</span> <small>AGR and charges in ₹</small></h2>
+  <div class="tbl-wrap"><table><thead id="t2Head"></thead><tbody id="t2Body"></tbody></table></div>
+  <div class="hint" id="t2Hint"></div>
+</section>
+
+</div></div>
+</div>
+<div id="printSheet"></div>
+</div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var root=document.documentElement;
+function theme(t){root.setAttribute('data-theme',t);document.querySelectorAll('#themeToggle button').forEach(function(b){b.classList.toggle('active',b.dataset.t===t)})}
+var sv=null;try{sv=localStorage.getItem('suc_theme')}catch(e){}
+theme(sv==='dark'?'dark':'light');
+$('themeToggle').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;theme(b.dataset.t);try{localStorage.setItem('suc_theme',b.dataset.t)}catch(x){}});
+
+var TECH=[{id:'access',n:'GSM ACCESS',r:'0.00'},{id:'mwa',n:'GSM MWA',r:'0.00'},{id:'mwb',n:'GSM MWB',r:'0.00'},{id:'eband',n:'E-BAND',r:'0.00'},{id:'other',n:'OTHER',r:'0.00'}];
+var TYPES=['Adjustment within technologies of same FY','Adjustment within technologies of different FY','Adjustment between different technologies of same FY','Adjustment between different technologies of different FY','Adjustment within same circle of same FY (Intra-Year)','Adjustment within same circle of different FY (Inter-Year)','Adjustment between different circles of same FY (Inter-Circle)','Adjustment between different circles of different FY','Adjustment between Spectrum Sharing partners','Adjustment between Spectrum Trading accounts','Adjustment within identical stream categories','Adjustment between different SUC streams','Other'];
+var QS=['Q1 (Apr–Jun)','Q2 (Jul–Sep)','Q3 (Oct–Dec)','Q4 (Jan–Mar)'];
+function fresh(){return{lic:'',fy:'',techs:['access','mwa','mwb'],other:'',t1:[{d:'',a:{}}],sOn:false,sType:'',sOther:'',s:[{d:'',from:'',fa:'',to:'',ta:''}],t2:{},notes:''}}
+var S=fresh();
+var inr=new Intl.NumberFormat('en-IN',{maximumFractionDigits:0});
+function fmt(n){if(!n||Math.abs(n)<.5)return '—';return (n<0?'−':'')+inr.format(Math.round(Math.abs(n)))}
+function gv(v){v=parseFloat(v);return isNaN(v)?0:v}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function tn(id){return id==='other'?(S.other||'OTHER'):TECH.filter(function(t){return t.id===id})[0].n}
+function dmy(d){return d?d.split('-').reverse().join('-'):'—'}
+function renum(){}
+
+/* sidebar */
+function sb(c){document.body.classList.toggle('sc',c);$('sbToggle').setAttribute('aria-expanded',String(!c));$('sbToggle').querySelector('.chev').textContent=c?'›':'‹';$('sbToggle').querySelector('.label').textContent=c?'Inputs':'Hide inputs';try{localStorage.setItem('suc_sb',c?'1':'0')}catch(e){}}
+var sc=false;try{sc=localStorage.getItem('suc_sb')==='1'}catch(e){}
+sb(sc);$('sbToggle').onclick=function(){sb(!document.body.classList.contains('sc'))};
+document.querySelectorAll('#inputCol .panel').forEach(function(p){var h=p.querySelector('h2'),b=document.createElement('button');b.type='button';b.className='pt';b.textContent='▾';b.title='Collapse / expand';b.onclick=function(){p.classList.toggle('col');b.textContent=p.classList.contains('col')?'▸':'▾'};h.appendChild(b)});
+
+/* technology checkboxes */
+$('techBox').innerHTML=TECH.map(function(t){return '<label class="chk"><input type="checkbox" value="'+t.id+'"> '+t.n+'</label>'}).join('');
+function syncTechUI(){document.querySelectorAll('#techBox input').forEach(function(c){c.checked=S.techs.indexOf(c.value)>-1});$('otherWrap').hidden=S.techs.indexOf('other')<0}
+$('techBox').addEventListener('change',function(e){
+  var t=[];document.querySelectorAll('#techBox input').forEach(function(c){if(c.checked)t.push(c.value)});
+  if(!t.length){e.target.checked=true;return}
+  S.techs=t;$('otherWrap').hidden=t.indexOf('other')<0;
+  S.s.forEach(function(r){if(t.indexOf(r.from)<0)r.from='';if(t.indexOf(r.to)<0)r.to=''});
+  renderAll();
+});
+$('otherName').addEventListener('input',function(){S.other=this.value;renderAll()});
+$('lic').addEventListener('input',function(){S.lic=this.value});
+$('fy').addEventListener('input',function(){S.fy=this.value;renderT2();calc()});
+$('notes').addEventListener('input',function(){S.notes=this.value});
+
+/* Table 1 */
+function renderT1(){
+  $('t1Head').innerHTML='<tr><th>Sl No</th><th>Payment date</th>'+S.techs.map(function(t){return '<th class="r">'+esc(tn(t))+'</th>'}).join('')+'<th class="r">Total</th><th></th></tr>';
+  $('t1Body').innerHTML=S.t1.map(function(r,i){return '<tr data-i="'+i+'"><td class="sl">'+(i+1)+'</td><td><input type="date" value="'+r.d+'"></td>'+S.techs.map(function(t){return '<td><input type="number" step="1" data-t="'+t+'" value="'+(r.a[t]||'')+'" placeholder="0"></td>'}).join('')+'<td class="num rt">—</td><td class="ra"><button class="rm-btn ad-btn" data-add="'+i+'" title="Add row below" aria-label="Add row below">+</button><button class="rm-btn" data-del="'+i+'" title="Delete row" aria-label="Delete row">×</button></td></tr>'}).join('');
+  $('t1Foot').innerHTML='<tr class="total"><td></td><td>Total payment</td>'+S.techs.map(function(t){return '<td class="num" data-ct="'+t+'">—</td>'}).join('')+'<td class="num" id="t1all">—</td><td></td></tr>';
+}
+$('t1Body').addEventListener('input',function(e){var tr=e.target.closest('tr'),r=S.t1[tr.dataset.i];if(e.target.dataset.t)r.a[e.target.dataset.t]=e.target.value;else r.d=e.target.value;calc()});
+$('t1Body').addEventListener('click',function(e){var a=e.target.closest('[data-add]');if(a){S.t1.splice(+a.dataset.add+1,0,{d:'',a:{}});renderT1();calc();return}var b=e.target.closest('[data-del]');if(!b)return;if(S.t1.length>1)S.t1.splice(+b.dataset.del,1);else S.t1=[{d:'',a:{}}];renderT1();calc()});
+
+
+/* Surplus */
+$('sType').innerHTML='<option value="">-- Select type --</option>'+TYPES.map(function(t,i){return '<option value="'+(i+1)+'">'+(i+1)+'. '+t+'</option>'}).join('');
+$('sOn').onchange=function(){S.sOn=this.checked;$('sBox').hidden=!this.checked;$('t2Title').textContent='Table '+(this.checked?3:2)+': Revenue share due';calc()};
+$('sType').onchange=function(){S.sType=this.value;$('sOtherWrap').hidden=this.value!=='13'};
+$('sOther').oninput=function(){S.sOther=this.value};
+function techOpts(sel){return '<option value="">-- Select --</option>'+S.techs.map(function(t){return '<option value="'+t+'"'+(t===sel?' selected':'')+'>'+esc(tn(t))+'</option>'}).join('')}
+function renderS(){
+  $('sBody').innerHTML=S.s.map(function(r,i){return '<tr data-i="'+i+'"><td class="sl">'+(i+1)+'</td><td><input type="date" data-f="d" value="'+r.d+'"></td><td><select data-f="from">'+techOpts(r.from)+'</select></td><td><input type="number" step="1" data-f="fa" value="'+r.fa+'" placeholder="0"></td><td><select data-f="to">'+techOpts(r.to)+'</select></td><td><input type="number" step="1" data-f="ta" value="'+r.ta+'" placeholder="0"></td><td class="ra"><button class="rm-btn ad-btn" data-add="'+i+'" title="Add row below" aria-label="Add row below">+</button><button class="rm-btn" data-del="'+i+'" title="Delete row" aria-label="Delete row">×</button></td></tr>'}).join('');
+}
+function sEv(e){var f=e.target.dataset.f;if(!f)return;S.s[e.target.closest('tr').dataset.i][f]=e.target.value;calc()}
+$('sBody').addEventListener('input',sEv);$('sBody').addEventListener('change',sEv);
+$('sBody').addEventListener('click',function(e){var a=e.target.closest('[data-add]');if(a){S.s.splice(+a.dataset.add+1,0,{d:'',from:'',fa:'',to:'',ta:''});renderS();return}var b=e.target.closest('[data-del]');if(!b)return;if(S.s.length>1)S.s.splice(+b.dataset.del,1);else S.s=[{d:'',from:'',fa:'',to:'',ta:''}];renderS();calc()});
+
+
+/* Table 2 */
+function k2(k,q,t){return k+'|'+q+'|'+t}
+function fyY(){var m=String(S.fy).match(/(\d{4})/);return m?+m[1]:null}
+function wins(){var y=fyY();if(!y)return null;var z=y+1;return [[y+'-04-01',y+'-07-15'],[y+'-07-16',y+'-10-15'],[y+'-10-16',z+'-01-15'],[z+'-01-16',z+'-04-15']]}
+function qLabel(i){var w=wins();return QS[i]+(w?' ('+dmy(w[i][0])+' to '+dmy(w[i][1])+')':'')}
+function afterLabel(){var w=wins();return 'SUC charges paid after '+(w?dmy(w[3][1]).replace(/-/g,'.'):'15 April of the next year')}
+var afterShown=false;
+function payCalc(){var w=wins(),o={q:[{},{},{},{}],after:{}};S.techs.forEach(function(t){o.after[t]=0;o.q.forEach(function(x){x[t]=0})});if(!w)return o;function add(d,t,v){if(!d||!(t in o.after))return;for(var i=0;i<4;i++)if(d>=w[i][0]&&d<=w[i][1]){o.q[i][t]+=v;return}if(d>w[3][1])o.after[t]+=v}S.t1.forEach(function(r){S.techs.forEach(function(t){add(r.d,t,gv(r.a[t]))})});if(S.sOn)S.s.forEach(function(r){add(r.d,r.from,-gv(r.fa));add(r.d,r.to,gv(r.ta))});return o}
+function hasAfter(){var a=payCalc().after,s=0;S.techs.forEach(function(t){s+=Math.abs(a[t])});return s>.5}
+function dueOf(q,t){return t==='access'?gv(g2('due',q,t)):gv(g2('agr',q,t))*gv(g2('rate',q,t))/100}
+function g2(k,q,t){var v=S.t2[k2(k,q,t)];if(v!==undefined)return v;return k==='rate'?TECH.filter(function(x){return x.id===t})[0].r:''}
+function c2(k,q,t){return '<td><input type="number" step="0.01" data-k="'+k+'" data-q="'+q+'" data-t="'+t+'" value="'+g2(k,q,t)+'" placeholder="0"></td>'}
+function renderT2(){
+  var T=S.techs,h='';
+  $('t2Head').innerHTML='<tr><th>Particulars</th>'+T.map(function(t){return '<th class="r">'+esc(tn(t))+'</th>'}).join('')+'</tr>';
+  function row(lbl,cls,fn){return '<tr class="'+cls+'"><td>'+lbl+'</td>'+T.map(fn).join('')+'</tr>'}
+  QS.forEach(function(q,i){
+    h+='<tr class="qhead"><td colspan="'+(T.length+1)+'">'+qLabel(i)+'</td></tr>';
+    h+=row('Spectrum fee rate, weighted average (%)','',function(t){return c2('rate',i,t)});
+    h+=row('AGR for SUC calculation','',function(t){return c2('agr',i,t)});
+    h+=row('Spectrum charges due','derived',function(t){return t==='access'?c2('due',i,t):'<td class="num" id="due'+i+t+'">—</td>'});
+    h+=row('SUC charges paid','derived',function(t){return '<td class="num" id="paid'+i+t+'">—</td>'});
+  });
+  h+='<tr class="qhead"><td colspan="'+(T.length+1)+'">Total for the year</td></tr>';
+  h+=row('AGR for SUC calculation','derived',function(t){return '<td class="num" id="tagr'+t+'">—</td>'});
+  h+=row('Spectrum charges due','derived',function(t){return '<td class="num" id="tdue'+t+'">—</td>'});
+  h+=row('SUC charges paid','derived',function(t){return '<td class="num" id="tpaid'+t+'">—</td>'});
+  afterShown=hasAfter();if(afterShown)h+=row(afterLabel(),'derived',function(t){return '<td class="num" id="aft'+t+'">—</td>'});
+  
+  h+=row('Shortfall (due − paid)','grand',function(t){return '<td class="num" id="gap'+t+'">—</td>'});
+  $('t2Body').innerHTML=h;
+}
+$('t2Body').addEventListener('input',function(e){var d=e.target.dataset;if(!d.k)return;S.t2[k2(d.k,d.q,d.t)]=e.target.value;calc()});
+
+/* calculations */
+function t1Calc(){
+  var col={},all=0;S.techs.forEach(function(t){col[t]=0});
+  S.t1.forEach(function(r){S.techs.forEach(function(t){var v=gv(r.a[t]);col[t]+=v;all+=v})});
+  var adj={};S.techs.forEach(function(t){adj[t]=col[t]});
+  if(S.sOn)S.s.forEach(function(r){if(r.from in adj)adj[r.from]-=gv(r.fa);if(r.to in adj)adj[r.to]+=gv(r.ta)});
+  var tot=0;S.techs.forEach(function(t){tot+=adj[t]});
+  return{col:col,all:all,adj:adj,tot:tot};
+}
+function t2Calc(){
+  var p=payCalc(),r={agr:{},due:{},paid:{},dq:[],pq:p};
+  S.techs.forEach(function(t){r.agr[t]=0;r.due[t]=0;r.paid[t]=0});
+  for(var q=0;q<4;q++)S.techs.forEach(function(t){var a=gv(g2('agr',q,t)),d=dueOf(q,t),pd=p.q[q][t];r.agr[t]+=a;r.due[t]+=d;r.paid[t]+=pd;r.dq.push([q,t,d,pd])});S.techs.forEach(function(t){r.paid[t]+=p.after[t]});
+  return r;
+}
+function calc(){
+  if(hasAfter()!==afterShown)renderT2();var c=t1Calc(),T=S.techs;
+  document.querySelectorAll('#t1Body tr').forEach(function(tr,i){var s=0;T.forEach(function(t){s+=gv(S.t1[i].a[t])});tr.querySelector('.rt').textContent=fmt(s)});
+  document.querySelectorAll('[data-ct]').forEach(function(e){e.textContent=fmt(c.col[e.dataset.ct])});
+  $('t1all').textContent=fmt(c.all);
+  $('afterBox').innerHTML=T.map(function(t){return '<div class="cr"><span class="k">Total Payment Towards '+esc(tn(t))+' (After SP Adjustment)</span><span class="v">'+fmt(c.adj[t])+'</span></div>'}).join('')+'<div class="cr strong"><span class="k">Total Payment</span><span class="v">'+fmt(c.tot)+'</span></div>';
+  var r=t2Calc();
+  r.dq.forEach(function(x){var e=$('due'+x[0]+x[1]);if(e)e.textContent=fmt(x[2]);var p=$('paid'+x[0]+x[1]);if(p)p.textContent=fmt(x[3])});
+  T.forEach(function(t){var a=$('aft'+t);if(a)a.textContent=fmt(r.pq.after[t])});
+  $('t2Hint').textContent=fyY()?'SUC charges paid are taken from Table 1 by payment date, using the quarter windows of the financial year entered in Basic Details. Spectrum charges due = AGR × fee rate, except for GSM ACCESS, where the value is entered directly.':'';
+  T.forEach(function(t){$('tagr'+t).textContent=fmt(r.agr[t]);$('tdue'+t).textContent=fmt(r.due[t]);$('tpaid'+t).textContent=fmt(r.paid[t]);$('gap'+t).textContent=fmt(r.due[t]-r.paid[t])});
+}
+function renderAll(){renderT1();renderS();renderT2();calc()}
+
+/* print */
+function buildPrint(){
+  var T=S.techs,c=t1Calc(),r=t2Calc(),h='';
+  h+='<div class="ps-h"><b>SUC ASSESSMENT</b><h1>PART IV: PAYMENT DETAILS AND REVENUE SHARE DUE</h1></div>';
+  h+='<div class="ps-box"><h3>Basic Details</h3>Licensee: <b>'+esc(S.lic||'—')+'</b><br>Financial Year: <b>'+esc(S.fy||'—')+'</b><br>Technology: <b>'+T.map(function(t){return esc(tn(t))}).join(', ')+'</b></div>';
+  h+='<div class="ps-box"><h3>Table 1: Payment details</h3><table><thead><tr><th>Sl</th><th>Payment date</th>'+T.map(function(t){return '<th class="r">'+esc(tn(t))+'</th>'}).join('')+'<th class="r">Total</th></tr></thead><tbody>';
+  S.t1.forEach(function(row,i){var s=0;T.forEach(function(t){s+=gv(row.a[t])});h+='<tr><td>'+(i+1)+'</td><td>'+dmy(row.d)+'</td>'+T.map(function(t){return '<td class="r">'+fmt(gv(row.a[t]))+'</td>'}).join('')+'<td class="r">'+fmt(s)+'</td></tr>'});
+  h+='<tr class="tt"><td></td><td>Total payment</td>'+T.map(function(t){return '<td class="r">'+fmt(c.col[t])+'</td>'}).join('')+'<td class="r">'+fmt(c.all)+'</td></tr></tbody></table>';
+  var adjHtml='<div style="margin-top:6px"><b>Total payment after SP adjustment</b></div><table><tbody>'+T.map(function(t){return '<tr><td>Total Payment Towards '+esc(tn(t))+' (After SP Adjustment)</td><td class="r">'+fmt(c.adj[t])+'</td></tr>'}).join('')+'<tr class="tt"><td>Total Payment</td><td class="r">'+fmt(c.tot)+'</td></tr></tbody></table>';
+  if(S.notes.trim())h+='<div style="margin-top:5px;white-space:pre-wrap"><b>Notes:</b> '+esc(S.notes)+'</div>';
+  h+='</div>';
+  if(S.sOn){
+    var ty=S.sType==='13'?(S.sOther||'Other'):(S.sType?TYPES[S.sType-1]:'—');
+    h+='<div class="ps-box"><h3>Table 2: Details of Surplus Adjustment</h3>Type of transfer adjustment: <b>'+esc(ty)+'</b><table style="margin-top:5px"><thead><tr><th>Sl</th><th>Date of payment</th><th>From</th><th class="r">Payment</th><th>To</th><th class="r">Payment</th></tr></thead><tbody>'+S.s.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+dmy(x.d)+'</td><td>'+(x.from?esc(tn(x.from)):'—')+'</td><td class="r">'+fmt(gv(x.fa))+'</td><td>'+(x.to?esc(tn(x.to)):'—')+'</td><td class="r">'+fmt(gv(x.ta))+'</td></tr>'}).join('')+'</tbody></table>'+adjHtml+'</div>';
+  }
+  if(!S.sOn)h+='<div class="ps-box">'+adjHtml+'</div>';
+  h+='<div class="ps-box"><h3>Table '+(S.sOn?3:2)+': Revenue share due</h3><table><thead><tr><th>Particulars</th>'+T.map(function(t){return '<th class="r">'+esc(tn(t))+'</th>'}).join('')+'</tr></thead><tbody>';
+  function pr(l,fn,cls){h+='<tr'+(cls?' class="'+cls+'"':'')+'><td>'+l+'</td>'+T.map(function(t){return '<td class="r">'+fn(t)+'</td>'}).join('')+'</tr>'}
+  QS.forEach(function(q,i){
+    h+='<tr class="tt"><td colspan="'+(T.length+1)+'">'+qLabel(i)+'</td></tr>';
+    pr('Spectrum fee rate (%)',function(t){return gv(g2('rate',i,t)).toFixed(2)+'%'});
+    pr('AGR for SUC calculation',function(t){return fmt(gv(g2('agr',i,t)))});
+    pr('Spectrum charges due',function(t){return fmt(dueOf(i,t))});
+    pr('SUC charges paid',function(t){return fmt(r.pq.q[i][t])});
+  });
+  h+='<tr class="tt"><td colspan="'+(T.length+1)+'">Total for the year</td></tr>';
+  pr('AGR for SUC calculation',function(t){return fmt(r.agr[t])});
+  pr('Spectrum charges due',function(t){return fmt(r.due[t])});
+  pr('SUC charges paid',function(t){return fmt(r.paid[t])});
+  if(hasAfter())pr(afterLabel(),function(t){return fmt(r.pq.after[t])});
+  
+  pr('Shortfall (due − paid)',function(t){return fmt(r.due[t]-r.paid[t])},'tt');
+  h+='</tbody></table></div>';
+  $('printSheet').innerHTML=h;
+}
+function doPrint(){buildPrint();window.print()}
+$('printBtn').onclick=doPrint;$('printTop').onclick=doPrint;
+window.addEventListener('beforeprint',buildPrint);
+
+$('resetBtn').onclick=function(){
+  if(!confirm('Clear all entries on this tab?'))return;
+  S=fresh();
+  ['lic','fy','otherName','notes','sOther'].forEach(function(i){$(i).value=''});
+  $('sOn').checked=false;$('sBox').hidden=true;$('t2Title').textContent='Table 2: Revenue share due';$('sType').value='';$('sOtherWrap').hidden=true;
+  syncTechUI();renderAll();
+};
+/* tabs: every tab is an independent copy of the whole page state */
+var tabs=[],ai=0,st=null;
+function applyForm(){
+  $('lic').value=S.lic;$('fy').value=S.fy;$('otherName').value=S.other;$('notes').value=S.notes;
+  $('sOn').checked=!!S.sOn;$('sBox').hidden=!S.sOn;$('sType').value=S.sType;$('sOtherWrap').hidden=S.sType!=='13';$('sOther').value=S.sOther;
+  $('t2Title').textContent='Table '+(S.sOn?3:2)+': Revenue share due';
+  syncTechUI();renderAll();
+}
+function norm(o){var f=fresh();for(var k in f)if(!(k in o))o[k]=f[k];return o}
+function saveTabs(){try{tabs[ai]=S;localStorage.setItem('suc_tabs',JSON.stringify({a:ai,t:tabs}))}catch(e){}}
+function sched(){clearTimeout(st);st=setTimeout(saveTabs,300)}
+['input','change','click'].forEach(function(ev){document.addEventListener(ev,sched)});
+function renderTabs(){
+  var b=$('tabBar');b.innerHTML='';
+  tabs.forEach(function(t,i){
+    var e=document.createElement('div');e.className='tab'+(i===ai?' active':'');e.setAttribute('role','tab');e.setAttribute('aria-selected',String(i===ai));
+    var n=document.createElement('span');n.textContent='Assessment '+(i+1);e.appendChild(n);
+    if(tabs.length>1){var c=document.createElement('span');c.className='tab-close';c.title='Close this tab';c.textContent='×';c.onclick=function(ev){ev.stopPropagation();closeTab(i)};e.appendChild(c)}
+    e.onclick=function(){switchTab(i)};b.appendChild(e);
+  });
+  var a=document.createElement('button');a.type='button';a.className='tab-add';a.title='New tab';a.setAttribute('aria-label','Add new assessment tab');a.textContent='+';a.onclick=addTab;b.appendChild(a);
+}
+function switchTab(i){if(i===ai||i<0||i>=tabs.length)return;tabs[ai]=S;ai=i;S=tabs[ai];applyForm();renderTabs();saveTabs()}
+function addTab(){tabs[ai]=S;tabs.push(fresh());ai=tabs.length-1;S=tabs[ai];applyForm();renderTabs();saveTabs()}
+function closeTab(i){
+  if(tabs.length<2)return;
+  if(!confirm('Close “Assessment '+(i+1)+'”? Its data will be discarded.'))return;
+  tabs[ai]=S;tabs.splice(i,1);
+  if(i<ai)ai--;else if(ai>=tabs.length)ai=tabs.length-1;
+  S=tabs[ai];applyForm();renderTabs();saveTabs();
+}
+(function(){try{var d=JSON.parse(localStorage.getItem('suc_tabs'));if(d&&d.t&&d.t.length){tabs=d.t.map(norm);ai=Math.min(Math.max(d.a||0,0),tabs.length-1);S=tabs[ai]}}catch(e){}if(!tabs.length)tabs=[S]})();
+applyForm();renderTabs();
+})();
+</script>
+</body>
+</html>
