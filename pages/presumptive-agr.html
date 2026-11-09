@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Part III: Presumptive AGR & Floor SUC Calculation</title>
+<style>
+:root{--ink:#182233;--ink-soft:#4b5768;--paper:#ECEEEA;--paper-raised:#F7F8F5;--line:#CBD0C7;--line-soft:#DDE0D9;--brass:#9C7327;--brass-soft:#EFE3C8;--teal:#2C6357;--teal-soft:#DEEAE5;--red:#9C3B31;--red-soft:#F3DEDA;--green:#2E7D32;
+--font-sans:"Aptos Serif",serif;--font-serif:"Aptos Serif",serif;--font-mono:"Aptos Serif",serif;
+--radius:4px;--shadow-card:0 1px 3px rgba(0,0,0,.03);--transition:background .2s ease,border-color .2s ease,color .2s ease;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{--ink:#E9ECE6;--ink-soft:#AEB6A8;--paper:#161B15;--paper-raised:#1E241C;--line:#333B30;--line-soft:#2A3128;--brass:#D4A94B;--brass-soft:#332A16;--teal:#7FBDA9;--teal-soft:#1B2C26;--red:#D98A7C;--red-soft:#3A211D;--green:#6FCF77;--shadow-card:0 1px 3px rgba(0,0,0,.4)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="dark"]){--ink:#E9ECE6;--ink-soft:#AEB6A8;--paper:#161B15;--paper-raised:#1E241C;--line:#333B30;--line-soft:#2A3128;--brass:#D4A94B;--brass-soft:#332A16;--teal:#7FBDA9;--teal-soft:#1B2C26;--red:#D98A7C;--red-soft:#3A211D;--green:#6FCF77}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--font-sans);-webkit-font-smoothing:antialiased;transition:var(--transition)}
+.wrap{width:100%;padding:28px 32px 70px}
+@media(max-width:760px){.wrap{padding:16px 14px 50px}}
+.masthead{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.eyebrow{font-size:11.5px;letter-spacing:.04em;color:var(--brass);margin-bottom:8px;text-transform:uppercase}
+h1{font-family:var(--font-serif);font-weight:600;font-size:28px;margin:0 0 6px;line-height:1.15}
+.mh-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.theme-toggle{display:flex;gap:4px;background:var(--paper-raised);border:1px solid var(--line);border-radius:40px;padding:3px}
+.theme-toggle button{font:500 11.5px var(--font-sans);padding:6px 14px;border-radius:40px;border:none;background:transparent;color:var(--ink-soft);cursor:pointer;transition:var(--transition)}
+.theme-toggle button.active{background:var(--ink);color:var(--paper-raised)}
+.grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:24px;align-items:start;transition:grid-template-columns .3s ease,gap .3s ease}
+.grid>*{min-width:0}
+#sidebar{display:flex;flex-direction:column;gap:12px}
+.sidebar-toggle{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 10px;background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);color:var(--ink-soft);cursor:pointer;font:500 11.5px var(--font-sans);min-height:36px;transition:var(--transition)}
+.sidebar-toggle:hover{border-color:var(--brass);color:var(--brass)}
+.sidebar-toggle .chev{font-size:15px;line-height:1}
+body.sc .grid{grid-template-columns:48px minmax(0,1fr);gap:14px}
+body.sc #inputCol{display:none}
+body.sc .sidebar-toggle{flex-direction:column;gap:10px;padding:12px 4px}
+body.sc .sidebar-toggle .label{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+@media(max-width:1000px){.grid{grid-template-columns:320px minmax(0,1fr)}body.sc .grid{grid-template-columns:48px minmax(0,1fr)}}
+@media(max-width:760px){.grid,body.sc .grid{display:block}.grid>#outCol{margin-top:16px}#sidebar{margin-bottom:16px}body.sc .sidebar-toggle{flex-direction:row;padding:9px 12px}body.sc .sidebar-toggle .label{writing-mode:horizontal-tb;transform:none;text-transform:none;letter-spacing:.02em;font-size:12px}}
+#inputCol{display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 18px;box-shadow:var(--shadow-card);transition:var(--transition)}
+.panel h2{font-family:var(--font-serif);font-size:16px;font-weight:600;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.panel h2 small{font:500 11.5px var(--font-sans);color:var(--ink-soft)}
+.pt{width:24px;height:24px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);border-radius:3px;cursor:pointer;font-size:11px;padding:0}
+.pt:hover{border-color:var(--brass);color:var(--brass)}
+.panel.col>.pb{display:none}.panel.col h2{margin-bottom:0}
+label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;font-weight:500}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:3px;background:var(--paper);color:var(--ink);font:13.5px var(--font-sans);transition:var(--transition)}
+input[type=number]{text-align:right;font-family:var(--font-mono)}
+textarea{min-height:76px;resize:vertical;line-height:1.45}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass)}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button.primary{flex:1;padding:11px 14px;background:var(--ink);color:var(--paper-raised);border:none;border-radius:3px;font:600 13.5px var(--font-sans);cursor:pointer;transition:var(--transition)}
+button.primary:hover{background:var(--brass);color:#1a1200}
+button.ghost{padding:9px 14px;background:transparent;color:var(--ink-soft);border:1px solid var(--line);border-radius:3px;font:13px var(--font-sans);cursor:pointer;transition:var(--transition)}
+button.ghost:hover{border-color:var(--ink);color:var(--ink)}
+button.ghost.warn:hover{border-color:var(--red);color:var(--red)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+th{text-align:center;vertical-align:middle;font-size:12.5px;font-weight:700;letter-spacing:.02em;padding:11px 8px;border-bottom:1px solid var(--ink);white-space:normal;background:var(--paper-raised)}
+th.r{text-align:right}
+td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+td.sl{width:48px;text-align:center;color:var(--ink-soft);font:12.5px var(--font-mono)}
+td.num{padding:9px 10px;font:13px var(--font-mono);text-align:right;white-space:nowrap}
+td input,td select{padding:6px 7px;font-size:12.5px;width:100%;}
+tbody tr:hover{background:var(--paper-raised)}
+tr.total td{font-weight:700;border-top:1px solid var(--ink);border-bottom:none;background:var(--paper-raised)}
+.rm-btn{width:26px;height:26px;border:1px solid var(--line);background:var(--paper);color:var(--red);border-radius:2px;cursor:pointer;font-size:14px;line-height:1}
+.rm-btn:hover{background:var(--red-soft)}
+.ad-btn{color:var(--teal);margin-right:4px}
+td.ra{white-space:nowrap;text-align:center;}
+.add-row-btn{margin-top:10px;width:100%;padding:9px;border:1px dashed var(--line);background:transparent;color:var(--ink-soft);border-radius:2px;cursor:pointer;font:12.5px var(--font-sans)}
+.add-row-btn:hover{border-color:var(--brass);color:var(--brass)}
+.calc{border:1px solid var(--line);border-radius:var(--radius);padding:2px 14px;margin-top:14px;background:var(--paper)}
+[hidden]{display:none!important}
+#printSheet{display:none}
+@page{size:A4 portrait;margin:10mm 9mm}
+@media print{
+ html,body{background:#fff!important;color:#000!important}
+ .wrap>.masthead,.wrap>.grid,.wrap>.tabbar{display:none!important}
+ .wrap{padding:0}
+ #printSheet{display:block!important;font-size:8.5pt;color:#000}
+ #printSheet *{color:#000!important;background:transparent!important}
+}
+.ps-h{border-bottom:2.5px solid #000;padding-bottom:4px;margin-bottom:8px}
+.ps-h b{font-size:8.5pt}.ps-h h1{font-size:13pt;margin:0}
+.ps-box{border:2px solid #000;padding:5px 8px 7px;margin-bottom:8px;break-inside:avoid}
+.ps-box h3{font-size:8.5pt;text-transform:uppercase;margin:0 0 5px;border-bottom:1.5px solid #000;padding-bottom:3px}
+.ps-box table{font-size:8pt;table-layout:fixed;width:100%;}
+.ps-box th{padding:4px 2px;border-bottom:1px solid #000;font-size:8pt;text-align:center;vertical-align:middle;white-space:normal;}
+.ps-box td{padding:3px 2px;border-bottom:.4px solid #999;white-space:nowrap;}
+.ps-box .r{text-align:right}
+.ps-box tr.tt td{font-weight:700;border-top:1px solid #000}
+
+/* Specific table adjustments for on-screen */
+#table31 td input { text-align: center; }
+#table31 td input.amt-input { text-align: right; }
+#table32 td { white-space: nowrap; text-align: center; }
+#table32 td.num { text-align: right; }
+#table32 td:first-child { font-weight: 600; }
+.input-group { display: flex; align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding-left: 8px; width: 100%; }
+.input-group span { color: var(--ink-soft); font-weight: 500; }
+.input-group input { border: none; background: transparent; padding-left: 4px; outline: none; }
+.input-group input:focus { outline: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">SUC Assessment</div>
+      <h1>Part III: Presumptive AGR & Floor SUC Calculation</h1>
+    </div>
+    <div class="mh-r">
+      <button class="ghost" id="printTop">Print / save PDF</button>
+      <div class="theme-toggle" id="themeToggle" role="group" aria-label="Theme">
+        <button type="button" data-t="light">Light</button>
+        <button type="button" data-t="dark">Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <aside id="sidebar">
+      <button type="button" class="sidebar-toggle" id="sbToggle" aria-expanded="true">
+        <span class="chev">‹</span><span class="label">Hide inputs</span>
+      </button>
+      <div id="inputCol">
+        <div class="panel">
+          <h2>Basic Details</h2>
+          <div class="pb">
+            <div class="field">
+              <label for="licensee">Licensee</label>
+              <input type="text" id="licensee" placeholder="Enter licensee name">
+            </div>
+            <div class="field">
+              <label for="fy">Financial Year</label>
+              <input type="text" id="fy" placeholder="e.g. 2021-2022">
+            </div>
+            <div class="field">
+              <label for="tech">Technology</label>
+              <input type="text" id="tech" placeholder="Enter technology">
+            </div>
+            <div class="field">
+              <label for="assessmentDate">Date of Assessment</label>
+              <input type="date" id="assessmentDate">
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Actions</h2>
+          <div class="pb">
+            <div class="btns">
+              <button class="primary" id="printBtn">Print / save PDF</button>
+              <button class="ghost warn" id="resetBtn">Reset this tab</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div id="outCol">
+      <div class="stack">
+        <section class="panel">
+          <h2>A. Presumptive AGR Calculation</h2>
+          <h3 style="font-size:14px; font-weight:600; margin:16px 0 8px;">Table 3.1 : Spectrum Bid Amount Details.</h3>
+          <div class="tbl-wrap">
+            <table id="table31">
+              <colgroup>
+                <col style="width: 15%;">
+                <col style="width: 20%;">
+                <col style="width: 30%;">
+                <col style="width: 25%;">
+                <col style="width: 10%;">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Year of Auction</th>
+                  <th>Spect. Technology</th>
+                  <th>Date <br><small style="font-weight:400; font-size:11px; display:inline-block; margin-top:2px;">(LoI or Effective Date Whichever is Later)</small></th>
+                  <th class="r">Bid Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="t1Body">
+                <!-- Rows populated by JS -->
+              </tbody>
+              <tfoot>
+                <tr class="total">
+                  <td colspan="3" style="text-align:right; padding-right:12px;">Total</td>
+                  <td class="num" id="t1Total">0</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <button class="add-row-btn" id="addRow31">+ Add Row</button>
+        </section>
+
+        <section class="panel">
+          <h3 style="font-size:14px; font-weight:600; margin:0 0 8px;">Table 3.2 : Calculation of Presumptive AGR</h3>
+          <div class="tbl-wrap">
+            <table id="table32">
+              <colgroup>
+                <col style="width: 10%;">
+                <col style="width: 15%;">
+                <col style="width: 15%;">
+                <col style="width: 15%;">
+                <col style="width: 15%;">
+                <col style="width: 15%;">
+                <col style="width: 15%;">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Quarter</th>
+                  <th></th>
+                  <th></th>
+                  <th class="r">Total Bid Amount<br>(A)</th>
+                  <th class="r">5% of Bid Amount<br>(B)</th>
+                  <th class="r">Presumptive AGR for<br>Period (C=B/4)</th>
+                  <th class="r">Presumptive AGR for<br>Quarter</th>
+                </tr>
+              </thead>
+              <tbody id="t2Body">
+                <!-- Rows populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <div id="printSheet"></div>
+</div>
+
+<script>
+(function(){
+  // --- Theme & Sidebar Logic ---
+  var root=document.documentElement;
+  function theme(t){root.setAttribute('data-theme',t);document.querySelectorAll('#themeToggle button').forEach(function(b){b.classList.toggle('active',b.dataset.t===t)})}
+  var sv=null;try{sv=localStorage.getItem('suc_theme')}catch(e){}
+  theme(sv==='dark'?'dark':'light');
+  document.getElementById('themeToggle').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;theme(b.dataset.t);try{localStorage.setItem('suc_theme',b.dataset.t)}catch(x){}});
+
+  function sb(c){document.body.classList.toggle('sc',c);document.getElementById('sbToggle').setAttribute('aria-expanded',String(!c));document.getElementById('sbToggle').querySelector('.chev').textContent=c?'›':'‹';document.getElementById('sbToggle').querySelector('.label').textContent=c?'Inputs':'Hide inputs';try{localStorage.setItem('suc_sb',c?'1':'0')}catch(e){}}
+  var sc=false;try{sc=localStorage.getItem('suc_sb')==='1'}catch(e){}
+  sb(sc);document.getElementById('sbToggle').onclick=function(){sb(!document.body.classList.contains('sc'))};
+
+  // --- Data Model ---
+  let data31 = [];
+
+  // --- Helper Functions ---
+  function parseDate(str) {
+    if (!str) return null;
+    if (str instanceof Date) return str;
+    const parts = str.split('-');
+    if (parts.length === 3) {
+      // Assuming input is DD-MM-YYYY
+      return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    }
+    return null;
+  }
+  
+  function formatDate(date) {
+    if (!date) return '';
+    const d = date.getDate().toString().padStart(2, '0');
+    const m = (date.getMonth() + 1).toString().padStart(2, '0');
+    const y = date.getFullYear();
+    return `${d}-${m}-${y}`;
+  }
+
+  function addDays(date, days) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  function subDays(date, days) {
+    return addDays(date, -days);
+  }
+
+  function diffDays(date1, date2) {
+    return Math.round((date2 - date1) / (1000 * 60 * 60 * 24));
+  }
+
+  function formatINR(num) {
+    if (num === undefined || num === null || isNaN(num)) return '0';
+    return new Intl.NumberFormat('en-IN').format(Math.round(num));
+  }
+
+  // --- Table 3.1 Logic ---
+  const t1Body = document.getElementById('t1Body');
+  const t1Total = document.getElementById('t1Total');
+
+  function renderTable31() {
+    t1Body.innerHTML = '';
+    if (data31.length === 0) {
+      data31.push({ year: '', tech: '', date: '', amount: 0 });
+    }
+    data31.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" value="${row.year || ''}" data-i="${i}" data-f="year" placeholder="YYYY"></td>
+        <td><input type="text" value="${row.tech || ''}" data-i="${i}" data-f="tech"></td>
+        <td><input type="text" value="${row.date || ''}" data-i="${i}" data-f="date" placeholder="DD-MM-YYYY"></td>
+        <td>
+          <div class="input-group">
+            <span>₹</span>
+            <input type="text" value="${row.amount ? formatINR(row.amount) : ''}" data-i="${i}" data-f="amount" class="amt-input">
+          </div>
+        </td>
+        <td class="ra"><button class="rm-btn ad-btn" data-add="${i}" title="Add row below">+</button><button class="rm-btn" data-del="${i}" title="Delete row">×</button></td>
+      `;
+      t1Body.appendChild(tr);
+    });
+  }
+
+  t1Body.addEventListener('input', (e) => {
+    const input = e.target;
+    if (!input.matches('input')) return;
+    const i = +input.dataset.i;
+    const f = input.dataset.f;
+    if (f === 'amount') {
+      let val = input.value.replace(/,/g, '');
+      let num = parseFloat(val);
+      if (isNaN(num)) num = 0;
+      data31[i].amount = num;
+    } else {
+      data31[i][f] = input.value;
+    }
+    updateAll();
+  });
+
+  t1Body.addEventListener('focusout', (e) => {
+    const input = e.target;
+    if (input.matches('input') && input.dataset.f === 'amount') {
+      const i = +input.dataset.i;
+      input.value = data31[i].amount ? formatINR(data31[i].amount) : '';
+    }
+  });
+
+  t1Body.addEventListener('focusin', (e) => {
+    const input = e.target;
+    if (input.matches('input') && input.dataset.f === 'amount') {
+      const i = +input.dataset.i;
+      input.value = data31[i].amount ? data31[i].amount : '';
+    }
+  });
+
+  t1Body.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('[data-add]');
+    if (addBtn) {
+      const i = +addBtn.dataset.add;
+      data31.splice(i + 1, 0, { year: '', tech: '', date: '', amount: 0 });
+      renderTable31();
+      updateAll();
+      return;
+    }
+    const delBtn = e.target.closest('[data-del]');
+    if (delBtn) {
+      const i = +delBtn.dataset.del;
+      data31.splice(i, 1);
+      if (data31.length === 0) data31.push({ year: '', tech: '', date: '', amount: 0 });
+      renderTable31();
+      updateAll();
+    }
+  });
+
+  document.getElementById('addRow31').addEventListener('click', () => {
+    data31.push({ year: '', tech: '', date: '', amount: 0 });
+    renderTable31();
+    updateAll();
+  });
+
+  // --- Table 3.2 Logic ---
+  function getQuarterSegments(start, end, bids) {
+    const changes = [start];
+    bids.forEach(b => {
+      if (b.date && b.amount > 0) {
+        const d = parseDate(b.date);
+        if (d && d > start && d <= end) {
+          changes.push(d);
+        }
+      }
+    });
+    changes.push(addDays(end, 1));
+    
+    const uniqueChanges = [...new Set(changes.map(d => d.getTime()))].sort((a, b) => a - b).map(t => new Date(t));
+    
+    let segments = [];
+    let totalDays = diffDays(start, end) + 1;
+    
+    for (let i = 0; i < uniqueChanges.length - 1; i++) {
+      const segStart = uniqueChanges[i];
+      const segEnd = subDays(uniqueChanges[i + 1], 1);
+      const days = diffDays(segStart, segEnd) + 1;
+      if (days <= 0) continue;
+      
+      let totalBid = 0;
+      bids.forEach(b => {
+        if (b.date && b.amount > 0) {
+          const d = parseDate(b.date);
+          if (d && d <= segStart) {
+            totalBid += b.amount;
+          }
+        }
+      });
+      
+      const B = totalBid * 0.05;
+      const C = B / 4;
+      
+      segments.push({ start: segStart, end: segEnd, days, A: totalBid, B, C });
+    }
+    
+    let weightedSum = 0;
+    segments.forEach(seg => {
+      weightedSum += seg.C * seg.days;
+    });
+    const quarterAvg = weightedSum / totalDays;
+    
+    return { segments, quarterAvg };
+  }
+
+  function updateTable32() {
+    const fyInput = document.getElementById('fy');
+    const fy = fyInput.value;
+    const match = fy.match(/(\d{4})/);
+    
+    const t2Body = document.getElementById('t2Body');
+    
+    if (!match) {
+      t2Body.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--ink-soft);">Enter a valid Financial Year (e.g., 2021-2022) to calculate.</td></tr>`;
+      return;
+    }
+    
+    const startYear = parseInt(match[1]);
+    
+    const quarters = [
+      { name: 'Q1', start: new Date(startYear, 3, 1), end: new Date(startYear, 5, 30) },
+      { name: 'Q2', start: new Date(startYear, 6, 1), end: new Date(startYear, 8, 30) },
+      { name: 'Q3', start: new Date(startYear, 9, 1), end: new Date(startYear, 11, 31) },
+      { name: 'Q4', start: new Date(startYear + 1, 0, 1), end: new Date(startYear + 1, 2, 31) }
+    ];
+
+    let html = '';
+    quarters.forEach(q => {
+      const { segments, quarterAvg } = getQuarterSegments(q.start, q.end, data31);
+      const rowspan = segments.length;
+      
+      segments.forEach((seg, idx) => {
+        html += '<tr>';
+        if (idx === 0) {
+          html += `<td rowspan="${rowspan}" style="vertical-align:middle; text-align:center;">${q.name}</td>`;
+        }
+        html += `<td>${formatDate(seg.start)}</td>`;
+        html += `<td>${formatDate(seg.end)}</td>`;
+        html += `<td class="num">₹ ${formatINR(seg.A)}</td>`;
+        html += `<td class="num">₹ ${formatINR(seg.B)}</td>`;
+        html += `<td class="num">₹ ${formatINR(seg.C)}</td>`;
+        if (idx === 0) {
+          html += `<td rowspan="${rowspan}" class="num" style="vertical-align:middle; font-weight:600;">₹ ${formatINR(quarterAvg)}</td>`;
+        }
+        html += '</tr>';
+      });
+    });
+    t2Body.innerHTML = html;
+  }
+
+  function updateTotal() {
+    let total = data31.reduce((sum, r) => sum + r.amount, 0);
+    t1Total.textContent = '₹ ' + formatINR(total);
+  }
+
+  function updateAll() {
+    updateTotal();
+    updateTable32();
+  }
+
+  // --- Initialize ---
+  document.getElementById('fy').addEventListener('input', updateAll);
+  
+  // Reset
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (!confirm('Clear all entries?')) return;
+    data31 = [{ year: '', tech: '', date: '', amount: 0 }];
+    document.getElementById('licensee').value = '';
+    document.getElementById('fy').value = '';
+    document.getElementById('tech').value = '';
+    document.getElementById('assessmentDate').value = '';
+    renderTable31();
+    updateAll();
+  });
+
+  // Print
+  function buildPrint() {
+    let h = '';
+    h += '<div class="ps-h"><b>SUC ASSESSMENT</b><h1>PART III: PRESUMPTIVE AGR & FLOOR SUC CALCULATION</h1></div>';
+    
+    const lic = document.getElementById('licensee').value || '—';
+    const fy = document.getElementById('fy').value || '—';
+    const tech = document.getElementById('tech').value || '—';
+    const date = document.getElementById('assessmentDate').value || '—';
+    
+    h += `<div class="ps-box"><h3>Basic Details</h3>Licensee: <b>${lic}</b><br>Financial Year: <b>${fy}</b><br>Technology: <b>${tech}</b><br>Date of Assessment: <b>${date}</b></div>`;
+    
+    h += '<div class="ps-box"><h3>Table 3.1: Spectrum Bid Amount Details</h3>';
+    h += '<table><colgroup><col style="width:15%"><col style="width:20%"><col style="width:30%"><col style="width:35%"></colgroup>';
+    h += '<thead><tr><th>Year of Auction</th><th>Spect. Technology</th><th>Date</th><th class="r">Bid Amount</th></tr></thead><tbody>';
+    let total = 0;
+    data31.forEach(row => {
+      total += row.amount;
+      h += `<tr><td>${row.year || '—'}</td><td>${row.tech || '—'}</td><td>${row.date || '—'}</td><td class="r">₹ ${formatINR(row.amount)}</td></tr>`;
+    });
+    h += `<tr class="tt"><td colspan="3" class="r">Total</td><td class="r">₹ ${formatINR(total)}</td></tr>`;
+    h += '</tbody></table></div>';
+    
+    h += '<div class="ps-box"><h3>Table 3.2: Calculation of Presumptive AGR</h3>';
+    h += '<table><colgroup><col style="width:8%"><col style="width:14%"><col style="width:14%"><col style="width:16%"><col style="width:16%"><col style="width:16%"><col style="width:16%"></colgroup>';
+    h += '<thead><tr><th>Quarter</th><th></th><th></th><th class="r">Total Bid Amount (A)</th><th class="r">5% of Bid Amount (B)</th><th class="r">Presumptive AGR for Period (C=B/4)</th><th class="r">Presumptive AGR for Quarter</th></tr></thead><tbody>';
+    
+    const match = fy.match(/(\d{4})/);
+    if (match) {
+      const startYear = parseInt(match[1]);
+      const quarters = [
+        { name: 'Q1', start: new Date(startYear, 3, 1), end: new Date(startYear, 5, 30) },
+        { name: 'Q2', start: new Date(startYear, 6, 1), end: new Date(startYear, 8, 30) },
+        { name: 'Q3', start: new Date(startYear, 9, 1), end: new Date(startYear, 11, 31) },
+        { name: 'Q4', start: new Date(startYear + 1, 0, 1), end: new Date(startYear + 1, 2, 31) }
+      ];
+      
+      quarters.forEach(q => {
+        const { segments, quarterAvg } = getQuarterSegments(q.start, q.end, data31);
+        const rowspan = segments.length;
+        segments.forEach((seg, idx) => {
+          h += '<tr>';
+          if (idx === 0) h += `<td rowspan="${rowspan}" style="vertical-align:middle; font-weight:bold; text-align:center;">${q.name}</td>`;
+          h += `<td>${formatDate(seg.start)}</td>`;
+          h += `<td>${formatDate(seg.end)}</td>`;
+          h += `<td class="r">₹ ${formatINR(seg.A)}</td>`;
+          h += `<td class="r">₹ ${formatINR(seg.B)}</td>`;
+          h += `<td class="r">₹ ${formatINR(seg.C)}</td>`;
+          if (idx === 0) h += `<td rowspan="${rowspan}" class="r" style="vertical-align:middle; font-weight:bold;">₹ ${formatINR(quarterAvg)}</td>`;
+          h += '</tr>';
+        });
+      });
+    } else {
+      h += '<tr><td colspan="7">Invalid Financial Year.</td></tr>';
+    }
+    
+    h += '</tbody></table></div>';
+    document.getElementById('printSheet').innerHTML = h;
+  }
+
+  document.getElementById('printTop').addEventListener('click', () => { buildPrint(); window.print(); });
+  document.getElementById('printBtn').addEventListener('click', () => { buildPrint(); window.print(); });
+  window.addEventListener('beforeprint', buildPrint);
+
+  // Initial Render
+  renderTable31();
+  updateAll();
+})();
+</script>
+</body>
+</html>
