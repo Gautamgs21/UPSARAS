@@ -410,6 +410,16 @@
       border-top: 1px solid var(--line-soft);
     }
 
+    /* ---------- views ---------- */
+    .view-container {
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* ---------- dark mode ---------- */
     :root[data-theme="dark"] {
       --ink: #E9ECE6;
@@ -558,6 +568,7 @@
       gap: 4px;
       padding: 14px 12px;
       list-style: none;
+      overflow-y: auto;
     }
 
     .sb-nav li { position: relative; list-style: none; }
@@ -634,7 +645,7 @@
       transition: max-height 0.28s var(--sb-ease);
     }
 
-    .nav-group.open > .submenu { max-height: 160px; }
+    .nav-group.open > .submenu { max-height: 1000px; }
 
     .submenu .nav-item {
       height: 38px;
@@ -644,6 +655,22 @@
     }
 
     .submenu .nav-item svg.ico { width: 16px; height: 16px; margin-left: -22px; }
+    
+    /* Nested submenus */
+    .submenu .submenu .nav-item {
+      padding-left: 60px;
+    }
+    .submenu .submenu .nav-item svg.ico {
+      margin-left: -38px;
+    }
+
+    .submenu .submenu .submenu .nav-item {
+      padding-left: 76px;
+    }
+    .submenu .submenu .submenu .nav-item svg.ico {
+      margin-left: -54px;
+    }
+
     .flyout-title { display: none; }
 
     .sb-footer {
@@ -754,6 +781,13 @@
         transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
         z-index: 200;
       }
+      
+      body.sb-collapsed .submenu .nav-group > .submenu {
+        left: 100%;
+        top: 0;
+        z-index: 210;
+      }
+
       /* hover bridge so the pointer can travel from icon to flyout */
       body.sb-collapsed .submenu::before {
         content: "";
@@ -848,7 +882,8 @@
       .sb-nav,
       .submenu,
       .tip::after,
-      .tip::before {
+      .tip::before,
+      .view-container {
         animation: none !important;
         transition: none !important;
       }
@@ -890,16 +925,65 @@
 
       <ul class="sb-nav" id="sbNav">
         <li>
-          <button type="button" class="nav-item tip active" data-tooltip="Dashboard" aria-current="page">
+          <button type="button" class="nav-item tip active" data-tooltip="Dashboard" data-view="dashboard" aria-current="page">
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
             <span class="label">Dashboard</span>
           </button>
         </li>
-        <li>
-          <button type="button" class="nav-item tip" data-tooltip="SUC Assessment">
+        
+        <li class="nav-group" id="sucGroup">
+          <button type="button" class="nav-item tip" id="sucBtn" data-tooltip="SUC Assessment" aria-expanded="false" aria-controls="sucSub">
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14 3 14 8 19 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg>
             <span class="label">SUC Assessment</span>
+            <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
           </button>
+          <ul class="submenu" id="sucSub">
+            <li class="flyout-title" aria-hidden="true">SUC Assessment</li>
+            
+            <li class="nav-group" id="newAssessGroup">
+              <button type="button" class="nav-item" id="newAssessBtn" aria-expanded="false" aria-controls="newAssessSub">
+                <span class="label">New Assessment</span>
+                <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
+              </button>
+              <ul class="submenu" id="newAssessSub">
+                <li>
+                  <a class="nav-item" href="#part-assessment" data-view="part-assessment">
+                    <span class="label">Part Assessment</span>
+                  </a>
+                </li>
+                <li class="nav-group" id="newLoadAssessGroup">
+                  <button type="button" class="nav-item" id="newLoadAssessBtn" aria-expanded="false" aria-controls="newLoadAssessSub">
+                    <span class="label">Load Assessment</span>
+                    <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
+                  </button>
+                  <ul class="submenu" id="newLoadAssessSub">
+                    <li>
+                       <a class="nav-item" href="#load-part" data-view="load-part">Part Assessment</a>
+                    </li>
+                    <li>
+                       <a class="nav-item" href="#load-load" data-view="load-load">Load Assessment</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-group" id="loadAssessGroup">
+              <button type="button" class="nav-item" id="loadAssessBtn" aria-expanded="false" aria-controls="loadAssessSub">
+                <span class="label">Load Assessment</span>
+                <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
+              </button>
+              <ul class="submenu" id="loadAssessSub">
+                <li>
+                   <a class="nav-item" href="#load-part" data-view="load-part">Part Assessment</a>
+                </li>
+                <li>
+                   <a class="nav-item" href="#load-load" data-view="load-load">Load Assessment</a>
+                </li>
+              </ul>
+            </li>
+
+          </ul>
         </li>
 
         <!-- Deduction Verification ▸ Load DVR / Initiate DVR -->
@@ -928,7 +1012,7 @@
         </li>
 
         <li>
-          <button type="button" class="nav-item tip" data-tooltip="Settings">
+          <button type="button" class="nav-item tip" data-tooltip="Settings" data-view="settings">
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span class="label">Settings</span>
           </button>
@@ -972,73 +1056,112 @@
         </div>
       </header>
 
-      <!-- ========== SEVEN CARDS — all open in a new tab/window ========== -->
-      <div class="cards-grid" id="cardsGrid">
+      <!-- ========== DASHBOARD VIEW ========== -->
+      <div id="view-dashboard" class="view-container active">
+        <div class="panel" style="text-align: center; padding: 60px 20px; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
+          <h2 style="font-size: 28px; margin-bottom: 16px; color: var(--ink);">Welcome to UP-SARAS</h2>
+          <p style="color: var(--ink-soft); font-size: 16px; max-width: 600px; margin: 0 auto;">Select an assessment module from the sidebar to begin.</p>
+        </div>
+      </div>
 
-        <a class="card" href="pages/agr-suc.html" target="_blank" rel="noopener noreferrer" data-page="agr-suc">
-          <span class="card-num">01</span>
-          <h3>Calculation of AGR for SUC</h3>
-          <p>Compute Adjusted Gross Revenue for Spectrum Usage Charges with quarter-wise detail and statutory adjustments.</p>
-          <span class="card-arrow">→</span>
-          <span class="card-badge">Linked</span>
-          <span class="card-arrow">→</span>
-        </a>
+      <!-- ========== PART ASSESSMENT VIEW (The 7 Cards) ========== -->
+      <div id="view-part-assessment" class="view-container" style="display: none;">
+        <div class="cards-grid" id="cardsGrid">
 
-        <a class="card" href="pages/spectrum-details.html" target="_blank" rel="noopener noreferrer" data-page="spectrum-details">
-          <span class="card-num">02</span>
-          <h3>Spectrum Details &amp; SUC Rate Calculation</h3>
-          <p>Enter spectrum holdings, applicable SUC rates, and derive the weighted rate for each technology and circle.</p>
-          <span class="card-arrow">→</span>
-          <span class="card-badge">Linked</span>
-          <span class="card-arrow">→</span>
-        </a>
+          <a class="card" href="pages/agr-suc.html" target="_blank" rel="noopener noreferrer" data-page="agr-suc">
+            <span class="card-num">01</span>
+            <h3>Calculation of AGR for SUC</h3>
+            <p>Compute Adjusted Gross Revenue for Spectrum Usage Charges with quarter-wise detail and statutory adjustments.</p>
+            <span class="card-arrow">→</span>
+            <span class="card-badge">Linked</span>
+            <span class="card-arrow">→</span>
+          </a>
 
-        <a class="card" href="pages/presumptive-agr.html" target="_blank" rel="noopener noreferrer" data-page="presumptive-agr">
-          <span class="card-num">03</span>
-          <h3>Presumptive AGR &amp; Floor SUC Calculation</h3>
-          <p>Apply the presumptive AGR framework and compute the floor SUC liability for the financial year.</p>
-          <span class="card-arrow">→</span>
-          <span class="card-badge">Linked</span>
-          <span class="card-arrow">→</span>
-        </a>
+          <a class="card" href="pages/spectrum-details.html" target="_blank" rel="noopener noreferrer" data-page="spectrum-details">
+            <span class="card-num">02</span>
+            <h3>Spectrum Details &amp; SUC Rate Calculation</h3>
+            <p>Enter spectrum holdings, applicable SUC rates, and derive the weighted rate for each technology and circle.</p>
+            <span class="card-arrow">→</span>
+            <span class="card-badge">Linked</span>
+            <span class="card-arrow">→</span>
+          </a>
 
-        <a class="card" href="pages/payment-details.html" target="_blank" rel="noopener noreferrer" data-page="payment-details">
-          <span class="card-num">04</span>
-          <h3>Payment Details &amp; Revenue Share Due Calculation</h3>
-          <p>Record payments, reconcile against dues, and calculate the revenue share payable with interest adjustments.</p>
-          <span class="card-arrow">→</span>
-          <span class="card-badge">Linked</span>
-          <span class="card-arrow">→</span>
-        </a>
+          <a class="card" href="pages/presumptive-agr.html" target="_blank" rel="noopener noreferrer" data-page="presumptive-agr">
+            <span class="card-num">03</span>
+            <h3>Presumptive AGR &amp; Floor SUC Calculation</h3>
+            <p>Apply the presumptive AGR framework and compute the floor SUC liability for the financial year.</p>
+            <span class="card-arrow">→</span>
+            <span class="card-badge">Linked</span>
+            <span class="card-arrow">→</span>
+          </a>
 
-        <!-- 05 — linked to the provided interest calculator, renamed to interest-principal.html -->
-        <a class="card" href="pages/interest-principal.html" target="_blank" rel="noopener noreferrer" data-page="interest-principal">
-          <span class="card-num">05</span>
-          <h3>Calculation of Interest on Principal</h3>
-          <p>Interest on principal with FIFO allocation, compounding, rate schedules, moratorium handling, and export.</p>
-          <span class="card-badge">Linked</span>
-          <span class="card-arrow">→</span>
-        </a>
+          <a class="card" href="pages/payment-details.html" target="_blank" rel="noopener noreferrer" data-page="payment-details">
+            <span class="card-num">04</span>
+            <h3>Payment Details &amp; Revenue Share Due Calculation</h3>
+            <p>Record payments, reconcile against dues, and calculate the revenue share payable with interest adjustments.</p>
+            <span class="card-arrow">→</span>
+            <span class="card-badge">Linked</span>
+            <span class="card-arrow">→</span>
+          </a>
 
-        <!-- 06 — linked to the provided interest calculator, renamed to interest-penalty.html -->
-        <a class="card" href="pages/interest-penalty.html" target="_blank" rel="noopener noreferrer" data-page="interest-penalty">
-          <span class="card-num">06</span>
-          <h3>Calculation of Interest on Penalty</h3>
-          <p>Compute interest on penalty amounts with the same statutory engine, rate changes, and payment waterfall.</p>
-          <span class="card-arrow">→</span>
-          <span class="card-badge">Linked</span>
-          <span class="card-arrow">→</span>
-        </a>
+          <!-- 05 — linked to the provided interest calculator, renamed to interest-principal.html -->
+          <a class="card" href="pages/interest-principal.html" target="_blank" rel="noopener noreferrer" data-page="interest-principal">
+            <span class="card-num">05</span>
+            <h3>Calculation of Interest on Principal</h3>
+            <p>Interest on principal with FIFO allocation, compounding, rate schedules, moratorium handling, and export.</p>
+            <span class="card-badge">Linked</span>
+            <span class="card-arrow">→</span>
+          </a>
 
-        <a class="card" href="pages/summary.html" target="_blank" rel="noopener noreferrer" data-page="summary">
-          <span class="card-num">07</span>
-          <h3>Summary</h3>
-          <p>Consolidated view of AGR, SUC, payments, interest on principal and penalty — with print and export options.</p>
-          <span class="card-arrow">→</span>
-          <span class="card-badge">Linked</span>
-          <span class="card-arrow">→</span>
-        </a>
+          <!-- 06 — linked to the provided interest calculator, renamed to interest-penalty.html -->
+          <a class="card" href="pages/interest-penalty.html" target="_blank" rel="noopener noreferrer" data-page="interest-penalty">
+            <span class="card-num">06</span>
+            <h3>Calculation of Interest on Penalty</h3>
+            <p>Compute interest on penalty amounts with the same statutory engine, rate changes, and payment waterfall.</p>
+            <span class="card-arrow">→</span>
+            <span class="card-badge">Linked</span>
+            <span class="card-arrow">→</span>
+          </a>
 
+          <a class="card" href="pages/summary.html" target="_blank" rel="noopener noreferrer" data-page="summary">
+            <span class="card-num">07</span>
+            <h3>Summary</h3>
+            <p>Consolidated view of AGR, SUC, payments, interest on principal and penalty — with print and export options.</p>
+            <span class="card-arrow">→</span>
+            <span class="card-badge">Linked</span>
+            <span class="card-arrow">→</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- ========== OTHER PLACEHOLDER VIEWS ========== -->
+      <div id="view-load-part" class="view-container" style="display: none;">
+        <div class="panel" style="padding: 40px; text-align: center; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
+          <h2>Load Part Assessment</h2>
+          <p style="color: var(--ink-soft);">This is a placeholder for the Load Part Assessment module.</p>
+        </div>
+      </div>
+
+      <div id="view-load-load" class="view-container" style="display: none;">
+        <div class="panel" style="padding: 40px; text-align: center; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
+          <h2>Load Assessment</h2>
+          <p style="color: var(--ink-soft);">This is a placeholder for the Load Assessment module.</p>
+        </div>
+      </div>
+
+      <div id="view-settings" class="view-container" style="display: none;">
+        <div class="panel" style="padding: 40px; text-align: center; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
+          <h2>Settings</h2>
+          <p style="color: var(--ink-soft);">Application settings will appear here.</p>
+        </div>
+      </div>
+
+      <div id="view-deduction-verification" class="view-container" style="display: none;">
+        <div class="panel" style="padding: 40px; text-align: center; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
+          <h2>Deduction Verification</h2>
+          <p style="color: var(--ink-soft);">Select an option from the submenu.</p>
+        </div>
       </div>
 
       <footer>
@@ -1087,8 +1210,6 @@
         var body         = document.body;
         var sidebar      = document.getElementById('sidebar');
         var toggle       = document.getElementById('sbToggle');
-        var deductionGrp = document.getElementById('deductionGroup');
-        var deductionBtn = document.getElementById('deductionBtn');
         var mq           = window.matchMedia('(max-width: 760px)');
 
         if (!sidebar || !toggle) return;
@@ -1122,23 +1243,41 @@
           } else {
             var collapsed = body.classList.toggle('sb-collapsed');
             // close the inline submenu when collapsing so the rail stays tidy
-            if (collapsed && deductionGrp) {
-              deductionGrp.classList.remove('open');
-              if (deductionBtn) deductionBtn.setAttribute('aria-expanded', 'false');
+            if (collapsed) {
+              document.querySelectorAll('.nav-group').forEach(function(grp) {
+                grp.classList.remove('open');
+                var btn = grp.querySelector(':scope > .nav-item');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+              });
             }
             try { localStorage.setItem('UPSARAS_sidebar', collapsed ? 'collapsed' : 'expanded'); } catch (e) {}
           }
           syncToggle();
         });
 
-        // Deduction Verification submenu
-        // (inline when expanded / on narrow screens; flyout on hover when collapsed)
-        if (deductionBtn && deductionGrp) {
-          deductionBtn.addEventListener('click', function() {
-            var open = deductionGrp.classList.toggle('open');
-            deductionBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-          });
-        }
+        // Submenu toggle (Generic for all groups)
+        var navGroups = document.querySelectorAll('.nav-group');
+        navGroups.forEach(function(group) {
+          var btn = group.querySelector(':scope > .nav-item');
+          if (btn && btn.tagName.toLowerCase() === 'button') {
+            btn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              var isOpen = group.classList.toggle('open');
+              btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+              
+              if (!isOpen) {
+                // Close child groups
+                group.querySelectorAll('.nav-group').forEach(function(subGroup) {
+                  subGroup.classList.remove('open');
+                  var subBtn = subGroup.querySelector(':scope > .nav-item');
+                  if (subBtn) subBtn.setAttribute('aria-expanded', 'false');
+                });
+              }
+            });
+          }
+        });
 
         // Narrow screens: close the slide-down menu on outside click or Escape
         document.addEventListener('click', function(e) {
@@ -1163,6 +1302,75 @@
         else if (mq.addListener) mq.addListener(onViewportChange);
 
         syncToggle();
+      })();
+
+      /* ============================================================
+         VIEW SWITCHING LOGIC
+         ============================================================ */
+      (function viewSwitcher() {
+        var viewContainers = document.querySelectorAll('.view-container');
+        var navLinks = document.querySelectorAll('[data-view]');
+        var navItems = document.querySelectorAll('.nav-item');
+
+        function switchView(viewId) {
+          // Hide all views
+          viewContainers.forEach(function(c) { 
+            c.style.display = 'none'; 
+            c.classList.remove('active');
+          });
+          
+          // Show selected view
+          var target = document.getElementById('view-' + viewId);
+          if (target) {
+            target.style.display = 'block';
+            target.classList.add('active');
+          }
+
+          // Update active state on sidebar
+          navItems.forEach(function(btn) {
+            btn.classList.remove('active');
+            btn.removeAttribute('aria-current');
+          });
+          
+          var activeLink = document.querySelector('[data-view="' + viewId + '"]');
+          if (activeLink) {
+            activeLink.classList.add('active');
+            activeLink.setAttribute('aria-current', 'page');
+          }
+        }
+
+        navLinks.forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            // Only handle links or buttons that are not nav-group toggles
+            if (this.tagName.toLowerCase() === 'a' || !this.hasAttribute('aria-controls')) {
+                e.preventDefault();
+                var viewId = this.getAttribute('data-view');
+                if (viewId) {
+                    switchView(viewId);
+                    if (window.location.hash !== '#' + viewId) {
+                        history.pushState(null, null, '#' + viewId);
+                    }
+                    
+                    // On narrow screens, close the menu after selection
+                    if (window.matchMedia('(max-width: 760px)').matches) {
+                      document.body.classList.remove('menu-open');
+                      document.getElementById('sbToggle').setAttribute('aria-expanded', 'false');
+                      document.getElementById('sbToggle').setAttribute('aria-label', 'Open menu');
+                    }
+                }
+            }
+          });
+        });
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', function() {
+          var viewId = window.location.hash ? window.location.hash.replace('#', '') : 'dashboard';
+          switchView(viewId);
+        });
+
+        // Ensure the initial view matches the hash or default to dashboard
+        var initialView = window.location.hash ? window.location.hash.replace('#', '') : 'dashboard';
+        switchView(initialView);
       })();
 
       /* ============================================================
