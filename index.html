@@ -940,6 +940,7 @@
           <ul class="submenu" id="sucSub">
             <li class="flyout-title" aria-hidden="true">SUC Assessment</li>
             
+            <!-- NEW ASSESSMENT -->
             <li class="nav-group" id="newAssessGroup">
               <button type="button" class="nav-item" id="newAssessBtn" aria-expanded="false" aria-controls="newAssessSub">
                 <span class="label">New Assessment</span>
@@ -947,27 +948,19 @@
               </button>
               <ul class="submenu" id="newAssessSub">
                 <li>
-                  <a class="nav-item" href="#part-assessment" data-view="part-assessment">
-                    <span class="label">Part Assessment</span>
+                  <a class="nav-item" href="#complete-assessment-new" data-view="complete-assessment-new">
+                    <span class="label">Complete Assessment</span>
                   </a>
                 </li>
-                <li class="nav-group" id="newLoadAssessGroup">
-                  <button type="button" class="nav-item" id="newLoadAssessBtn" aria-expanded="false" aria-controls="newLoadAssessSub">
-                    <span class="label">Load Assessment</span>
-                    <svg class="caret" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
-                  </button>
-                  <ul class="submenu" id="newLoadAssessSub">
-                    <li>
-                       <a class="nav-item" href="#load-part" data-view="load-part">Part Assessment</a>
-                    </li>
-                    <li>
-                       <a class="nav-item" href="#load-load" data-view="load-load">Load Assessment</a>
-                    </li>
-                  </ul>
+                <li>
+                  <a class="nav-item" href="#part-assessment-new" data-view="part-assessment-new">
+                    <span class="label">Part Assessment</span>
+                  </a>
                 </li>
               </ul>
             </li>
 
+            <!-- LOAD ASSESSMENT -->
             <li class="nav-group" id="loadAssessGroup">
               <button type="button" class="nav-item" id="loadAssessBtn" aria-expanded="false" aria-controls="loadAssessSub">
                 <span class="label">Load Assessment</span>
@@ -975,10 +968,14 @@
               </button>
               <ul class="submenu" id="loadAssessSub">
                 <li>
-                   <a class="nav-item" href="#load-part" data-view="load-part">Part Assessment</a>
+                  <a class="nav-item" href="#complete-assessment-load" data-view="complete-assessment-load">
+                    <span class="label">Complete Assessment</span>
+                  </a>
                 </li>
                 <li>
-                   <a class="nav-item" href="#load-load" data-view="load-load">Load Assessment</a>
+                  <a class="nav-item" href="#part-assessment-load" data-view="part-assessment-load">
+                    <span class="label">Part Assessment</span>
+                  </a>
                 </li>
               </ul>
             </li>
@@ -1064,8 +1061,8 @@
         </div>
       </div>
 
-      <!-- ========== PART ASSESSMENT VIEW (The 7 Cards) ========== -->
-      <div id="view-part-assessment" class="view-container" style="display: none;">
+      <!-- ========== NEW PART ASSESSMENT VIEW (The 7 Cards) ========== -->
+      <div id="view-part-assessment-new" class="view-container" style="display: none;">
         <div class="cards-grid" id="cardsGrid">
 
           <a class="card" href="pages/agr-suc.html" target="_blank" rel="noopener noreferrer" data-page="agr-suc">
@@ -1136,17 +1133,24 @@
       </div>
 
       <!-- ========== OTHER PLACEHOLDER VIEWS ========== -->
-      <div id="view-load-part" class="view-container" style="display: none;">
+      <div id="view-complete-assessment-new" class="view-container" style="display: none;">
         <div class="panel" style="padding: 40px; text-align: center; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
-          <h2>Load Part Assessment</h2>
-          <p style="color: var(--ink-soft);">This is a placeholder for the Load Part Assessment module.</p>
+          <h2>New Complete Assessment</h2>
+          <p style="color: var(--ink-soft);">This is a placeholder for the New Complete Assessment module.</p>
         </div>
       </div>
 
-      <div id="view-load-load" class="view-container" style="display: none;">
+      <div id="view-complete-assessment-load" class="view-container" style="display: none;">
         <div class="panel" style="padding: 40px; text-align: center; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
-          <h2>Load Assessment</h2>
-          <p style="color: var(--ink-soft);">This is a placeholder for the Load Assessment module.</p>
+          <h2>Load Complete Assessment</h2>
+          <p style="color: var(--ink-soft);">This is a placeholder for the Load Complete Assessment module.</p>
+        </div>
+      </div>
+
+      <div id="view-part-assessment-load" class="view-container" style="display: none;">
+        <div class="panel" style="padding: 40px; text-align: center; background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius);">
+          <h2>Load Part Assessment</h2>
+          <p style="color: var(--ink-soft);">This is a placeholder for the Load Part Assessment module.</p>
         </div>
       </div>
 
